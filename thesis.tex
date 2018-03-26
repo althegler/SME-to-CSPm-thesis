@@ -1,0 +1,105 @@
+\documentclass[a4paper]{article}
+
+\usepackage[latin1]{inputenc}
+\usepackage{palatino}
+\usepackage[usenames]{color}
+
+\usepackage{hyperref}
+
+\usepackage{chngpage}
+\usepackage{graphicx}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+
+\usepackage[]{algorithm2e}
+\usepackage{varwidth}
+
+\usepackage{setspace}
+\usepackage{hyperref}
+
+\usepackage{todonotes}
+
+
+\usepackage[babel, en, nat, farve, titelside]{ku-forside}
+
+% (asbjoern commando: nbuf command)
+% \newcommand{\nbuf}{\textit{nbuf} }
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\lhead{Alberte Thegler}
+\chead{Master's Thesis}
+\rhead{August 2018}
+
+\renewcommand{\headrulewidth}{0.4pt} % thickness of line at header
+\renewcommand{\footrulewidth}{0.4pt} % thickness of line at footer
+\setlength{\belowcaptionskip}{-10pt} % space below captions
+
+
+\opgave{Master's Thesis}
+\title{Towards formal verification of FDR4}
+\undertitel{Department of Computer Science}
+\author{Alberte Thegler - alberte@thegler.dk}
+\date{August 2018}
+\vejleder{Professor Brian Vinter}
+
+\begin{document}
+
+\maketitle
+
+\pagenumbering{roman}
+\begin{abstract}
+\begin{doublespace}
+Bla bla 
+bla bla
+
+
+\end{doublespace}
+\end{abstract}
+
+
+
+\newpage
+\tableofcontents
+
+\newpage
+\listoftodos
+\newpage
+\pagenumbering{arabic}
+\section{Introduction}
+When we create programs, we wish to verify that it is also correct. There are several ways to do this, one commenly used is \texttt{testing} which require that the programmer creates several different scenarios and its expected output, or that the programmer programs a test-generator to create the scenarios and expected output. This, however, is not adequate for (word for important systens). Therefore it is of high interest to create a verification of the system or program.\\
+Talk about how verification was first created and how it became to be used for concurrent systems. Then write about how it works and then write about the different systems and formal languages that is used for it. 
+
+
+In this thesis we look at model checking, that is, verifying that a specific property will always hold for a piece of code.
+\section{Related work}
+\textbf{Related work should be about describing the history of formal verification and formal languages in both software and hardware.}
+Formal verification is the process of checking whether a program satisfies specific properties. 
+\subsection{Software Verification}
+Several different software verification tools exists today, and they all have different advantages.
+\subsubsection*{SPIN}
+SPIN \todo{Add reference to SPIN} is a verification system that uses process interactions to prove correctness for a system. The system is described in the formal language \texttt{PROMELA}(PROcess MEta LAnguage)\todo{add reference to promela} and the correctness properties are spcified in Linear Temporal Logic or LTL \todo{add reference to Linear Temporal Logic}. Spin was developed at Bell Labs, starting in 1980. Since 1991 it has been freely available and today it is used by thousands of people worldwide.\\
+The job is to find other types of models and compare them, as well as the types of languages. so different tools and different languages.. 
+
+Occam-pi is a programming language that came from occam and was merged with pi-calculus. 
+
+\subsection{Hardware Verification}
+The job here is to find some examples of stuff that is relevant to SME and then see how I can compare them. 
+\section{Theory}
+
+\section{Implementation}
+
+\section{Testing}
+
+\section{Conclusion}
+
+\section{Future Work}
+
+
+\newpage
+\bibliographystyle{abbrv}
+\bibliography{bib}
+
+\end{document}
