@@ -1,4 +1,4 @@
-\documentclass[a4paper]{article}
+\documentclass[a4paper]{report}
 
 \usepackage[latin1]{inputenc}
 \usepackage{palatino}
@@ -68,41 +68,46 @@ bla bla
 \listoftodos
 \newpage
 \pagenumbering{arabic}
-\section{Introduction}
+\chapter{Introduction}
 When we create programs, we wish to verify that it is also correct. There are several ways to do this, one commenly used is \texttt{testing} which require that the programmer creates several different scenarios and its expected output, or that the programmer programs a test-generator to create the scenarios and expected output. This, however, is not adequate for (word for important systens). Therefore it is of high interest to create a verification of the system or program.\\
 Talk about how verification was first created and how it became to be used for concurrent systems. Then write about how it works and then write about the different systems and formal languages that is used for it. 
 
 
 In this thesis we look at model checking, that is, verifying that a specific property will always hold for a piece of code.
-\section{Related work}
-\textbf{Related work should be about describing the history of formal verification and formal languages in both software and hardware.}
+
+
 Formal verification is the process of checking whether a program satisfies specific properties. Different methods have evolved, all having different advantages and disadvantages. FDR is sometimes referred to as a model checker however is it actually a refinement checker. 
+\section{Learning goals}
+This is where the learning goals go.
+\chapter{Related work}
+\textbf{Related work should be about describing the history of formal verification and formal languages in both software and hardware.}
+
+In 1969, Tony Hoare proposed the Hoare logic\cite{Hoare1969} as a formal system that can reason about the correctness of computer programs by using a set of logical rules. A lot of verification systems used today is based on Hoare logic. Hoare was much inpired by Robert W. Floyd, who a few years before had published his paper \textit{Assigning meaning to programs}\cite{Floyd1967} where he created a system for flowcharts that had similar functionality. \todo{Describe Hoare in detail and why it was used and why he could use floyds work on flowcharts.
+Several different software verification tools exists today, and they all have different advantages.}
 
 
-In 1969, Tony Hoare proposed the Hoare logic\cite{Hoare1969} which is a formal system that can reason about the correctness of computer programs by using a set of logical rules. A lot of verification systems used today is based on Hoare logic. Hoare was much inpired by Robert W. Floyd, who a few years before had published his paper \textit{Assigning meaning to programs}\cite{Floyd1967} where he created a system for flowcharts that had similar functionality.
-\subsection{Software Verification}
-Several different software verification tools exists today, and they all have different advantages.
-\subsubsection*{SPIN}
+
+
 SPIN \todo{Add reference to SPIN} is a verification system that uses process interactions to prove correctness for a system. The system is described in the formal language \texttt{PROMELA}(PROcess MEta LAnguage)\todo{add reference to promela} and the correctness properties are spcified in Linear Temporal Logic or LTL \todo{add reference to Linear Temporal Logic}. Spin was developed at Bell Labs, starting in 1980. Since 1991 it has been freely available and today it is used by thousands of people worldwide.\\
 The job is to find other types of models and compare them, as well as the types of languages. so different tools and different languages.. 
 
 Occam-pi is a programming language that came from occam and was merged with pi-calculus. 
 
-\subsection{Hardware Verification}
-The job here is to find some examples of stuff that is relevant to SME and then see how I can compare them. 
-\section{Theory}
 
-\section{Implementation}
+\chapter{Theory}
+\textbf{This is where the theory go. fx. SME and the correlation between that and CSP.}
+\chapter{Method}
+\textbf{This is the method section that describes what I did, how and why.}
+\chapter{Results and tests (Experiment?)}
+\textbf{Does it work? why, why not}
+\chapter{Discussion}
 
-\section{Testing}
-
-\section{Conclusion}
-
-\section{Future Work}
-
+\chapter{Conclusion}
+\section{Future work}
 
 \newpage
 \bibliographystyle{abbrv}
 \bibliography{library}
 
+\section{Appendix}
 \end{document}
