@@ -76,14 +76,21 @@ Talk about how verification was first created and how it became to be used for c
 In this thesis we look at model checking, that is, verifying that a specific property will always hold for a piece of code.
 
 
-Formal verification is the process of checking whether a program satisfies specific properties. Different methods have evolved, all having different advantages and disadvantages. FDR is sometimes referred to as a model checker however is it actually a refinement checker. 
+Formal verification is the process of checking whether a program satisfies specific properties. Different methods have evolved, all having different advantages and disadvantages. FDR is sometimes referred to as a model checker however is it actually a refinement checker.
+
+
+
+\textbf{Matematicians tend to reject proofs by exhaustive checking of all cases as being less satisfying than deductive proofs, and with good reason. First, they are not applicable for proving theorems about integers and real numbers, which are infinite domains so that the number of interpretations is infinite and they cannot be exhaustively checked. Second, they offer no insight into why a theorem is true. But computer scientists have more practical concerns. If they can check all computations of a program and show that they all satisfy a correctness property, we will be willing to forego elegance and be more than satisfied that our program has been proven correct. (from "A primer on model checking af Ben-Ari} 
 \section{Learning goals}
 This is where the learning goals go.
 \chapter{Related work}
 \textbf{Related work should be about describing the history of formal verification and formal languages in both software and hardware.}
 
-In 1969, Tony Hoare proposed the Hoare logic\cite{Hoare1969} as a formal system that can reason about the correctness of computer programs by using a set of logical rules. A lot of verification systems used today is based on Hoare logic. Hoare was much inpired by Robert W. Floyd, who a few years before had published his paper \textit{Assigning meaning to programs}\cite{Floyd1967} where he created a system for flowcharts that had similar functionality. \todo{Describe Hoare in detail and why it was used and why he could use floyds work on flowcharts.
-Several different software verification tools exists today, and they all have different advantages.}
+In 1969, Tony Hoare proposed the Hoare logic\cite{Hoare1969} in his paper \textit{An axiomtic basis for computer programming}. He proposed that a program could be viewed as a  
+partial correctness relation between a precondition and a postcondition predicate. This means that if the state the program starts in satisfies the precondition and it terminates, then the final state satisfies the postcondition.\\ Hoare was much inspired by Robert W. Floyd, who had published his paper \textit{Assigning meaning to programs}\cite{Floyd1967} a few years before. The paper described a method for proving the partial correctness of a program by using flowcharts and Hoare's logic provided a good way of formulating Floyd's method.
+
+A lot of verification systems used today is based on Hoare logic. Hoare was much inpired by Robert W. Floyd, who a few years before had published 
+Several different software verification tools exists today, and they all have different advantages.
 
 
 
@@ -92,6 +99,13 @@ SPIN \todo{Add reference to SPIN} is a verification system that uses process int
 The job is to find other types of models and compare them, as well as the types of languages. so different tools and different languages.. 
 
 Occam-pi is a programming language that came from occam and was merged with pi-calculus. 
+
+
+\textbf{The two most popular methods for automatic formal verification are language containment and model checking. The current version of VIS emphasizes model checking, but it also offers to the user a limited form of language containment (language emptiness)." from https://embedded.eecs.berkeley.edu/research/vis/doc/VisUser/vis\_user/node4.html}
+
+
+
+
 
 
 \chapter{Theory}
