@@ -80,29 +80,36 @@ Formal verification is the process of checking whether a program satisfies speci
 
 
 
-\textbf{Matematicians tend to reject proofs by exhaustive checking of all cases as being less satisfying than deductive proofs, and with good reason. First, they are not applicable for proving theorems about integers and real numbers, which are infinite domains so that the number of interpretations is infinite and they cannot be exhaustively checked. Second, they offer no insight into why a theorem is true. But computer scientists have more practical concerns. If they can check all computations of a program and show that they all satisfy a correctness property, we will be willing to forego elegance and be more than satisfied that our program has been proven correct. (from "A primer on model checking af Ben-Ari} 
+\textbf{Matematicians tend to reject proofs by exhaustive checking of all cases as being less satisfying than deductive proofs, and with good reason. First, they are not applicable for proving theorems about integers and real numbers, which are infinite domains so that the number of interpretations is infinite and they cannot be exhaustively checked. Second, they offer no insight into why a theorem is true. But computer scientists have more practical concerns. If they can check all computations of a program and show that they all satisfy a correctness property, we will be willing to forego elegance and be more than satisfied that our program has been proven correct. (from "A primer on model checking af Ben-Ari} \cite{Ben-ari2010}
 \section{Learning goals}
 This is where the learning goals go.
 \chapter{Related work}
-\textbf{Related work should be about describing the history of formal verification and formal languages in both software and hardware.}
-
-In 1969, Tony Hoare proposed the Hoare logic\cite{Hoare1969} in his paper \textit{An axiomtic basis for computer programming}. He proposed that a program could be viewed as a  
-partial correctness relation between a precondition and a postcondition predicate. This means that if the state the program starts in satisfies the precondition and it terminates, then the final state satisfies the postcondition.\\ Hoare was much inspired by Robert W. Floyd, who had published his paper \textit{Assigning meaning to programs}\cite{Floyd1967} a few years before. The paper described a method for proving the partial correctness of a program by using flowcharts and Hoare's logic provided a good way of formulating Floyd's method.
-
-A lot of verification systems used today is based on Hoare logic. Hoare was much inpired by Robert W. Floyd, who a few years before had published 
-Several different software verification tools exists today, and they all have different advantages.
+In this chapter we will discuss previous work that has lead formal verification to what it is today. We will also discuss different tools and languages that are used today and the differences between them. \\\\
+In 1967 Robert W. Floyd was published with his paper \textit{Assigning meaning to programs}\cite{Floyd1967}. In his paper he provide a basis for formal definitions of the meaning of programs which can be used for proving correctness, equvalence and termination. He uses flowcharts to argue that when a command is reached all previous commands will have been true as well.\\\\
+C.A.R Hoare was inspired by Floyd and in 1969 his paper \textit{An axiomtic basis for computer programming}\cite{Hoare1969} was published. He builds on Floyds ideas and proposed that program could be viewed as a partial correctness relation between a precondition and a postcondition predicate. This means that if the state the program starts in satisfies the precondition and it terminates, then the final state satisfies the postcondition. In 1972 his paper \textit{Towards a Theory of Parallel Programming}\todo{download file and make citation} was published and in 1978 his paper \textit{Communicating Sequential Processes} was published. CSP was born and have been widely used and have also been expanded since Hoare initially described it in 1978\todo{Citation to Communicating Sequential Processes: The first 25 years}.\\\\
+The porgramming language Occam, which was first released in 1983, is a concurrent programming language that builds on the Communicating Sequential Processes process algebra. Occam developed over the years and the Kent Retargetable occam Compiler (KRoC) team at Kent University created the Occam-$\pi$ variant of the occam programming language. It is a version that extends the idas of CSP in the original occam language but adding mobility features from the pi-calculus. On the KRoC webpage they describe the reason to include functionality from pi-calculus; \textit{"Specifically, we want to allow networks of processes to evolve, to change their topologies, to cope with growth and decay without losing semantic or structural integrity. We want to address the mobility of processes, channels and data and understand the relationships between these ideas. We want to retain the ability to reason about such systems, preserving the concept of refinement."}\footnote{https://www.cs.kent.ac.uk/projects/ofa/kroc/ access date: 3/4/18}
 
 
 
-
-SPIN \todo{Add reference to SPIN} is a verification system that uses process interactions to prove correctness for a system. The system is described in the formal language \texttt{PROMELA}(PROcess MEta LAnguage)\todo{add reference to promela} and the correctness properties are spcified in Linear Temporal Logic or LTL \todo{add reference to Linear Temporal Logic}. Spin was developed at Bell Labs, starting in 1980. Since 1991 it has been freely available and today it is used by thousands of people worldwide.\\
-The job is to find other types of models and compare them, as well as the types of languages. so different tools and different languages.. 
-
-Occam-pi is a programming language that came from occam and was merged with pi-calculus. 
-
-
-\textbf{The two most popular methods for automatic formal verification are language containment and model checking. The current version of VIS emphasizes model checking, but it also offers to the user a limited form of language containment (language emptiness)." from https://embedded.eecs.berkeley.edu/research/vis/doc/VisUser/vis\_user/node4.html}
-
+%\textbf{Related work should be about describing the history of formal verification and formal languages in both software and hardware.}
+%
+%In 1969, Tony Hoare proposed the Hoare logic\cite{Hoare1969} in his paper \textit{An axiomtic basis for computer programming}. He proposed that a program could be viewed as a  
+%partial correctness relation between a precondition and a postcondition predicate. This means that if the state the program starts in satisfies the precondition and it terminates, then the final state satisfies the postcondition.\\ Hoare was much inspired by Robert W. Floyd, who had published his paper \textit{Assigning meaning to programs}\cite{Floyd1967} a few years before. The paper described a method for proving the partial correctness of a program by using flowcharts and Hoare's logic provided a good way of formulating Floyd's method.
+%
+%A lot of verification systems used today is based on Hoare logic. Hoare was much inpired by Robert W. Floyd, who a few years before had published 
+%Several different software verification tools exists today, and they all have different advantages.
+%
+%
+%
+%
+%SPIN \todo{Add reference to SPIN} is a verification system that uses process interactions to prove correctness for a system. The system is described in the formal language \texttt{PROMELA}(PROcess MEta LAnguage)\todo{add reference to promela} and the correctness properties are spcified in Linear Temporal Logic or LTL \todo{add reference to Linear Temporal Logic}. Spin was developed at Bell Labs, starting in 1980. Since 1991 it has been freely available and today it is used by thousands of people worldwide.\\
+%The job is to find other types of models and compare them, as well as the types of languages. so different tools and different languages.. 
+%
+%Occam-pi is a programming language that came from occam and was merged with pi-calculus. 
+%
+%
+%\textbf{The two most popular methods for automatic formal verification are language containment and model checking. The current version of VIS emphasizes model checking, but it also offers to the user a limited form of language containment (language emptiness)." from https://embedded.eecs.berkeley.edu/research/vis/doc/VisUser/vis\_user/node4.html}
+%
 
 
 
@@ -110,6 +117,7 @@ Occam-pi is a programming language that came from occam and was merged with pi-c
 
 \chapter{Theory}
 \textbf{This is where the theory go. fx. SME and the correlation between that and CSP.}
+\section{Hoare's logic}
 \chapter{Method}
 \textbf{This is the method section that describes what I did, how and why.}
 \chapter{Results and tests (Experiment?)}
