@@ -1,3 +1,6 @@
+## My own additions:
+*.bib
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof

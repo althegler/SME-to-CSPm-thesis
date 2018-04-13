@@ -26,6 +26,9 @@
 % (asbjoern commando: nbuf command)
 % \newcommand{\nbuf}{\textit{nbuf} }
 
+\newcommand{\cspm}{CSP$_M$}
+
+
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 
@@ -88,14 +91,35 @@ In this chapter we will discuss previous work that has lead formal verification 
 In 1967 Robert W. Floyd was published with his paper \textit{Assigning meaning to programs}\cite{Floyd1967}. In his paper he provide a basis for formal definitions of the meaning of programs which can be used for proving correctness, equvalence and termination. He uses flowcharts to argue that when a command is reached all previous commands will have been true as well.\\\\
 C.A.R Hoare was inspired by Floyd and in 1969 his paper \textit{An axiomtic basis for computer programming}\cite{Hoare1969} was published. With his \textit{Hoare's logic}, he builds on Floyd's ideas and proposed that program could be viewed as a partial correctness relation between a precondition and a postcondition predicate. This means that if the state the program starts in satisfies the precondition and it terminates, then the final state satisfies the postcondition. L. Lamport expended Hoare's logic to concurrent programs in his paper \textit{The 'Hoare logic' of concurrent programs}\cite{Lamport1980}. He argues why Hoare's logic as proposed by C.A.R Hoare does not work for concurrent programs and proposes a "generalized Hoare's logic" that takes concurrency into account. \todo{Figure out if Hoare used this information/update in his work with CSP. I am not sure if CSP work on Hoare logic? }\\\\
 In 1972 his paper \textit{Towards a Theory of Parallel Programming}\todo{download file and make citation - I have not been able to find a free version of this paper} was published and in 1978 his paper \textit{Communicating Sequential Processes} was published. CSP was born and have been widely used and have also been expanded since Hoare initially described it in 1978\todo{Citation to Communicating Sequential Processes: The first 25 years}. The first version of CSP was mostly a concurrent programming language and later, Brookes, Hoare and Roscoe\cite{Brookes1984} continued the work on CSP and created the modern process algebra it is today, only a few minor changes have been made to CSP since then, and they are described in Roscoe's \textit{The Theory and Practice of Concurrency}\cite{Roscoe1997}\\\\
+A number of tools have been created to analyse, verify and understand CSP written systems. In order to use these tools along with CSP, different types of machine-readble CSP syntaxes have been created over the years, but most of todays CSP tools use a version of machine-readble CSP calles \cspm which was created by Scattergood\cite{Scattergood1998}. Since CSP was mostly a blackboard language, Scattergood created a combination of the standard CSP and a functional programming language which created a better baseline for tools to work with CSP. One of the most known CSP tool is the Failure-Divergence Refinement (FDR), build by Formal Systems (Europe) Ltd., which is currently at version 4.2.3\cite{fdr}. FDR is a refinement checker which differs from a lot of other CSP tools that are merely model checkers. FDR only work on finite-state processes.\todo{Figure out the precise difference between refinement and model checking}.\\ 
+
+ProBE (Process Behaviour Explorer)\cite{probe} \todo{Why can't I find any more information about ProBE?} is a tool to animate CSP in order to explore the state space of CSP processes, and can even handle infinite state. ProBE is based on the same CSPM version as FDR and ProBE have also been created by Formal Systems (Europe) Ltd that also created FDR. \todo{This might not be relevant since it does not actually verify anything}
+
+The Adelaide Refinement Checker (ARC)\cite{Parashkevov1996} is a automatic verification tool for untimed CSP. It represents the internal representation by using Ordered Binary Decision Diagrams (OBDDs). This lessen the state explosion problem that other model checkers have with LTS representations. \todo{It might use another type of CSP}  \\ 
+
+The ProB project\cite{ProB} is originally a constraint solver and model checker for the B-Method but it also supports other languages like Z and \cspm. ProB can also be used for automated refinement checking and LTL model checking. ProB can work with some \cspm on its own or it can be used to verify combined \cspm and B specifications. \\
+
+J. Sun, Y.Liu, J.Dong et al. present the Process Analysis Toolkit (PAT)\todo{Cite the webside} in their 2009 paper\cite{Sun2009}. PAT is a CSP analysis tool that can perform LTL model checking, refinement checking and simulation of CSP and Timed CSP processes. \textbf{\textit{http://www.cs.ox.ac.uk/ucs/CSPtools.html} claims that Pat uses a liberal version of CSP and not according to the original semantics. PAT apparently supports shared variables, which the original CSP does }\\
+
+SSG is a parallel refinement checker based on CSP. It can do refinement checks, deadlock checks and divergence checks. It can do parallel checking and therefore the time for verification is a lot smaller than with fx. FDR. \todo{I have had a hard time finding papers on this - are there no papers on it?}\\\\
+
+SyncStitch is a refinement checker also based on CSP. It can perform refinement, deadlock checks and livelock checks. In SyncStitch it is possible to model, simulate and check concurrent systems.  \todo{Find more about this as well https://www.principia-m.com/syncstitch/ - I can't seem to find any papers on this.}\\\\
+
+CSP-Prover\cite{Isobe2005} (https://staff.aist.go.jp/y-isobe/CSP-Prover/CSP-Prover.html) is a theorem prover which works on CSP and based on the theorem prover Isabelle. It is an entirely different way to check programs than model checking. It attempts to prove some general results based on specific theory. It is better at proving general results where FDR is better at proving combinatorial problems (Not sure if relevant)
 
 
 The programming language Occam, which was first released in 1983, is a concurrent programming language that builds on the Communicating Sequential Processes process algebra. Occam developed over the years and the Kent Retargetable occam Compiler (KRoC) team at Kent University created the Occam-$\pi$ variant of the occam programming language. It is a version that extends the idas of CSP in the original occam language but adding mobility features from pi-calculus. On the KRoC webpage they describe the reason to include functionality from pi-calculus; \textit{"Specifically, we want to allow networks of processes to evolve, to change their topologies, to cope with growth and decay without losing semantic or structural integrity. We want to address the mobility of processes, channels and data and understand the relationships between these ideas. We want to retain the ability to reason about such systems, preserving the concept of refinement."}\footnote{https://www.cs.kent.ac.uk/projects/ofa/kroc/ access date: 3/4/18}\\\\
-SPIN is a verification system that uses process interactions to prove correctness for a system. The system is described in the formal language \texttt{PROMELA}(PROcess MEta LAnguage)\cite{Holzmann1991} and the correctness properties are spcified in Linear Temporal Logic (LTL)\cite{Pnueli1977}. In the paper \textit{Reasoning About Infinite Computations}\cite{Vardi1994}, Vardi and Wolper showed that all LTL formulas can be translated into a B\"uchi automata which SPIN makes use of and thus converting the given LTL into a B\"uchi automaton.\\
-Spin was developed at Bell Labs, starting in 1980. Since 1991 it has been freely available and today it is used by thousands of people worldwide.\\Gerard J. Holzmann gives an introduction to the theoretical foundations, the design and structure and examples of applications in the paper \textit{The model checker SPIN}\cite{Holzmann1997}. SPIN was build on the pioneering work on logic model checking by Clarke and Emerson\cite{Clarke1981}, as well as Sifakis and Queille\cite{Queille1982}. Vardi and Wolper extended their work with an automata-theoretic approach to automatically verify programs\cite{Vardi1986}.\\\\
 
+SPIN\cite{spin} is a verification tool that uses process interactions to prove correctness for a system. The systems to be verified are described in the formal language \texttt{PROMELA}(PROcess MEta LAnguage)\cite{Holzmann1991} and the correctness properties are spcified in Linear Temporal Logic (LTL)\cite{Pnueli1977}. In the paper \textit{Reasoning About Infinite Computations}\cite{Vardi1994}, Vardi and Wolper showed that all LTL formulas can be translated into a B\"uchi automata which SPIN makes use of and thus converting the given LTL into a B\"uchi automaton. Spin performs verification on concurrent software and does not perform verfication on hardware circuits. \\
+Spin was developed at Bell Labs, starting in 1980. Gerard J. Holzmann gives an introduction to the theoretical foundations, the design and structure and examples of applications in the paper \textit{The model checker SPIN}\cite{Holzmann1997}. SPIN was build on the pioneering work on logic model checking by Clarke and Emerson\cite{Clarke1981}, as well as Sifakis and Queille\cite{Queille1982}. Vardi and Wolper extended their work with an automata-theoretic approach to automatically verify programs\cite{Vardi1986}.\\\\
 
-
+Another verification tool was developed as a collaboration between the Department of Information Technology at Uppsala University (UPP) in Sweden and the Department of Computer Science at Aalborg University (AAL) in Denmark. Larsen et al. first proposed the ideas for UPPAAL\cite{Larsen1995} in 1995 and further introduced it in \cite{Bengtsson1995}. 
+UPPAAL\cite{uppaal} is a verification tool for modeling, simulating and verifying real-time systems.
+It is based on the theory of timed automata\cite{Hopcroft2001}\cite{Alur1990} and typical systems to gain advantage of UPPAAL are systems where timing aspects are critical that communicate through channels or shared variables.
+As other model checkers, UPPAAL have a modelling language, wherein the system is specified, and a query language that is used to specify the properties to check against the system. The query language is a subset of CTL (computational tree logic) that work for real-time systems\cite{Henzinger1994} \cite{Larsen1995}. The model checking is done by checking the state-space by making a reachability analysis. The current version of UPPAAL is called UPPAAL2K and was first released in 1999\cite{Amnell2001}.
+\\
+There are several extensions available today, all with different focus. \\\\
+VHDL
 
 %\textbf{Related work should be about describing the history of formal verification and formal languages in both software and hardware.}
 %
@@ -117,7 +141,8 @@ Spin was developed at Bell Labs, starting in 1980. Since 1991 it has been freely
 %\textbf{The two most popular methods for automatic formal verification are language containment and model checking. The current version of VIS emphasizes model checking, but it also offers to the user a limited form of language containment (language emptiness)." from https://embedded.eecs.berkeley.edu/research/vis/doc/VisUser/vis\_user/node4.html}
 %
 
-
+WRIGHT\cite{Allen1997}\cite{Allen1997a} \todo{It would be worth to read more about this! They have done a bit of the same that I am to do in my thesis with auto generating \cspm}
+is an architecture description language which was developed at Carnegie Mellon University. They can auto generate \cspm code from WRIGHT and from there they can confirm certain properties by using FDR. http://www.cs.cmu.edu/~able/wright/
 
 
 
