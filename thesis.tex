@@ -92,7 +92,7 @@ Terac-25\\
 \section{Learning goals}
 This is where the learning goals go.
 \chapter{Related work}
-The concepts of formal verification began in 1967, when Robert W. Floyd was published with the paper \textit{Assigning meaning to programs}\cite{Floyd1967}. Floyd provided a basis for the formal definitions of the meaning of programs which can be used for proving correctness, equivalence and termination. By using flowcharts, he argues that when a command is reached, all previous commands will have been true as well.\\ C.A.R Hoare was inspired by Floyd and in 1969 his paper \textit{An axiomtic basis for computer programming}\cite{Hoare1969} was published. The logic he presented (later known as \textit{Hoare logic}), was build on Floyd's ideas and he proposed that a program could be viewed as a partial correctness relation between a precondition and a postcondition predicate. This means that if the state, the program starts in, satisfies the precondition and it terminates, then the final state satisfies the postcondition. Hoares logic have been the basis of a lot of different formal languages and have contributed to the continuous work on formally verifying programs. \todo{Maybe add more here about what uses Hoare logic today} \\ 
+The concepts of formal verification began in 1967, when Robert W. Floyd was published with the paper \textit{Assigning meaning to programs}\cite{Floyd1967}. Floyd provided a basis for the formal definitions of the meaning of programs which can be used for proving correctness, equivalence and termination. By using flowcharts, he argues that when a command is reached, all previous commands will have been true as well.\\ C.A.R Hoare was inspired by Floyd and in 1969 his paper \textit{An axiomtic basis for computer programming}\cite{Hoare1969} was published. The logic he presented (later known as \textit{Hoare logic}), was build on Floyd's ideas and he proposed the notation \textit{Partial correctness specification}; $\{P\} C \{Q\}$. Here, $C$ is a command and $P$ and $Q$ are conditions on the program variables in C. Hoare showed that whenever C is executed in a state that satisfies the condition $P$, and if the execution terminates, then the state that $C$ terminates in, will satisfy $Q$. Hoares logic have been the basis of a lot of different formal languages and have contributed to the continuous work on formally verifying programs. \todo{Maybe add more here about what uses Hoare logic today} \\ 
 
 
 
@@ -126,30 +126,45 @@ Spin was developed at Bell Labs, starting in 1980. Gerard J. Holzmann gives an i
 Another verification tool was developed as a collaboration between the Department of Information Technology at Uppsala University (UPP) in Sweden and the Department of Computer Science at Aalborg University (AAL) in Denmark. Larsen et al. first proposed the ideas for UPPAAL\cite{Larsen1995} in 1995 and further introduced it in \cite{Bengtsson1995}. 
 UPPAAL\cite{uppaal} is a verification tool for modeling, simulating and verifying real-time systems.
 It is based on the theory of timed automata\cite{Hopcroft2001}\cite{Alur1990} and typical systems to gain advantage of UPPAAL are systems where timing aspects are critical that communicate through channels or shared variables.
-As other model checkers, UPPAAL have a modelling language, wherein the system is specified, and a query language that is used to specify the properties to check against the system. The query language is a subset of CTL (computational tree logic) that work for real-time systems\cite{Henzinger1994} \cite{Larsen1995}. The model checking is done by checking the state-space by making a reachability analysis. The current version of UPPAAL is called UPPAAL2K and was first released in 1999\cite{Amnell2001}.
-\\
-There are several extensions available today, all with different focus. \\\\
-VHDL
+As other model checkers, UPPAAL have a modelling language, wherein the system is specified, and a query language that is used to specify the properties to check against the system. The query language is a subset of CTL (computational tree logic) that work for real-time systems\cite{Henzinger1994} \cite{Larsen1995}. The model checking is done by checking the state-space by making a reachability analysis. The current version of UPPAAL is called UPPAAL2K and was first released in 1999\cite{Amnell2001}. \\\\
 
-%\textbf{Related work should be about describing the history of formal verification and formal languages in both software and hardware.}
-%
-%In 1969, Tony Hoare proposed the Hoare logic\cite{Hoare1969} in his paper \textit{An axiomtic basis for computer programming}. He proposed that a program could be viewed as a  
-%partial correctness relation between a precondition and a postcondition predicate. This means that if the state the program starts in satisfies the precondition and it terminates, then the final state satisfies the postcondition.\\ Hoare was much inspired by Robert W. Floyd, who had published his paper \textit{Assigning meaning to programs}\cite{Floyd1967} a few years before. The paper described a method for proving the partial correctness of a program by using flowcharts and Hoare's logic provided a good way of formulating Floyd's method.
-%
-%A lot of verification systems used today is based on Hoare logic. Hoare was much inpired by Robert W. Floyd, who a few years before had published 
-%Several different software verification tools exists today, and they all have different advantages.
-%
-%
-%
-%
-%SPIN \todo{Add reference to SPIN} is a verification system that uses process interactions to prove correctness for a system. The system is described in the formal language \texttt{PROMELA}(PROcess MEta LAnguage)\todo{add reference to promela} and the correctness properties are spcified in Linear Temporal Logic or LTL \todo{add reference to Linear Temporal Logic}. Spin was developed at Bell Labs, starting in 1980. Since 1991 it has been freely available and today it is used by thousands of people worldwide.\\
-%The job is to find other types of models and compare them, as well as the types of languages. so different tools and different languages.. 
-%
-%Occam-pi is a programming language that came from occam and was merged with pi-calculus. 
-%
-%
-%\textbf{The two most popular methods for automatic formal verification are language containment and model checking. The current version of VIS emphasizes model checking, but it also offers to the user a limited form of language containment (language emptiness)." from https://embedded.eecs.berkeley.edu/research/vis/doc/VisUser/vis\_user/node4.html}
-%
+
+VHDL: (VHSIC - Very High Speed Integrated Circuit) HDL
+Initially sponsored by DoD as a hardware documentation standard in early 80s
+Transformed to IEEE and ratified it as IEEE standard 1176 in 19887 (Known as VHDL-87)
+Major modification in 93 (Known as VHDL-93)
+Continuously revised
+It is based on the Ada programming language. 
+
+Verilog: Introduced by Gateway Design Automation in 1985. Cadence Design Systems got the rights to Verilog-XL, the HDL simulator that would become the de-facto standard og Verilog simulator. Due to a request from the U.S Department of Defence, the development of VHDL came to be. 
+
+However, VHDL and Verilog share many of the same limitations: neither is suitable for analog or mixed-signal circuit simulation; neither possesses language constructs to describe recursively-generated logic structures. Specialized HDLs (such as Confluence) were introduced with the explicit goal of fixing specific limitations of Verilog and VHDL, though none were ever intended to replace them. (From WIKI)
+(From WIKI): Essential to HDL design is the ability to simulate HDL programs. Simulation allows an HDL description of a design (called a model) to pass design verification, an important milestone that validates the design's intended function (specification) against the code implementation in the HDL description. It also permits architectural exploration. The engineer can experiment with design choices by writing multiple variations of a base design, then comparing their behavior in simulation. Thus, simulation is critical for successful HDL design.
+
+
+Look at functional verification
+
+Look at Property Specification Language
+also look at SVA (two property languages that are derived from LTL) (used for Hardware)
+
+
+HDL include explicit notation for expressing concurrency as well as a notion of time.
+HDLs are used to write executable specifications for hardware.
+Because HDLs can be executed it gives the illusion of programming languages even though it is more of a specification language or modeling language.
+First HDLs in late 60's. C.Gordon Bell and Allan Newells text "Computer Structures" in 1971 - first to give a hdl with lasting effect. 
+
+(from 
+http://www.techdesignforums.com/practice/guides/formal-verification-guide/) "Equivalence checking has been used for more than a decade to check that RTL and gate-level descriptions of a design represent the same design"
+
+
+
+Take a look at Temporal logic model checking (As it is mentioned in the formal verification - evolution article)
+- Clarke et. al. CMU 1981
+- Sifakis et. al. Grenoble 1982
+and also look at 
+Symbolic model checking
+McMillan 1991
+SMV
 
 WRIGHT\cite{Allen1997}\cite{Allen1997a} \todo{It would be worth to read more about this! They have done a bit of the same that I am to do in my thesis with auto generating \cspm}
 is an architecture description language which was developed at Carnegie Mellon University. They can auto generate \cspm code from WRIGHT and from there they can confirm certain properties by using FDR. http://www.cs.cmu.edu/~able/wright/
