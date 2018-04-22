@@ -1,0 +1,96 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage[table]{xcolor}
+ 
+
+\usepackage{amsmath}
+
+\usepackage{amsfonts}
+
+\usepackage{amssymb}
+
+\usepackage{enumerate}
+
+\usepackage{graphicx}
+\usepackage{todonotes}
+
+\usepackage{tikz}
+\usetikzlibrary{automata,positioning}
+
+\newcommand{\cspm}{CSP$_M$}
+
+\begin{document}
+\section{Related work}
+
+
+The concepts of formal verification began in 1967 \todo{apparently it did not - but how far back should I go?}, when Robert W. Floyd was published with the paper \textit{Assigning meaning to programs}\cite{Floyd1967}. Floyd provided a basis for the formal definitions of the meaning of programs which can be used for proving correctness, equivalence and termination. By using flowcharts, he argues that when a command is reached, all previous commands will have been true as well.\\ C.A.R Hoare was inspired by Floyd and in 1969 his paper \textit{An axiomtic basis for computer programming}\cite{Hoare1969} was published. The logic he presented there (later known as \textit{Hoare logic}), was build on Floyd's ideas and proposed the notation \textit{Partial correctness specification}; $\{P\} C \{Q\}$. Here, $C$ is a command and $P$ and $Q$ are conditions on the program variables in C. Hoare showed that whenever $C$ is executed in a state that satisfies the condition $P$, and if the execution terminates, then the state that $C$ terminates in, will satisfy $Q$. Hoares logic have been the basis of a lot of different formal languages and have contributed to the continuous work on formal verification. \todo{Maybe add more here about what uses Hoare logic today} \\ 
+Since the original Hoares logic was not originially thought as to work with concurrent programs, L. Lamport extended Hoare's logic in his paper \textit{The 'Hoare logic' of concurrent programs}\cite{Lamport1980} in 1980. Here, he discuss why Hoare's logic, as proposed by C.A.R Hoare, does not work for concurrent programs and proposes a "generalized Hoare's logic" that takes concurrency into account. \todo{Figure out if Hoare used this information/update in his work with CSP. I am not sure if CSP work on Hoare logic? }\\\\
+In 1978 Hoares paper \textit{Communicating Sequential Processes} was published and with it CSP. It have been widely used in many different works and have also been expanded since Hoare initially described it in 1978\todo{Citation to Communicating Sequential Processes: The first 25 years}. The first version of CSP was mostly a concurrent programming language \todo{Is that really how it was - was it a programming language??? :o } but in 1984, Brookes, Hoare and Roscoe published their continued work on CSP with the paper \textit{A Theory of Communicating Sequential Processes}\cite{Brookes1984}, and created the modern process algebra it is today. Only a few minor changes have been made to CSP since then, and they are described in Roscoe's \textit{The Theory and Practice of Concurrency}\cite{Roscoe1997}. Now, several different variations of CSP exists today which all specialize in different areas of formal descriptions.\\\\
+A number of tools have been created in order to analyse, verify and understand systems written in CSP. Since CSP was mostly a blackboard language and difficult to use on larger scale, different types of machine-readble CSP syntaxes have been created over the years in order to make it easier to use CSP on a larger scale. Most of todays CSP tools use a version of machine-readble CSP called \cspm which was created by Scattergood\cite{Scattergood1998}. Scattergood created a combination of the standard CSP and a functional programming language which created a better baseline for tools to work with CSP. 
+Here is a subset of the different CSP tools:
+\begin{itemize}
+\item One of the most known CSP tool is the Failure-Divergence Refinement (FDR), build by Formal Systems (Europe) Ltd., which is currently at version 4.2.3\cite{fdr}. FDR is a refinement checker which differs from a lot of other CSP tools that are merely model checkers. FDR only work on finite-state processes. 
+\item ProBE (Process Behaviour Explorer)\cite{probe} is a tool to animate CSP in order to explore the state space of CSP processes. It can handle infinite state and is based on the same \cspm version as FDR is. ProBE was also been created by Formal Systems (Europe) Ltd that created FDR and ProBE is integrated into the current version of FDR. 
+\item At Adelaide University, The Adelaide Refinement Checker (ARC)\cite{Parashkevov1996} was created. It is a automatic verification tool for CSP that uses Ordered Binary Decision Diagrams (OBDDs) to represent the internal representation of data structures. This lessen the state explosion problem that other model checker tools have had. 
+\item The ProB project\cite{ProB}\cite{Leuschel2003} was originally created as an animation and model checker tool for the B-Method\cite{Abrial1988} but it also supports other languages like Z and \cspm. Newer versions of ProB can do refinement checking of \cspm scripts but does not have the full functionality that FDR does.
+\item J. Sun, Y.Liu, J.Dong et al. presented the Process Analysis Toolkit (PAT) in their 2009 paper\cite{Sun2009}. PAT is a CSP analysis tool that can perform Linear Temporal Logic (LTL) model checking, refinement checking and simulation of CSP processes.
+\item CSP-Prover\cite{Isobe2005} is a theorem prover which works on CSP and based on the theorem prover Isabelle. It is an entirely different way to check programs than model checking. It attempts to prove some general results based on specific theory. It is better at proving general results where model checkers are better at proving combinatorial problems.
+\end{itemize}
+The programming language Occam\cite{Occam1995}, which was first released in 1983, is a concurrent programming language that builds on the CSP process algebra. Occam was continuouly in development during the years and the Kent Retargetable occam Compiler (KRoC) team at Kent University created the Occam-$\pi$\cite{UniveristyofKent} variant of the occam programming language. It is a version that extends the idas of CSP in the original occam language but adding mobility features from pi-calculus. \\\\
+SPIN\cite{spin} is a verification tool that uses process interactions to prove correctness for a system. The systems are described in the formal language \texttt{PROMELA}(PROcess MEta LAnguage)\cite{Holzmann1991} and the correctness properties are spcified in Linear Temporal Logic (LTL)\cite{Pnueli1977}. In the paper \textit{Reasoning About Infinite Computations}\cite{Vardi1994}, Vardi and Wolper showed that all LTL formulas can be translated into a B\"uchi automata which SPIN makes use of and thus converting the given LTL into a B\"uchi automaton. Spin performs verification on concurrent software and does not perform verfication on hardware circuits. \\
+Spin was developed at Bell Labs, starting in 1980. Gerard J. Holzmann gives an introduction to the theoretical foundations, the design and structure and examples of applications in the paper \textit{The model checker SPIN}\cite{Holzmann1997}. SPIN, as well as other model checker tools, has been build on the pioneering work on logic model checking by Clarke and Emerson\cite{Clarke1981}, as well as Sifakis and Queille\cite{Queille1982}. Vardi and Wolper extended their work with an automata-theoretic approach to automatically verify programs\cite{Vardi1986}.\\\\
+Another verification tool was developed as a collaboration between the Department of Information Technology at Uppsala University (UPP) in Sweden and the Department of Computer Science at Aalborg University (AAL) in Denmark. Larsen et al. first proposed the ideas for UPPAAL\cite{Larsen1995} in 1995 and further introduced it in the paper \textit{UPPAAL - a Tool Suite for Automatic Verifcation of Real-Time Systems}\cite{Bengtsson1995}. 
+UPPAAL is a verification tool for modeling, simulating and verifying real-time systems.
+It is based on the theory of timed automata\cite{Hopcroft2001}\cite{Alur1990} and typical systems to gain advantage of UPPAAL are systems where timing aspects are critical that communicate through channels or shared variables.
+As other model checkers, UPPAAL have a modelling language, wherein the system is specified, and a query language that is used to specify the properties to check against the system. The query language is a subset of CTL (computational tree logic) that work for real-time systems\cite{Henzinger1994} \cite{Larsen1995}. The model checking is done by checking the state-space by making a reachability analysis. The current version of UPPAAL is called UPPAAL2K and was first released in 1999\cite{Amnell2001}. \\\\
+
+VHDL was initially ordered by the United States Department of Defence in 1981 to help with the growing problem of hardware life cycles. 
+
+
+VHDL: (VHSIC - Very High Speed Integrated Circuit) HDL
+Initially sponsored by DoD as a hardware documentation standard in early 80s
+Transformed to IEEE and ratified it as IEEE standard 1176 in 19887 (Known as VHDL-87)
+Major modification in 93 (Known as VHDL-93)
+Continuously revised
+It is based on the Ada programming language. 
+
+Verilog: Introduced by Gateway Design Automation in 1985. Cadence Design Systems got the rights to Verilog-XL, the HDL simulator that would become the de-facto standard og Verilog simulator. Due to a request from the U.S Department of Defence, the development of VHDL came to be. 
+
+However, VHDL and Verilog share many of the same limitations: neither is suitable for analog or mixed-signal circuit simulation; neither possesses language constructs to describe recursively-generated logic structures. Specialized HDLs (such as Confluence) were introduced with the explicit goal of fixing specific limitations of Verilog and VHDL, though none were ever intended to replace them. (From WIKI)
+(From WIKI): Essential to HDL design is the ability to simulate HDL programs. Simulation allows an HDL description of a design (called a model) to pass design verification, an important milestone that validates the design's intended function (specification) against the code implementation in the HDL description. It also permits architectural exploration. The engineer can experiment with design choices by writing multiple variations of a base design, then comparing their behavior in simulation. Thus, simulation is critical for successful HDL design.
+
+
+Look at functional verification
+
+Look at Property Specification Language
+also look at SVA (two property languages that are derived from LTL) (used for Hardware)
+
+
+HDL include explicit notation for expressing concurrency as well as a notion of time.
+HDLs are used to write executable specifications for hardware.
+Because HDLs can be executed it gives the illusion of programming languages even though it is more of a specification language or modeling language.
+First HDLs in late 60's. C.Gordon Bell and Allan Newells text "Computer Structures" in 1971 - first to give a hdl with lasting effect. 
+
+(from 
+http://www.techdesignforums.com/practice/guides/formal-verification-guide/) "Equivalence checking has been used for more than a decade to check that RTL and gate-level descriptions of a design represent the same design"
+
+
+
+Take a look at Temporal logic model checking (As it is mentioned in the formal verification - evolution article)
+- Clarke et. al. CMU 1981
+- Sifakis et. al. Grenoble 1982
+and also look at 
+Symbolic model checking
+McMillan 1991
+SMV
+
+WRIGHT\cite{Allen1997}\cite{Allen1997a} \todo{It would be worth to read more about this! They have done a bit of the same that I am to do in my thesis with auto generating \cspm}
+is an architecture description language which was developed at Carnegie Mellon University. They can auto generate \cspm code from WRIGHT and from there they can confirm certain properties by using FDR. http://www.cs.cmu.edu/~able/wright/
+
+\newpage
+\bibliographystyle{abbrv}
+\bibliography{library}
+
+\end{document}
