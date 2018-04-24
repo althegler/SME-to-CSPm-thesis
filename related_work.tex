@@ -48,12 +48,11 @@ It is based on the theory of timed automata\cite{Hopcroft2001}\cite{Alur1990} an
 As other model checkers, UPPAAL have a modelling language, wherein the system is specified, and a query language that is used to specify the properties to check against the system. The query language is a subset of CTL (computational tree logic) that work for real-time systems\cite{Henzinger1994} \cite{Larsen1995}. The model checking is done by checking the state-space by making a reachability analysis. The current version of UPPAAL is called UPPAAL2K and was first released in 1999\cite{Amnell2001}. \\\\
 In 1981, Edmund M. Clarke and E. Allen Emerson managed to combine temporal logic with the state-space exploration in order to provide the first automated model checking algorithm\cite{Clarke1981}. It was capable of proving properties of programs as well as producing counter examples. 
 In the mid 1980s it was shown how model checking could be applied to hardware verification. However, it quickly became clear that model checking on hardware was very limited due to the state-space explosion that occurs especially on hardware. \\ 
-Randall Bryant from the CMU electrical engineering department invented ordered Binary decision diagrams (OBDDs). J. Burch, E. Clarke, K. McMillan et al.\cite{Burch1992} used these OBDDs and created \textit{symbolic model checking} which represents the state space symbolically. The symbolic model checking can verify systems with an extremely large number of states and thus creating a solution to the problems of state space explosion.\\
+Randall Bryant from the CMU electrical engineering department invented ordered Binary decision diagrams (OBDDs). Later on, J. Burch, E. Clarke, K. McMillan et al.\cite{Burch1992} used OBDDs and created \textit{symbolic model checking} which represents the state space symbolically. The symbolic model checking can verify systems with an extremely large number of states and thus creating a solution to the problems of state space explosion.\\
+Because of the state-space explosion problem and the increasing complexity of digital electronic circuits, there was a need to be able to model the timing and data flow of a ciruit with a certain amount of abstraction. This became Hardware Description Languages (HDL) 
 
 
-
-
-
+The VHSIC Hardware Description Language 
 VHDL was initially ordered by the United States Department of Defence in 1981 to help with the growing problem of hardware life cycles. 
 
 
