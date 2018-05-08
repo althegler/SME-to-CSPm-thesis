@@ -21,6 +21,7 @@
 \usepackage{todonotes}
 
 
+
 \usepackage[babel, en, nat, farve, titelside]{ku-forside}
 
 % (asbjoern commando: nbuf command)
@@ -46,7 +47,7 @@
 \undertitel{Department of Computer Science}
 \author{Alberte Thegler - alberte@thegler.dk}
 \date{August 2018}
-\vejleder{Professor Brian Vinter}
+\vejleder{Advisors: Professor Brian Vinter and Kenneth Skovhede}
 
 \begin{document}
 
@@ -55,9 +56,7 @@
 \pagenumbering{roman}
 \begin{abstract}
 \begin{doublespace}
-Bla bla 
-bla bla
-
+Abstract
 
 \end{doublespace}
 \end{abstract}
@@ -90,7 +89,14 @@ Toyota bremse-fejl\\
 Adriane 5 haeldning\\
 Terac-25\\
 \section{Learning goals}
-This is where the learning goals go.
+The learning goals accepted for this project are:
+\begin{itemize}
+\item Reflect on the set of problems that are verifiable with FDR4.
+\item Reason about efficient code transformation from an executable format to a verifiable format
+\item Reason about design choices and their consequenses for execution performance.
+\item Demonstrate efficient constraint transfer from SME to FDR4.
+\item Reason about SME program size and time to verification. 
+\end{itemize}
 \chapter{Related work}
 The concepts of formal verification was first expressed in 1954 when Martin Davis created the first computer generated mathematical proof that the product of two even numbers is even. First-order theorem provers were applied to verification problems in Pascal, Ada and Java, in the late 1960s. 
 At Stanford, in 1972, Sir Robin Milner had success building the original LCF system for proof checking. His work in automated reasoning have been the foundation for a lot of other theorem provers, like the proof assistant HOL (Higher Order Logic) by Mike Gordon, which was originally developed for reasoning about hardware. The formal proof management system Coq is a descendent of LCF. \\
@@ -172,7 +178,7 @@ Both theorem provers and model checkers have been, and are still, widely used fo
 
 
 
-Mark B. Josephs shows in his paper \textit{Gate-level modelling and verification of asyncronous circuits using \cspm and FDR}\cite{Josephs2007} how to model circuits using \cspm and also verify its correctness properties with FDR. By using small examples he shows how to check for receptiveness, how to modle delay-insensitivity, how to model gates, n-way mutual exclusion and alternation in delay-insensitive signalling. All this is written in \cspm and afterwards verified with FDR. 
+In his paper \textit{Gate-level modelling and verification of asyncronous circuits using \cspm and FDR}\cite{Josephs2007} Mark B. Josephs shows how to model asynchronous logic blocks using \cspm and also verify its correctness properties with FDR. By using small examples he shows how to check for receptiveness, how to modle delay-insensitivity, how to model gates, n-way mutual exclusion and alternation in delay-insensitive signalling. All this is written in \cspm and afterwards verified with FDR. 
 
 
 
@@ -188,14 +194,25 @@ CSPm was devised by Bryan Scattergood as a machine-readable dialect of CSP  - se
 \section{SME}
 \section{SMEIL}
 \chapter{Method}
-\textbf{This is the method section that describes what I did, how and why.}
-\\\\
-The first step in translating from SMEIL to \cspm is to create a small example and do a manual translation. This ensures that we have a suitable example to test the automatic gode generation with, but also gives a good understanding of how the translation should be created and what kind of challenges there will arise from translating from SMEIL to \cspm. The example \textit{Seven segment example} is an example of modelling a digital clock which can show hour, minutes and seconds. It consists of 6 different 7-segment displays, which is a display device for displaying decimal numbers. In one 7-segment displays there are 7 identical segments which can be lit in different combinations in order to show the Arabic numbers 0 to 9. This example tries to model a circuit that receives an input in the form "seconds after midnight" and from this, calculate and display the correct hours, minutes and seconds on the displays. Since only one digit can be shown on each 7-segment display it also needs to separate the actual number e.g if the hour is 12 it will be shown as 1 and 2 on two separate displays. \\ The SME example is shown in figure \todo{Put example code in} inputs a number from a source process that is incremented with one for each run. It then sends the input out on the output bus where three different calculating processes read from. Each process calculates respectively hours, minutes and seconds and divide the number in order to output two numbers to the output channels. Each calculating process outputs to two different output channels. \\ The code in \texttt{seven\_segment\_example.csp} is the handmade translation from the SME file. In order to create a proper input range for \cspm we use the range created by the SMEIL simulator. The range is created based on all observed numbers and since the source process in SME does not have an input bus we use this process to created the input channel in \cspm. This way we can generalize how to translate the input ranges from SME to \cspm. The translation in \cspm is equivalent to the SME version where each process calculates either the hours, minutes or seconds and divide the result into two digits, one for each output channel.\\ What we want to check in this example is that a 7 segment display can only represent 0-9 but 4 bits can represent 0-15. So we are interested in figuring out if this model can result in a result that is over 9, in which case, the model needs to be changed. The assertion used in \cspm is to check if the processes refines the \texttt{SKIP} process i.e if the process terminates. 
+The first step in translating from SMEIL to \cspm is to create a small example and do a manual translation. This ensures that we have a suitable example to test the automatic gode generation with, but also gives a good understanding of how the translation should be created and what kind of challenges there will arise from translating from SMEIL to \cspm. 
+
+The example \textit{Seven segment example} is an example of modelling a digital clock that consists of 6 different 7-segment displays. A 7-segment display is a display device for displaying decimal numerals. It consist of 7 identical segments which can be lit in different combinations in order to show the Arabic numerals 0 to 9. In the example we model a circuit that receives an input in the form "seconds after midnight" and from this, calculates and displays the correct hours, minutes and seconds on the displays. Since only one digit can be shown on each 7-segment display it is necessary to separate the actual number into two e.g if the hour is 12 it will be shown as 1 and 2 on two separate displays. \\ The SME example in figure \ref{seven_segments_exaple.sme} inputs a numeral from a source process that is incremented by one for each run. It then sends the input out on the output bus where three different calculating processes receives from. Each process calculates respectively hours, minutes and seconds and separate the number in order to output the result to the two output channels. \\ The \cspm code in figure \ref{seven_segments_exaple.csp} is the handmade translation from the SME file. \todo{describe the problem of getting an input range and such - maybe before this section}
+In order to create a proper input range for \cspm we use the range created by the SMEIL simulator. The range is created based on all observed numbers and since the source process in SME does not have an input bus we use this process to created the input channel in \cspm. This way we can generalize how to translate the input ranges from SME to \cspm. The translation in \cspm is equivalent to the SME version where each process calculates either the hours, minutes or seconds and separate the result into two digits, one for each output channel.\\ What we want to check in this example is that a 7 segment display can only represent 0-9 but 4 bits can represent 0-15. So we are interested in figuring out if this model can result in a result that is over 9, in which case, the model needs to be changed. The assertion used in \cspm is to check if the processes refines the \texttt{SKIP} process i.e if the process terminates. 
+
+\begin{figure}
+\label{seven_segments_exaple.sme}
+\caption{Seven segments example in SMEIL}
+\end{figure}
+
+
+\begin{figure}
+\label{seven_segments_exaple.csp}
+\caption{Seven segments example in \cspm}
+\end{figure}
 
 
 
-\chapter{Results and tests (Experiment?)}
-\textbf{Does it work? why, why not}
+\chapter{Experiments and results}
 \chapter{Discussion}
 
 \chapter{Conclusion}
@@ -204,6 +221,4 @@ The first step in translating from SMEIL to \cspm is to create a small example a
 \newpage
 \bibliographystyle{abbrv}
 \bibliography{library}
-
-\section{Appendix}
 \end{document}
