@@ -27,7 +27,7 @@
 % (asbjoern commando: nbuf command)
 % \newcommand{\nbuf}{\textit{nbuf} }
 
-\newcommand{\cspm}{CSP$_M$}
+\newcommand{\cspm}{CSP$_M$ }
 
 
 \usepackage{fancyhdr}
@@ -67,27 +67,27 @@ Abstract
 \tableofcontents
 
 \newpage
-\listoftodos
-\newpage
+%\listoftodos
+%\newpage
 \pagenumbering{arabic}
 \chapter{Introduction}
-When we create programs, we wish to verify that it is also correct. There are several ways to do this, one commenly used is \texttt{testing} which require that the programmer creates several different scenarios and its expected output, or that the programmer programs a test-generator to create the scenarios and expected output. This, however, is not adequate for (word for important systens). Therefore it is of high interest to create a verification of the system or program.\\
-Talk about how verification was first created and how it became to be used for concurrent systems. Then write about how it works and then write about the different systems and formal languages that is used for it. 
+When we create programs, we wish to verify that it is also correct. There are several ways to do this, one commenly used is \texttt{testing} which require that the programmer creates several different scenarios and its expected output, or that the programmer programs a test-generator to create the scenarios and expected output. This, however, is not adequate for critical systems since it is never a 100\% accurate. Therefore it is of high interest to create a formal verification of the system or program.\\
+%Talk about how verification was first created and how it became to be used for concurrent systems. Then write about how it works and then write about the different systems and formal languages that is used for it. \\\\
 
 
 In this thesis we look at model checking, that is, verifying that a specific property will always hold for a piece of code.
-
+\\\\
 
 Formal verification is the process of checking whether a program satisfies specific properties. Different methods have evolved, all having different advantages and disadvantages. FDR is sometimes referred to as a model checker however is it actually a refinement checker.
+\\\\
 
 
-
-\textbf{Matematicians tend to reject proofs by exhaustive checking of all cases as being less satisfying than deductive proofs, and with good reason. First, they are not applicable for proving theorems about integers and real numbers, which are infinite domains so that the number of interpretations is infinite and they cannot be exhaustively checked. Second, they offer no insight into why a theorem is true. But computer scientists have more practical concerns. If they can check all computations of a program and show that they all satisfy a correctness property, we will be willing to forego elegance and be more than satisfied that our program has been proven correct. (from "A primer on model checking af Ben-Ari} \cite{Ben-ari2010}
+\textit{"Matematicians tend to reject proofs by exhaustive checking of all cases as being less satisfying than deductive proofs, and with good reason. First, they are not applicable for proving theorems about integers and real numbers, which are infinite domains so that the number of interpretations is infinite and they cannot be exhaustively checked. Second, they offer no insight into why a theorem is true. But computer scientists have more practical concerns. If they can check all computations of a program and show that they all satisfy a correctness property, we will be willing to forego elegance and be more than satisfied that our program has been proven correct."} from "A primer on model checking af Ben-Ari" \cite{Ben-ari2010}
 \section{Motivation}
-Intels-division bug \\
-Toyota bremse-fejl\\
-Adriane 5 haeldning\\
-Terac-25\\
+%Intels-division bug \\
+%Toyota bremse-fejl\\
+%Adriane 5 haeldning\\
+%Terac-25\\
 \section{Learning goals}
 The learning goals accepted for this project are:
 \begin{itemize}
@@ -98,10 +98,10 @@ The learning goals accepted for this project are:
 \item Reason about SME program size and time to verification. 
 \end{itemize}
 \chapter{Related work}
-The concepts of formal verification was first expressed in 1954 when Martin Davis created the first computer generated mathematical proof that the product of two even numbers is even. First-order theorem provers were applied to verification problems in Pascal, Ada and Java, in the late 1960s. 
+The concepts of formal verification was first expressed in 1954 when Martin Davis created the first computer generated mathematical proof that the product of two even numbers, is even. First-order theorem provers were applied to verification problems in Pascal, Ada and Java, in the late 1960s. 
 At Stanford, in 1972, Sir Robin Milner had success building the original LCF system for proof checking. His work in automated reasoning have been the foundation for a lot of other theorem provers, like the proof assistant HOL (Higher Order Logic) by Mike Gordon, which was originally developed for reasoning about hardware. The formal proof management system Coq is a descendent of LCF. \\
 Also in 1972, Robert S. Boyer and J. Strother Moore was successful in building a machine-based prover, called Nqthm which became the basis for ACL2 which is a programming language and a theorem prover. Theorem provers have proved very valuable over the time, but one problem with them was, that if they found a problem in a theorem, they could not tell why it could not prove the theorem. It was not possible to create a counter example or any other explanation as to why it was not possible to prove this theorem. \\\\
-In 1967, when Robert W. Floyd was published with the paper \textit{Assigning meaning to programs}\cite{Floyd1967}. Floyd provided a basis for the formal definitions of the meaning of programs which can be used for proving correctness, equivalence and termination. By using flowcharts, he argued that when a command is reached, all previous commands will have been true as well.\\ C.A.R Hoare was inspired by Floyd and in 1969 his paper \textit{An axiomtic basis for computer programming}\cite{Hoare1969} was published. The logic he presented there (later known as \textit{Hoare logic}), was build on Floyd's ideas and proposed the notation \textit{Partial correctness specification}; $\{P\} C \{Q\}$. Here, $C$ is a command and $P$ and $Q$ are conditions on the program variables in C. Hoare showed that whenever $C$ is executed in a state that satisfies the condition $P$, and if the execution terminates, then the state that $C$ terminates in, will satisfy $Q$. Hoares logic have been the basis of a lot of different formal languages and have contributed to the continuous work on formal verification. \\
+In 1967, when Robert W. Floyd was published with the paper \textit{Assigning meaning to programs}\cite{Floyd1967}. Floyd provided a basis for the formal definitions of the meaning of programs which can be used for proving correctness, equivalence and termination. By using flowcharts, he argued that when a command is reached, all previous commands will have been true as well.\\ C.A.R Hoare was inspired by Floyd and in 1969 his paper \textit{An axiomtic basis for computer programming}\cite{Hoare1969} was published. The logic he presented there (later known as \textit{Hoare logic}), was build on Floyd's ideas and proposed the notation \textit{Partial correctness specification}; $\{P\} C \{Q\}$. Here, $C$ is a command and $P$ and $Q$ are conditions on the program variables in $C$. Hoare showed that whenever $C$ is executed in a state that satisfies the condition $P$, and if the execution terminates, then the state that $C$ terminates in, will satisfy $Q$. Hoares logic have been the basis of a lot of different formal languages and have contributed to the continuous work on formal verification. \\
 Since the original Hoares logic was not originially thought as to model concurrent programs, L. Lamport extended Hoare's logic in his paper \textit{The 'Hoare logic' of concurrent programs}\cite{Lamport1980} in 1980. Here, he discuss why Hoare's logic, as proposed by C.A.R Hoare, does not work for concurrent programs and proposes a "generalized Hoare's logic" that takes concurrency into account. \\\\
 In 1978 Hoares paper \textit{Communicating Sequential Processes} was published and with it, CSP was born. It have been widely used in many different types of work and have also been expanded since Hoare initially described it in 1978\cite{Abdallah2005}. The first version of CSP was a simple language but in 1984, Brookes, Hoare and Roscoe published their continued work on CSP with the paper \textit{A Theory of Communicating Sequential Processes}\cite{Brookes1984}, and created the modern process algebra it is today. Only a few minor changes have been made to CSP since then, and they are described in Roscoe's \textit{The Theory and Practice of Concurrency}\cite{Roscoe1997}.\\
 A number of tools have been created in order to analyse, verify and understand systems written in CSP. Since CSP was mostly a blackboard language and difficult to use on larger scale, different types of machine-readble CSP syntaxes have been created over the years in order to make it easier to use CSP on a larger scale. Most of todays CSP tools use a version of machine-readble CSP called \cspm which was created by Scattergood\cite{Scattergood1998}. Scattergood created a combination of the standard CSP and a functional programming language which created a better baseline for tools to work with CSP.\\ 
@@ -124,80 +124,83 @@ As other model checkers, UPPAAL have a modelling language, wherein the system is
 In 1981, Edmund M. Clarke and E. Allen Emerson managed to combine temporal logic with the state-space exploration in order to provide the first automated model checking algorithm\cite{Clarke1981}. It was capable of proving properties of programs as well as producing counter examples. 
 In the mid 1980s it was shown how model checking could be applied to hardware verification. However, it quickly became clear that model checking on hardware was very limited due to the state-space explosion that occurs especially on hardware. \\ 
 Randall Bryant from the CMU electrical engineering department invented ordered Binary decision diagrams (OBDDs). Later on, J. Burch, E. Clarke, K. McMillan et al.\cite{Burch1992} used OBDDs and created \textit{symbolic model checking} which represents the state space symbolically. The symbolic model checking can verify systems with an extremely large number of states and thus creating a solution to the problems of state space explosion.\\
-Because of the state-space explosion problem and the increasing complexity of digital electronic circuits, there was a need to be able to model the timing and data flow of a ciruit with a certain amount of abstraction. This became Hardware Description Languages (HDL) 
+Because of the state-space explosion problem and the increasing complexity of digital electronic circuits, there was a need to be able to model the timing and data flow of a ciruit with a certain amount of abstraction. This became Hardware Description Languages (HDL) \\\\
+VHDL (VHSIC Hardware Description Language) was initially ordered by the United States Department of Defence in 1981 to help with the growing problem of hardware life cycles. 
 
 
-The VHSIC Hardware Description Language 
-VHDL was initially ordered by the United States Department of Defence in 1981 to help with the growing problem of hardware life cycles. 
+%VHDL: (VHSIC - Very High Speed Integrated Circuit) HDL
+%Initially sponsored by DoD as a hardware documentation standard in early 80s
+%Transformed to IEEE and ratified it as IEEE standard 1176 in 19887 (Known as VHDL-87)
+%Major modification in 93 (Known as VHDL-93)
+%Continuously revised
+%It is based on the Ada programming language. 
+%
+%Verilog: Introduced by Gateway Design Automation in 1985. Cadence Design Systems got the rights to Verilog-XL, the HDL simulator that would become the de-facto standard og Verilog simulator. Due to a request from the U.S Department of Defence, the development of VHDL came to be. 
+%
+%However, VHDL and Verilog share many of the same limitations: neither is suitable for analog or mixed-signal circuit simulation; neither possesses language constructs to describe recursively-generated logic structures. Specialized HDLs (such as Confluence) were introduced with the explicit goal of fixing specific limitations of Verilog and VHDL, though none were ever intended to replace them. (From WIKI)
+%(From WIKI): Essential to HDL design is the ability to simulate HDL programs. Simulation allows an HDL description of a design (called a model) to pass design verification, an important milestone that validates the design's intended function (specification) against the code implementation in the HDL description. It also permits architectural exploration. The engineer can experiment with design choices by writing multiple variations of a base design, then comparing their behaviour in simulation. Thus, simulation is critical for successful HDL design.
 
 
-VHDL: (VHSIC - Very High Speed Integrated Circuit) HDL
-Initially sponsored by DoD as a hardware documentation standard in early 80s
-Transformed to IEEE and ratified it as IEEE standard 1176 in 19887 (Known as VHDL-87)
-Major modification in 93 (Known as VHDL-93)
-Continuously revised
-It is based on the Ada programming language. 
-
-Verilog: Introduced by Gateway Design Automation in 1985. Cadence Design Systems got the rights to Verilog-XL, the HDL simulator that would become the de-facto standard og Verilog simulator. Due to a request from the U.S Department of Defence, the development of VHDL came to be. 
-
-However, VHDL and Verilog share many of the same limitations: neither is suitable for analog or mixed-signal circuit simulation; neither possesses language constructs to describe recursively-generated logic structures. Specialized HDLs (such as Confluence) were introduced with the explicit goal of fixing specific limitations of Verilog and VHDL, though none were ever intended to replace them. (From WIKI)
-(From WIKI): Essential to HDL design is the ability to simulate HDL programs. Simulation allows an HDL description of a design (called a model) to pass design verification, an important milestone that validates the design's intended function (specification) against the code implementation in the HDL description. It also permits architectural exploration. The engineer can experiment with design choices by writing multiple variations of a base design, then comparing their behaviour in simulation. Thus, simulation is critical for successful HDL design.
-
-
-Look at functional verification
-
-Look at Property Specification Language
-also look at SVA (two property languages that are derived from LTL) (used for Hardware)
-
-
-HDL include explicit notation for expressing concurrency as well as a notion of time.
-HDLs are used to write executable specifications for hardware.
-Because HDLs can be executed it gives the illusion of programming languages even though it is more of a specification language or modelling language.
-First HDLs in late 60's. C.Gordon Bell and Allan Newells text "Computer Structures" in 1971 - first to give a hdl with lasting effect. 
-
-(from 
-http://www.techdesignforums.com/practice/guides/formal-verification-guide/) "Equivalence checking has been used for more than a decade to check that RTL and gate-level descriptions of a design represent the same design"
-
-
-
-Take a look at Temporal logic model checking (As it is mentioned in the formal verification - evolution article)
-- Clarke et. al. CMU 1981
-- Sifakis et. al. Grenoble 1982
-and also look at 
-Symbolic model checking
-McMillan 1991
-SMV
-
-WRIGHT\cite{Allen1997}\cite{Allen1997a} \todo{It would be worth to read more about this! They have done a bit of the same that I am to do in my thesis with auto generating \cspm}
-is an architecture description language which was developed at Carnegie Mellon University. They can auto generate \cspm code from WRIGHT and from there they can confirm certain properties by using FDR. http://www.cs.cmu.edu/~able/wright/
-
-
-
-Both theorem provers and model checkers have been, and are still, widely used for both software and hardware. There is a third form of formal verification that is also being used more often now. This is equivalence checking, which compares two models of a design and produces an outcome that either shows that they are equal or provides a counter-example to show when they disagree. It is beginning to become common practice for hardware designers to use equvalence checking to compare the design of an optimized digital design and an unoptimized digital design. This way it is possible for the designer to check that the optimizations did not change the functionality of the design.  
-
-
-
-
-In his paper \textit{Gate-level modelling and verification of asyncronous circuits using \cspm and FDR}\cite{Josephs2007} Mark B. Josephs shows how to model asynchronous logic blocks using \cspm and also verify its correctness properties with FDR. By using small examples he shows how to check for receptiveness, how to modle delay-insensitivity, how to model gates, n-way mutual exclusion and alternation in delay-insensitive signalling. All this is written in \cspm and afterwards verified with FDR. 
-
+%Look at functional verification
+%
+%Look at Property Specification Language
+%also look at SVA (two property languages that are derived from LTL) (used for Hardware)
+%
+%
+%HDL include explicit notation for expressing concurrency as well as a notion of time.
+%HDLs are used to write executable specifications for hardware.
+%Because HDLs can be executed it gives the illusion of programming languages even though it is more of a specification language or modelling language.
+%First HDLs in late 60's. C.Gordon Bell and Allan Newells text "Computer Structures" in 1971 - first to give a hdl with lasting effect. 
+%
+%(from 
+%http://www.techdesignforums.com/practice/guides/formal-verification-guide/) "Equivalence checking has been used for more than a decade to check that RTL and gate-level descriptions of a design represent the same design"
+%
+%
+%
+%Take a look at Temporal logic model checking (As it is mentioned in the formal verification - evolution article)
+%- Clarke et. al. CMU 1981
+%- Sifakis et. al. Grenoble 1982
+%and also look at 
+%Symbolic model checking
+%McMillan 1991
+%SMV
+%
+%WRIGHT\cite{Allen1997}\cite{Allen1997a} \todo{It would be worth to read more about this! They have done a bit of the same that I am to do in my thesis with auto generating \cspm}
+%is an architecture description language which was developed at Carnegie Mellon University. They can auto generate \cspm code from WRIGHT and from there they can confirm certain properties by using FDR. http://www.cs.cmu.edu/~able/wright/
+%
+%
+%
+%Both theorem provers and model checkers have been, and are still, widely used for both software and hardware. There is a third form of formal verification that is also being used more often now. This is equivalence checking, which compares two models of a design and produces an outcome that either shows that they are equal or provides a counter-example to show when they disagree. It is beginning to become common practice for hardware designers to use equvalence checking to compare the design of an optimized digital design and an unoptimized digital design. This way it is possible for the designer to check that the optimizations did not change the functionality of the design.  
+%
 
 
 
 
 
 \chapter{Theory}
-\textbf{This is where the theory go. fx. SME and the correlation between that and CSP.}
-CSPm was devised by Bryan Scattergood as a machine-readable dialect of CSP  - se the paper \textit{The Semantics and Implementation of Machine-Readable CSP}\\\\
-" FDR2 is often described as a model checker, but is technically a refinement checker, in that it converts two CSP process expressions into Labelled Transition Systems (LTSs), and then determines whether one of the processes is a refinement of the other within some specified semantic model (traces, failures, or failures/divergence)" (from Wikipedia - se paper \textit{Model-checking CSP - af Roscoe} \\\\
+%\textbf{This is where the theory go. fx. SME and the correlation between that and CSP.}
+%CSPm was devised by Bryan Scattergood as a machine-readable dialect of CSP  - se the paper \textit{The Semantics and Implementation of Machine-Readable CSP}\\\\
+%" FDR2 is often described as a model checker, but is technically a refinement checker, in that it converts two CSP process expressions into Labelled Transition Systems (LTSs), and then determines whether one of the processes is a refinement of the other within some specified semantic model (traces, failures, or failures/divergence)" (from Wikipedia - se paper \textit{Model-checking CSP - af Roscoe} \\\\
 \section{CSP}
 \section{FDR}
 \section{SME}
 \section{SMEIL}
-\chapter{Method}
-The first step in translating from SMEIL to \cspm is to create a small example and do a manual translation. This ensures that we have a suitable example to test the automatic gode generation with, but also gives a good understanding of how the translation should be created and what kind of challenges there will arise from translating from SMEIL to \cspm. 
-
-The example \textit{Seven segment example} is an example of modelling a digital clock that consists of 6 different 7-segment displays. A 7-segment display is a display device for displaying decimal numerals. It consist of 7 identical segments which can be lit in different combinations in order to show the Arabic numerals 0 to 9. In the example we model a circuit that receives an input in the form "seconds after midnight" and from this, calculates and displays the correct hours, minutes and seconds on the displays. Since only one digit can be shown on each 7-segment display it is necessary to separate the actual number into two e.g if the hour is 12 it will be shown as 1 and 2 on two separate displays. \\ The SME example in figure \ref{seven_segments_exaple.sme} inputs a numeral from a source process that is incremented by one for each run. It then sends the input out on the output bus where three different calculating processes receives from. Each process calculates respectively hours, minutes and seconds and separate the number in order to output the result to the two output channels. \\ The \cspm code in figure \ref{seven_segments_exaple.csp} is the handmade translation from the SME file. \todo{describe the problem of getting an input range and such - maybe before this section}
-In order to create a proper input range for \cspm we use the range created by the SMEIL simulator. The range is created based on all observed numbers and since the source process in SME does not have an input bus we use this process to created the input channel in \cspm. This way we can generalize how to translate the input ranges from SME to \cspm. The translation in \cspm is equivalent to the SME version where each process calculates either the hours, minutes or seconds and separate the result into two digits, one for each output channel.\\ What we want to check in this example is that a 7 segment display can only represent 0-9 but 4 bits can represent 0-15. So we are interested in figuring out if this model can result in a result that is over 9, in which case, the model needs to be changed. The assertion used in \cspm is to check if the processes refines the \texttt{SKIP} process i.e if the process terminates. 
+\chapter{Methods}
+The first step in translating from SMEIL to \cspm is to create a small example and create a manual translation. This ensures that we have a suitable example to test the automatic gode generation, but also gives a good understanding of how the translation could be created and what kind of challenges there will arise from translating from SMEIL to \cspm. 
+The example \textit{Seven segment example} is an example of modelling a digital clock that consists of 6 different 7-segment displays. A 7-segment display is a display device for displaying decimal numerals. It consist of 7 identical segments which can be lit in different combinations in order to show the Arabic numerals 0 to 9. In the example we model a circuit that receives an input in the form; "seconds after midnight" and from this, calculates and displays the correct hours, minutes and seconds on the displays. Since only one digit can be shown on each 7-segment display it is necessary to separate the actual number into two e.g if the hour is 12 it will be shown as 1 and 2 on two separate displays. \\ The SME example in figure \ref{seven_segments_exaple.sme} inputs a numeral from a source process that is incremented by one for each run. It then sends the input out on the output bus where three different calculating processes receives from. Each process calculates respectively hours, minutes and seconds and separates the number in order to output the result to the two output channels. \\ The \cspm code in figure \ref{seven_segments_exaple.csp} is the handmade translation from the SME file. \\ The translation in \cspm is equivalent to the SME version where each process calculates either the hours, minutes or seconds and separate the result into two digits, one for each output channel.\\ 
+What we need to assert in this example is the number that is sent to the 7-segment displays. A 7 segment display can only represent 0-9 but 4 bits can represent 0-15. This means that we are interested in figuring out if this model can result in an ouput less that 10, in which case, the assertion fails and the model needs to be changed. The assertion used in \cspm checks if the processes refines the \texttt{SKIP} process i.e if the process terminates. This works because of the \texttt{if-then-else} statement that ensures that the process never stops (\texttt{STOP}) if one of the outputs are larger than 10. \\\\ 
+One problem that arises when trying to translate SMEIL to \cspm, is that in SMEIL the input has to be generated by a process, i.e there is no input from file or stdout. 
+Therefore we create a source process, in this case the \texttt{clock()} process, that does not have any input but, in this case, generates a variable which is saved and incremented by one for each run.
+Now, FDR checks all possible inputs and therefore we have to find a solution so that we can figure out the entire input range automatic. 
+The solution lies in the SMIEL simulator. 
+When simulating the sme program, it creates a range of all observed inputs on all channels in order to change the general \texttt{int} to e.g \texttt{i4} if all observed inputs are within i4. 
+Then we can observe and generalize that a process with no input bus will be the source process that generates the input for the circuit.
+Due to this generalization, we can translate the output bus of the source process in sme to be the the input channel in \cspm. 
+That is, the range observed on the output bus in sme will be translated into the range of the input channel in \cspm. 
+So in reality the source process is not created as an actual process in \cspm and therefore it is also crucial that the source process in sme does not have hidden channels or do calculations that we wish to assert on. \\ 
+In \cspm, one always note the input ranges of channel if the channel carries numerals. However if we simply write \texttt{channel input : int}, then FDR will check for all integers, which will last forever, therefore we wish to create the proper range on the input channel by using the source process in sme. 
+However for the rest of the circuit, we might need to assert on the input or output of the busses and therefore we do not wish to use the ranges from the sme simulator on other busses than the output bus from the source process.
+Since it is necessary to give a range to all channels in \cspm, as mentioned above, the challenge lies in figuring out the correct ranges for these channels. \\
 
 \begin{figure}
 \label{seven_segments_exaple.sme}
