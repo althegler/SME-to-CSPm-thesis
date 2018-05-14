@@ -177,17 +177,22 @@ VHDL (VHSIC Hardware Description Language) was initially ordered by the United S
 
 
 
-\chapter{Theory}
+\chapter{Analysis}
+\section{SME}
+\section{SMEIL}
 %\textbf{This is where the theory go. fx. SME and the correlation between that and CSP.}
 %CSPm was devised by Bryan Scattergood as a machine-readable dialect of CSP  - se the paper \textit{The Semantics and Implementation of Machine-Readable CSP}\\\\
 %" FDR2 is often described as a model checker, but is technically a refinement checker, in that it converts two CSP process expressions into Labelled Transition Systems (LTSs), and then determines whether one of the processes is a refinement of the other within some specified semantic model (traces, failures, or failures/divergence)" (from Wikipedia - se paper \textit{Model-checking CSP - af Roscoe} \\\\
 \section{CSP}
-As mentioned above, Communicating Sequential Processes (CSP) was first described by Tony Hoare in 1978. CSP is a process algebra which gives a way to express the concurrent systems. By using message passing between processes the language avoids certain problems that arise with the use of e.g shared variables. An essential part of CSP is message passing and the syntax for input is \texttt{X?c}. This represents an input from channel\texttt{X} and an assignment of the input value to the variable \texttt{c}. The output syntax is \texttt{X!c} where the value of the variable \texttt{c} is sent over the output channel \texttt{X}. At first Hoare had defined the message syntax to be the process names, but later on when CSP was developed into a proper process algebra, the syntax changed into using channels in order to be able to have several processes connected via the same channels.  
+Today, Communicating Sequential Processes (CSP) is a process algebra that provides a way to express concurrent systems. By using message passing between processes the language avoids certain problems that arise with the use of e.g shared variables. An essential part of CSP is message passing and the syntax for input is \texttt{X?c}. This represents an input from channel\texttt{X} and an assignment of the input value to the variable \texttt{c}. The output syntax is \texttt{X!c} where the value of the variable \texttt{c} is sent over the output channel \texttt{X}. At first Hoare had defined the message syntax to be the process names, but later on when CSP was developed into a proper process algebra, the syntax changed into using channels in order to be able to have several processes connected via the same channels.  
 \section{\cspm}
+\cspm is a formal language where CSP is combined with a functional programming language in order to make it easier for the programmer to model the systems and then use the code on tools that can animate or verify or similar. \cspm 
 \section{FDR}
-\section{SME}
-\section{SMEIL}
-\chapter{Methods}
+
+
+\chapter{Generalize specification from program and traces}
+\section{Target solution}
+\section{Manual translation}
 The first step in translating from SMEIL to \cspm is to create a small example and create a manual translation. This ensures that we have a suitable example to test the automatic gode generation, but also gives a good understanding of how the translation could be created and what kind of challenges there will arise from translating from SMEIL to \cspm. 
 The example \textit{Seven segment example} is an example of modelling a digital clock that consists of 6 different 7-segment displays. A 7-segment display is a display device for displaying decimal numerals. It consist of 7 identical segments which can be lit in different combinations in order to show the Arabic numerals 0 to 9. In the example we model a circuit that receives an input in the form; "seconds after midnight" and from this, calculates and displays the correct hours, minutes and seconds on the displays. Since only one digit can be shown on each 7-segment display it is necessary to separate the actual number into two e.g if the hour is 12 it will be shown as 1 and 2 on two separate displays. \\ The SME example in figure \ref{seven_segments_exaple.sme} inputs a numeral from a source process that is incremented by one for each run. It then sends the input out on the output bus where three different calculating processes receives from. Each process calculates respectively hours, minutes and seconds and separates the number in order to output the result to the two output channels. \\ The \cspm code in figure \ref{seven_segments_exaple.csp} is the handmade translation from the SME file. \\ The translation in \cspm is equivalent to the SME version where each process calculates either the hours, minutes or seconds and separate the result into two digits, one for each output channel.\\ 
 What we need to assert in this example is the number that is sent to the 7-segment displays. A 7 segment display can only represent 0-9 but 4 bits can represent 0-15. This means that we are interested in figuring out if this model can result in an ouput less that 10, in which case, the assertion fails and the model needs to be changed. The assertion used in \cspm checks if the processes refines the \texttt{SKIP} process i.e if the process terminates. This works because of the \texttt{if-then-else} statement that ensures that the process never stops (\texttt{STOP}) if one of the outputs are larger than 10. \\\\ 
@@ -215,6 +220,8 @@ Since it is necessary to give a range to all channels in \cspm, as mentioned abo
 \caption{Seven segments example in \cspm}
 \end{figure}
 
+
+\section{Automated translation}
 
 
 \chapter{Experiments and results}
