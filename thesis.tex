@@ -203,6 +203,7 @@ In the paper \textit{A primer on model checking}\cite{Ben-ari2010} Mordechai Ben
 
 \chapter{Generalize specification from program and traces}
 \section{Target solution}
+
 \section{Manual translation}
 The first step in translating from SMEIL to \cspm is to create a small example and create a manual translation. This ensures that we have a suitable example to test the automatic gode generation, but also gives a good understanding of how the translation could be created and what kind of challenges there will arise from translating from SMEIL to \cspm. 
 The example \textit{Seven segment example} is an example of modelling a digital clock that consists of 6 different 7-segment displays. A 7-segment display is a display device for displaying decimal numerals. It consist of 7 identical segments which can be lit in different combinations in order to show the Arabic numerals 0 to 9. In the example we model a circuit that receives an input in the form; "seconds after midnight" and from this, calculates and displays the correct hours, minutes and seconds on the displays. Since only one digit can be shown on each 7-segment display it is necessary to separate the actual number into two e.g if the hour is 12 it will be shown as 1 and 2 on two separate displays. \\ The SME example in figure \ref{seven_segments_exaple.sme} inputs a numeral from a source process that is incremented by one for each run. It then sends the input out on the output bus where three different calculating processes receives from. Each process calculates respectively hours, minutes and seconds and separates the number in order to output the result to the two output channels. \\ The \cspm code in figure \ref{seven_segments_exaple.csp} is the handmade translation from the SME file. \\ The translation in \cspm is equivalent to the SME version where each process calculates either the hours, minutes or seconds and separate the result into two digits, one for each output channel.\\ 
@@ -233,6 +234,7 @@ Since it is necessary to give a range to all channels in \cspm, as mentioned abo
 
 
 \section{Automated translation}
+ \textbf{It is important to mention that the FDR version of the SMEIL program are represented as one clock cycle and therefore we do not have to handle implicit clock cycle issues. we can just translate one-to-one, because FDR models one clock cycle and the input represents all possible input in one clock cycle.}
 
 
 \chapter{Experiments and results}
