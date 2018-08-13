@@ -1,0 +1,405 @@
+\documentclass[13pt]{beamer}
+\usetheme[nat,greyfoot,footstyle=low,headstyle=institute,style=alternative]{Frederiksberg}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+\usepackage{xcolor}
+\usepackage{color}
+\usepackage{minted}
+\usemintedstyle{emacs}
+\usepackage{url}
+\def\CC{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny ++}}}
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{units}
+\pgfplotsset{compat=newest}
+\usetikzlibrary{decorations.pathmorphing}
+
+\pgfplotsset{
+  every axis plot post/.style={/pgf/number format/fixed}
+}
+
+% Math stuff
+%\usepackage{amssymb, amsfonts, dsfont, amsthm, amsmath, wasysym, marvosym}
+
+\usepackage{graphicx}
+\usepackage[caption=false,font=footnotesize]{subfig}
+\newsubfloat{figure}
+
+\title[Towards Automatic Program Specification \\ Using SME Models]{Towards Automatic Program Specification Using SME Models}
+\subtitle{\tiny Communicating Process Architectures 2018 -- Technische Universität Dresden}
+\author[A. Thegler]{Alberte Thegler}
+\institute[Niels Bohr Institute]{Niels Bohr Institute, University of Copenhagen, Denmark}
+\date[August 21]{21 August 2018}
+
+
+
+\begin{document}
+
+\frame[plain]{\titlepage}
+
+%%%%%%%
+%%% TOC
+% \begin{frame}{Table of Contents}
+%   \begin{enumerate}
+%     \item Why should we verify hardware?
+%     \item What can SME do?
+%     \item Simple example
+%     \item CSPm process structure
+%     \item Monitor process
+%     \item Example continued
+%     \item Results - time to verify in FDR4?
+%     \item Conclusion
+%     \item Future work
+%   \end{enumerate}
+% \end{frame}
+%%% /TOC
+%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%
+%%% Why use libraries?
+\begin{frame}{Why should we verify hardware?}
+  \begin{block}{}
+    ...
+  \end{block}
+
+  \pause
+
+  \begin{block}{}
+     ...
+  \end{block}
+
+  \pause
+
+  \begin{block}{}
+    ...
+  \end{block}
+\end{frame}
+%%% /Why use libraries?
+%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BLAS, Accelerate, clBLAS, LAPACK
+%\begin{frame}{cBLAS, Accelerate, clBLAS, LAPACK}
+%  \begin{block}{Why can't we?}
+%    So why not just use one of these specialized libraries all the time?
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    There exist many different libraries, for many different purposes/architectures/OSes.
+%  \end{block}
+%\end{frame}
+%
+%\begin{frame}{cBLAS, Accelerate, clBLAS, LAPACK}
+%  \begin{block}{Use the best?}
+%    We have \texttt{cBLAS}, Accelerate, \texttt{clBLAS}, \textsc{lapack} and many many more.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    ``Best'' is hard to define.
+%    No one of the above is ``best''.
+%    They all are ``best'' in their own way.
+%  \end{block}
+%\end{frame}
+%
+%\begin{frame}{Coding \textsc{blas}}
+%  \begin{block}{Code}
+%    \texttt{cBLAS} code:
+%    \vspace{5mm}
+%
+%    \scalebox{0.8}{\usebox{\cblassgemm}}
+%  \end{block}
+%\end{frame}
+%
+%\begin{frame}{Coding \textsc{blas}}
+%  \begin{block}{Code}
+%    Python code:
+%    \vspace{5mm}
+%
+%    \scalebox{0.8}{\usebox{\pythonmatmul}}
+%  \end{block}
+%\end{frame}
+%% /BLAS, clBLAS, Accelerate, LAPACK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Python/NumPy vs. Bohrium
+%\begin{frame}{Python/NumPy}
+%  \begin{block}{NumPy}
+%    NumPy already uses \textsc{blas} for calls like \texttt{matmul}.
+%    \\
+%    Problem solved?
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    No. Python/NumPy is ``slow'' (single threaded) and cannot utilize GPGPUs or other accelerators out-of-the-box.
+%  \end{block}
+%\end{frame}
+%
+%\begin{frame}{Python/NumPy vs. Bohrium}
+%  \begin{block}{Bohrium}
+%    Bohrium can use GPGPUs, but does not support \textsc{blas}.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    Let us make it support these library methods, such as \textsc{blas}.
+%  \end{block}
+%\end{frame}
+%% /Python/NumPy vs. Bohrium
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Code-generation for Bohrium
+%\begin{frame}{Code-generation for Bohrium}
+%  \begin{block}{Compile}
+%    When you compile/install Bohrium, \texttt{CMake} can look for present libraries to link with. NumPy does the same when you compile or install it.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    If we find \textsc{blas} we want to link with it.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    However, if we find \texttt{clBLAS} we would also link with that.
+%  \end{block}
+%\end{frame}
+%
+%\begin{frame}{Code-generation for Bohrium}
+%  \begin{block}{Choose}
+%    With automatic code inclusion, we can choose which library we want to use on compile- and run-time!
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    We want Bohrium to link to both \textsc{blas} and choose the correct one later.
+%  \end{block}
+%\end{frame}
+%
+%\begin{frame}{Code-generation for Bohrium}
+%  \begin{block}{Implementing}
+%    We can implement all the \textsc{blas} calls ourselves.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    Tedious. Let's generate it instead!
+%  \end{block}
+%\end{frame}
+%% /Code-generation for Bohrium
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% JSON, template, generate!
+%\begin{frame}{JSON, template, generate!}
+%  \begin{block}{JSON}
+%    All of the \textsc{blas} methods follow a similar pattern.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    Let's use that to our advantage.
+%  \end{block}
+%\end{frame}
+%
+%\begin{frame}{JSON, template, generate!}
+%  \begin{block}{JSON}
+%    \scalebox{0.8}{\usebox{\json}}
+%  \end{block}
+%\end{frame}
+%
+%\begin{frame}{JSON, template, generate!}
+%  \begin{block}{\CC}
+%    \scalebox{0.7}{\usebox{\generated}}
+%  \end{block}
+%\end{frame}
+%% /JSON, template, generate!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Examples and results
+%\begin{frame}{Examples and results}
+%  \begin{block}{Run}
+%    All of the following CPU examples have been run on a Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz.
+%    \vspace{5mm}
+%
+%    The GPGPU examples are run on GeForce GTX 680 (OpenCL C 1.1).
+%    \vspace{5mm}
+%
+%    All examples were run 10 times and the average was measured.
+%  \end{block}
+%\end{frame}
+%
+%\begin{frame}{Examples and results}
+%  \begin{block}{}
+%    \begin{figure}[!ht]
+%      \begin{tikzpicture}[scale=0.7]
+%        \begin{axis}[
+%          ybar=6pt,
+%          bar width=12pt,
+%          x=3cm,
+%          y=5cm,
+%          ymin=0,
+%          axis on top,
+%          xtick=data,
+%          legend pos={outer north east},
+%          yticklabel=\pgfmathprintnumber{\tick}\,s,
+%          ylabel={Time [s]},
+%          enlarge x limits=0.2,
+%          symbolic x coords={A},
+%          xticklabels={,,},
+%          visualization depends on=rawy\as\rawy, % Save the unclipped values
+%          after end axis/.code={ % Draw line indicating break
+%              \draw [ultra thick, white, decoration={snake, amplitude=1pt}, decorate] (rel axis cs:0,1.05) -- (rel axis cs:1,1.05);
+%          },
+%          nodes near coords={%
+%              \tiny\pgfmathprintnumber{\rawy} % Print unclipped values
+%          },
+%          axis lines*=left,
+%          clip=false,
+%          restrict y to domain*=0:1.1, % Cut values off
+%          ymax=1.0 % Must be less than cut-off value
+%        ]
+%          \addplot coordinates {(A,  0.468026)}; % OpenBLAS
+%          \addplot coordinates {(A,  0.466213)}; % NumPy
+%          \addplot coordinates {(A, 10.910540)}; % Bohrium
+%          \addplot coordinates {(A,  0.460929)}; % Bohrium w/EXT
+%          \addplot coordinates {(A,  0.080284)}; % clBLAS
+%          \addplot [color=green!20!black, fill=green!50!black] coordinates {(A, 17.119442)}; % Bohrium w/OpenCL
+%          \addplot coordinates {(A,  0.098525)}; % Bohrium w/OpenCL w/EXT
+%
+%          \legend{\texttt{OpenBLAS} (C), NumPy, Bohrium, Bohrium w/Ext, \texttt{clBLAS} (\CC), Bohrium w/OpenCL, Bohrium w/OpenCL w/Ext}
+%        \end{axis}
+%      \end{tikzpicture}
+%      \caption{General matrix multiplication ($\mathbf{C} = \mathbf{AB}$) for multiple implementations. Calculating $2000 \times 3000$ multiplied with $3000 \times 4000$ floating point elements.}
+%      \label{fig:gemm}
+%    \end{figure}
+%  \end{block}
+%\end{frame}
+%
+%\begin{frame}{Examples and results}
+%  \begin{block}{}
+%    The C version (\texttt{OpenBLAS}) is 76 lines of code.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    The \CC version (\texttt{clBLAS}) is 265 lines of code
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    The NumPy version is \textbf{11 lines of code} -- and Bohrium is just another library import.
+%    Using Bohrium with OpenCL is just an environment variable.
+%  \end{block}
+%\end{frame}
+%
+%\begin{frame}{Examples and results}
+%  \begin{block}{}
+%    \begin{figure}[!ht]
+%      \begin{tikzpicture}[scale=0.7]
+%        \begin{axis}[
+%          ybar=6pt,
+%          bar width=12pt,
+%          x=2cm,
+%          y=5cm,
+%          ymin=0,
+%          axis on top,
+%          xtick=data,
+%          legend pos={outer north east},
+%          yticklabel=\pgfmathprintnumber{\tick}\,s,
+%          ylabel={Time [s]},
+%          enlarge x limits=0.2,
+%          symbolic x coords={A},
+%          xticklabels={,,},
+%          visualization depends on=rawy\as\rawy, % Save the unclipped values
+%          after end axis/.code={ % Draw line indicating break
+%              \draw [ultra thick, white, decoration={snake, amplitude=1pt}, decorate] (rel axis cs:0,1.05) -- (rel axis cs:1,1.05);
+%          },
+%          nodes near coords={%
+%              \tiny\pgfmathprintnumber{\rawy} % Print unclipped values
+%          },
+%          axis lines*=left,
+%          clip=false,
+%          restrict y to domain*=0:0.7, % Cut values off
+%          ymax=0.6 % Must be less than cut-off value
+%        ]
+%          \addplot coordinates {(A,   0.022598)}; % OpenCV
+%          \addplot coordinates {(A, 10.8134171)}; % NumPy
+%          \addplot coordinates {(A,  0.4857039)}; % Bohrium
+%          \addplot coordinates {(A,  0.0299198)}; % Bohrium w/EXT
+%
+%          \legend{OpenCV, NumPy, Bohrium, Bohrium w/Ext}
+%        \end{axis}
+%      \end{tikzpicture}
+%      \caption{Erode for multiple implementations. We use a $10,000 \times 10,000$ pixel random binary image.}
+%      \label{fig:erode}
+%    \end{figure}
+%  \end{block}
+%\end{frame}
+%% /Examples and results
+%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%
+%% Conclusion
+%\begin{frame}{Conclusion}
+%  \begin{block}{Productivity and performance}
+%    We can now utilize the same libraries in Bohrium as in NumPy.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    ... and they work just as fast.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    ... and even faster in cases, where we can utilize GPGPUs.
+%  \end{block}
+%\end{frame}
+%% /Conclusion
+%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%
+%% Future work
+%\begin{frame}{Future work}
+%  \begin{block}{DSL}
+%    A more generic DSL-like interface for creating these method inclusions:
+%    \vspace{5mm}
+%
+%    \scalebox{0.7}{\usebox{\future}}
+%  \end{block}
+%\end{frame}
+%% /Future work
+%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%
+%%%% Questions?
+%\begin{frame}{Questions?}
+%	\begin{block}{Comments?}
+%		Feel free to ask anything.
+%	\end{block}
+%\end{frame}
+%%%% /Questions?
+%%%%%%%%%%%%%%%%
+
+\end{document}
