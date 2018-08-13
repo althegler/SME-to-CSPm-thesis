@@ -1,0 +1,322 @@
+\documentclass[12pt]{article}
+
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\xmark}{\ding{55}}%
+
+%1 Fully addressed? yes/no
+%2 Location
+%3 Reviewers comment
+%4 Our response
+\newcommand{\concern}[4]{
+\noindent
+\fbox{
+\begin{minipage}{\linewidth}
+{\bf Page/line:} #2\hfill{}Concern fully addressed: {\bf #1}\\
+\hrule$ $\\
+{\bf Reviewer Comment:} #3\\
+\hrule$ $\\
+{\bf Author Comment:} #4
+\end{minipage}
+}\\[0.5cm]
+}
+
+
+\begin{document}
+
+\noindent
+{\Large CPA 2018}
+
+\noindent
+{\Large Paper Number: 16}\\[1cm] % use your paper number here
+
+\noindent
+{\Large Paper Title: Towards Automatic Program Specification}\\[1cm] %your title here
+
+\noindent
+{\Large Authors: Alberte Thegler, Mads Ohm Larsen, Kenneth Skovhede and Brian Vinter}\\[1cm] % Your name here
+
+\hrule
+
+\section{Review 1}
+
+%1 Was the concern fully addressed (yes/no/ ..... )
+%2 Location of the issue (page, line ....
+%3 The concern as stated in the review
+%4 Your response to the concern.
+
+
+\concern{Yes}
+{General}
+{If simulation is required to determine
+the necessary channel widths, does the success of FDR then depend on the
+extent of the simulation?}
+{Yes, as the implementation is now, if the simulation does not reach a corner case, this will also not be verified with FDR4. However, it is possible for the programmer to specify the ranges and types in SMEIL without the simulation, but this leads to the programmer being the single point of failure as he is to set the boundaries for the input of the system.}
+
+\concern{Yes}
+{Introduction}
+{"the slow and rigid development process in the VLSI world".
+Who decided that the development process is slow?
+Is there any justification for this remark?}
+{Added reference.}
+
+\concern{Yes}
+{Synchronous Message Exchange}
+{"and a subset of the CSP algebra was not at all useful for hardware modeling"
+Which subset? Was this work published? If not, is it possible it was the
+wrong subset? There have been numerous papers about using CSP (extensions)
+for hardware modeling.}
+{We have rewritten this section.}
+
+\concern{Yes}
+{Section 3.1 FDR4.}
+{"we do not need to take clock cycles into account"
+Does this mean that FDR4 will have to check more states than absolutely
+necessary? It reads as if it said "we do no have to take clock cycles into
+account because FDR will check everything anyway".}
+{FDR4 does not differentiate between clock cycles and therefore it will verify all possible states from all simulated clock cycles. Yes, this means that FDR4 might check more states that necessary. As mentioned above, if we implement annotations it would be easier to create a more specific input for FDR to verify.}
+
+\concern{Yes}
+{General}
+{There are two "Listing 1"s}
+{\checkmark}
+
+\concern{Yes}
+{Example}
+{"The corresponding network in CSPm consists of 12 different processes, ......
+The layout of the CSPm network can be seen in Figure 8."
+But Figure 8 contains either 10 (or 13) processes.}
+{An explanation have been added to the caption of the figure.}
+
+\concern{}
+{Example}
+{Listing 2: The assertions look suspicious:
+(1 $\leq$ x and x $\leq$ 1) $\leftrightarrow$ (x $\geq$ 1 and x $\leq$ 1) $\leftrightarrow$ (x = 1)}
+{We have replaced the code with a different example.}
+
+\concern{Yes}
+{Example}
+{"we get the ranges of observed values"
+How does one know whether all values that can be observed given certain
+circumstances have actually been observed? In other words: what if you
+simulation fails to show certain exceptional values?}
+{That is the possible problem with the simulation, that the simulation might not run for enough clock cycles to reach all corner cases. We have tried to express this in the paper as well.}
+
+\concern{Yes}
+{Future Work}
+{"it would provide a larger complexity to the assertion possibilities"
+Complexity is not a good thing; it is something to be avoided. I think
+something like "more capabilities" or "the ability to express more complex
+assertions" is meant.}
+{\checkmark}
+
+\section{Review 2}
+
+\concern{Yes}
+{Section 3.2}
+{I was looking forward to a nice story but found page after page
+of fragmented paragraphs listing things that range from absolutly
+uninteresting and unnecessary (Section 3.2) ...}
+{Removed}
+
+\concern{Yes}
+{Section 2}
+{... to impossible to
+understand unless you were the one who wrote the paper (Section 2).}
+{Rewritten}
+
+\concern{Yes}
+{General}
+{Try to read the paper again and pretent you
+do not know what SMEIL, SME, and Transpiler is! I bet you wouldn't be any the
+wiser after finishing it.}
+{We have restructured and rewritten some sections and hope that it is clearer now.}
+
+\concern{Yes}
+{Introduction, line 1.}
+{The Internet of Things ? Shouldn't that start with a 'The'?}
+{\checkmark}
+
+\concern{Yes}
+{General}
+{When using cite{} in LaTeX: "blah blah \texttt{\textasciitilde \textbackslash cite\{\}}" - don't forget the \textasciitilde }
+{\checkmark}
+
+\concern{Yes}
+{Introduction, page 1, line 12.}
+{';' after Figure 1.}
+{\checkmark}
+
+\concern{Yes}
+{Introduction, page 1.}
+{Footnote 2 \& 3 should end in a full stop (.)}
+{\checkmark}
+
+\concern{Yes}
+{Introduction, page 2, line 1.}
+{flow (reproduced in Figure 1) where the ...}
+{\checkmark}
+
+\concern{Yes}
+{Introduction, last paragraph, line -3.}
+{by transpiling ....}
+{\checkmark}
+
+\concern{Yes}
+{Introduction, last line.}
+{give a ref for FDR 4 here.
+}
+{\checkmark}
+
+\concern{Yes}
+{Synchronous Message Exchange, page 2, line 8.}
+{only before should.}
+{This section have been restructured and rewritten a bit.}
+
+\concern{Yes}
+{Synchronous Message Exchange, page 2, line 10.}
+{comma after CSP.}
+{\checkmark}
+
+\concern{Yes}
+{Synchronous Message Exchange, page 2, line 12-13.}
+{How does this correspond to share-nothing?}
+{The SME model is share-nothing, just like CSP. We have added this to the sentence.}
+
+\concern{Yes}
+{Synchronous Message Exchange, page 2, last line. }
+{Synchronicity rather than synchrony, I think.}
+{Changed to synchronicity}
+
+\concern{Yes}
+{Synchronous Message Exchange, page 2, last line. }
+{Comma after SME.}
+{\checkmark}
+
+\concern{No}
+{Synchronous Message Exchange, page 2, last line. }
+{Delete is (2nd to last word)}
+{Left the sentence as it is in order to keep understanding of the sentence.}
+
+\concern{Yes}
+{Synchronous Message Exchange, page 3, line 1. }
+{word, not words.}
+{\checkmark}
+
+\concern{Yes}
+{Synchronous Message Exchange, page 3, line 3. }
+{Colon (:) after 'phases'.}
+{\checkmark}
+
+\concern{Yes}
+{SMEIL, page 3, line 2. }
+{see Figure 4 $\rightarrow$ (Figure 4)}
+{\checkmark}
+
+\concern{Yes}
+{SMEIL, page 3, line 2. }
+{comma after language.}
+{\checkmark}
+
+\concern{Yes}
+{SMEIL, page 3, line 12. }
+{comma after SMEIL.}
+{Rewritten this section.}
+
+\concern{Yes}
+{SMEIL, page 3, line 14. }
+{comma after 'and then'.}
+{Rewritten the section.}
+
+\concern{Yes}
+{SMEIL, page 3. }
+{I don't understand how, if everything translates to SMEIL, you can take advantage
+of python libraries when you at the same time say that SMEIL does not have
+these abilities.}
+{We have tried to make it more clear that there are several ways to use SMEIL and that we only use pure SMEIL in our case, which does not enable the use of python libraries.}
+
+\concern{Yes}
+{Section 3.1 FDR4, page 4, 2nd paragraph. }
+{this paragraph is not convincing at all.}
+{Rewritten this paragraph.}
+
+\concern{Yes}
+{Section 3.1 FDR4, page 4, 2nd paragraph. }
+{??? again.}
+{It seems that this concern refers to the same as the one above. We have rewritten the entire section, so hopefully it is more clear an concise now.}
+
+\concern{Yes}
+{Section 3.2, page 4. }
+{DELETE section 3.2 - no one cares!}
+{Removed}
+
+\concern{Yes}
+{Section 3.3 Transpiling, page 4, 1st paragraph}
+{HUH??
+and the rest makes about as much sense. this requires a COMPLETE rewrite.}
+{We have tried to restructure the paper to create a better understanding of what we have done and to generate a better "story" throughout the paper.}
+
+\concern{Yes}
+{General}
+{there are two listings labelled 'Listing 1.'}
+{\checkmark}
+
+\concern{Yes}
+{General}
+{Why are listing 5 and 6 all the way at the end of the paper? This needs to be
+fixed.}
+{Since many of the examples throughout the paper are samples from these two listings, we do not think it is necessary to have them in the middle of the paper. Especially when they take up two whole pages. We have moved them to the very back of the paper instead of having them in the middle of "future work".}
+
+\section{Review 3}
+
+\concern{No}
+{Example}
+{The digital clock example is a bit simple to showcase the full potential of
+the contribution. An example with a complex network of processes would have
+given the contribution even more value.}
+{We have not added a more complex example to the paper because a more complex example would make it significantly harder to understand.}
+
+\concern{Yes}
+{General}
+{I would like a more specific title, perhaps "Automatic Specification and
+Verification of SME Models"}
+{We have changed the title to "Towards Automatic Program Specification Using SME Models"}
+
+\concern{Yes}
+{Page 3}
+{"convert to one code generator"}
+{We have rewritten this part.}
+
+
+\concern{Yes}
+{Page 4}
+{"this is not usually a problem that is an important part of testing, besides overflow"}
+{We have rewritten this part.}
+
+
+\concern{Yes}
+{Page 5}
+{"It is complex to create this networks of processes and communications
+and therefore it is important to store the data in an efficient manner"
+}
+{We have rewritten this part.}
+
+\concern{Yes}
+{Page 5}
+{"CSPm"}
+{\checkmark}
+
+\concern{Yes}
+{Page 6}
+{Section name: "Example", Consider "Digital Clock Example" instead}
+{\checkmark}
+
+
+\concern{Yes}
+{Page 9}
+{"no point is asserting"}
+{\checkmark}
+
+
+\end{document}

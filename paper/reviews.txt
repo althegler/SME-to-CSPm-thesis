@@ -1,0 +1,211 @@
+----------------------- REVIEW 1 ---------------------
+PAPER: 16
+TITLE: Towards Automatic Program Specification
+AUTHORS: Alberte Thegler, Mads Ohm Larsen, Kenneth Skovhede and Brian Vinter
+
+Overall evaluation: 3 (strong accept)
+
+----------- Overall evaluation -----------
+Good paper. I'm still not quite clear about the combination of simulation
+and formal verification, though. If simulation is required to determine
+the necessary channel widths, does the success of FDR then depend on the
+extent of the simulation?
+
+Some questions to think about:
+
+"the slow and rigid development process in the VLSI world".
+Who decided that the development process is slow?
+Is there any justification for this remark?
+
+
+"and a subset of the CSP algebra was not at all useful for hardware modeling"
+Which subset? Was this work published? If not, is it possible it was the
+wrong subset? There have been numerous papers about using CSP (extensions)
+for hardware modeling.
+
+"we do not need to take clock cycles into account"
+Does this mean that FDR4 will have to check more states than absolutely
+necessary? It reads as if it said "we do no have to take clock cycles into
+account because FDR will check everything anyway".
+
+There are two "Listing 1"s
+
+"The corresponding network in CSPm consists of 12 different processes, ......
+The layout of the CSPm network can be seen in Figure 8."
+But Figure 8 contains either 10 (or 13) processes.
+
+Listing 2: The assertions look suspicious:
+(1 <= x and x <=1) <=> (x >= 1 and x < = 1) <=> (x = 1)
+
+"we get the ranges of observed values"
+How does one know whether all values that can be observed given certain
+circumstances have actually been observed? In other words: what if you
+simulation fails to show certain exceptional values?
+
+"it would provide a larger complexity to the assertion possibilities"
+Complexity is not a good thing; it is something to be avoided. I think
+something like "more capabilities" or "the ability to express more complex
+assertions" is meant.
+
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 16
+TITLE: Towards Automatic Program Specification
+AUTHORS: Alberte Thegler, Mads Ohm Larsen, Kenneth Skovhede and Brian Vinter
+
+Overall evaluation: -2 (reject)
+
+----------- Overall evaluation -----------
+I have marked this paper 'reject' in its present state. I would like this paper
+reworked as I think its an interesting concept that I would like to see
+published and presented at the conference, but it is just not in a state
+that is presentable as it currently sits.
+
+I was excited about reading this paper; now I am more annoyed.
+
+I was looking forward to a nice story but found page after page
+of fragmented paragraphs listing things that range from absolutly
+uninteresting and unnecessary (Section 3.2) to impossible to
+understand unless you were the one who wrote the paper (Section 2).
+
+This paper looks like it was the first attempt by a student writing
+a research paper. It suffers from what many such papers suffer from:
+No proper path throughout the paper which the reader can follow.
+
+In general a paper should address a number of things:
+
+1.) What have you done?
+2.) How did you do it?
+3.) Did it work and what was the result?
+4.) Why should I care?
+
+Undoubtedly there are other points that could be added to the above list,
+but those are important, but just as important: the paper should read
+like a story - you should be trying to tell me something (using the 4 points
+from above); this paper fails on the story part. There is no flow, it seems
+like just a number of sections strung together. When I got to the example section
+(which is as far as I got before I felt that I was just wasting my time!)
+I still couldn't have explain to ANYONE what this paper was about.
+
+It will need a SERIOUS rewriting, and one that has happened I will be more than
+happy to reread and review it again. I understand that if the lead author is a
+student that a review like this could be discouraging; however, we all got them,
+and we all had to learn to write papers -- it isn't as easy as people think.
+
+I strongly suggest you lay out the story you want to tell and fill in the parts
+that are interesting and necessary. (For example, I don't care that you used ANTLR.
+If you feel that it is important to tell me then write one line about it - not an
+entire section. The paper benefits nothing from the section on ANTLR!)
+
+When telling the story perhaps the path should be explored though an example rather
+than moving all examples to the back. Try to read the paper again and pretent you
+do not know what SMEIL, SME, and Transpiler is! I bet you wouldn't be any the
+wiser after finishing it.
+
+Page 1
+
+Introduction
+------------
+Line 1: The Internet of Things ? Shouldn't that start with a 'The'?
+
+General: when using cite{} in LaTeX: blah blah~\cite{} - don't forget the ~
+
+Line 12: ';' after Figure 1.
+
+Footnote 2 & 3 should end in a full stop (.)
+
+Page 2
+
+Line 1: flow (reproduced in Figure 1) where the ...
+
+Last paragraph of the Introduction: Line -3: by transpiling ....
+Last line of the Itroduction: give a ref for FDR 4 here.
+
+1. Synchronous Message Exchange
+
+Line 8: only before should.
+Line 10: comma after CSP.
+Line 12-13: How does this correspond to share-nothing?
+Last line: Synchronicity rather than synchrony, I think.
+           Comma after SME.
+           Delete is (2nd to last word)
+
+Page 3
+
+Line 1: word, not words.
+Line 3: Colon (:) after 'phases'.
+
+2. SMEIL
+
+This entire section need a LOT of reworking. You MUST tell me what SMEIL is,
+what it looks like, what it is used for, how it works etc, but NOT as disconnected
+paragraphs but as a story.
+
+Line 2: see Figure 4 -> (Figure 4)
+Line 2: comma after language.
+Line 12: comma after SMEIL.
+Line 14: coma after 'and then'.
+
+I don't understand how, if everything translates to SMEIL, you can take advantage
+of python libraries when you at the same time say that SMEIL does not have
+these abilities.
+
+Page 4
+
+Section 3.1. FDR4
+
+2nd paragraph: this paragraph is not convincing at all.
+2rd paragrahp: ??? again.
+
+At this point in the paper, I still do not know what your contribution is,
+what you have done, and what the result was.
+
+DELETE section 3.2 - no one cares!
+
+Section 3.3 Transpiling
+
+1st paragraph: HUH??
+and the rest makes about as much sense. this requires a COMPLETE rewrite.
+
+This is as far as I got.
+
+Btw, there are two listings labelled 'Listing 1.'
+
+Why are listing 5 and 6 all the way at the end of the paper? This needs to be
+fixed.
+
+
+----------------------- REVIEW 3 ---------------------
+PAPER: 16
+TITLE: Towards Automatic Program Specification
+AUTHORS: Alberte Thegler, Mads Ohm Larsen, Kenneth Skovhede and Brian Vinter
+
+Overall evaluation: 2 (accept)
+
+----------- Overall evaluation -----------
+An interesting and well-written paper. A notable contribution to the field!
+
+The digital clock example is a bit simple to showcase the full potential of
+the contribution. An example with a complex network of processes would have
+given the contribution even more value.
+
+
+I would like a more specific title, perhaps "Automatic Specification and
+Verification of SME Models"
+
+
+Minor typos and confusing phrases:
+
+Page 3. "convert to one code generator"
+
+Page 4. "this is not usually a problem that is an important part of testing,
+besides overflow"
+
+Page 5. "It is complex to create this networks of processes and communications
+and therefore it is important to store the data in an efficient manner"
+
+Page 5. "CSPm"
+
+Page 6. Section name: "Example", Consider "Digital Clock Example" instead
+
+Page 9. "no point is asserting"
