@@ -10,8 +10,8 @@
 
 \usepackage{xcolor}
 \usepackage{color}
-\usepackage{minted}
-\setminted{frame=lines,linenos,framesep=2mm,fontsize=\small}
+\usepackage[outputdir=.tmp,cache=false]{minted}
+% \setminted{frame=lines,linenos,framesep=2mm,fontsize=\small}
 
 \usepackage{url}
 \def\CC{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny ++}}}
@@ -31,7 +31,7 @@
 
 \normalfont
 %\usepackage[T1]{fontenc}
-\renewcommand{\ttdefault}{cmtt}
+% \renewcommand{\ttdefault}{cmtt}
 \usepackage{booktabs, caption, siunitx}
 
 \usepackage{tikz}
@@ -120,26 +120,26 @@
   \end{tikzpicture}%
 }
 
-% \newcommand{\sevensegnum}[2][]% sample characvters
-% {%
-%   \ifthenelse{\equal{#2}{0}}{\sevenseg[#1]{{1,1,1,1,1,1,0,}}}{%
-%   \ifthenelse{\equal{#2}{1}}{\sevenseg[#1]{{0,1,1,0,0,0,0,}}}{%
-%   \ifthenelse{\equal{#2}{2}}{\sevenseg[#1]{{1,1,0,1,1,0,1,}}}{%
-%   \ifthenelse{\equal{#2}{3}}{\sevenseg[#1]{{1,1,1,1,0,0,1,}}}{%
-%   \ifthenelse{\equal{#2}{4}}{\sevenseg[#1]{{0,1,1,0,0,1,1,}}}{%
-%   \ifthenelse{\equal{#2}{5}}{\sevenseg[#1]{{1,0,1,1,0,1,1,}}}{%
-%   \ifthenelse{\equal{#2}{6}}{\sevenseg[#1]{{1,0,1,1,1,1,1,}}}{%
-%   \ifthenelse{\equal{#2}{7}}{\sevenseg[#1]{{1,1,1,0,0,0,0,}}}{%
-%   \ifthenelse{\equal{#2}{8}}{\sevenseg[#1]{{1,1,1,1,1,1,1,}}}{%
-%   \ifthenelse{\equal{#2}{9}}{\sevenseg[#1]{{1,1,1,1,0,1,1,}}}{%
-%   \ifthenelse{\equal{#2}{A}}{\sevenseg[#1]{{1,1,1,0,1,1,1,}}}{%
-%   \ifthenelse{\equal{#2}{B}}{\sevenseg[#1]{{0,0,1,1,1,1,1,}}}{%
-%   \ifthenelse{\equal{#2}{C}}{\sevenseg[#1]{{0,0,0,1,1,0,1,}}}{%
-%   \ifthenelse{\equal{#2}{D}}{\sevenseg[#1]{{0,1,1,1,1,0,1,}}}{%
-%   \ifthenelse{\equal{#2}{E}}{\sevenseg[#1]{{1,0,0,1,1,1,1,}}}{%
-%   \ifthenelse{\equal{#2}{F}}{\sevenseg[#1]{{1,0,0,0,1,1,1,}}}{%
-%   {\sevenseg[#1]{{0,0,0,0,0,0,0,}}}}}}}}}}}}}}}}}}}%
-% }
+\newcommand{\sevensegnum}[2][]% sample characvters
+{%
+  \ifthenelse{\equal{#2}{0}}{\sevenseg[#1]{{1,1,1,1,1,1,0,}}}{%
+  \ifthenelse{\equal{#2}{1}}{\sevenseg[#1]{{0,1,1,0,0,0,0,}}}{%
+  \ifthenelse{\equal{#2}{2}}{\sevenseg[#1]{{1,1,0,1,1,0,1,}}}{%
+  \ifthenelse{\equal{#2}{3}}{\sevenseg[#1]{{1,1,1,1,0,0,1,}}}{%
+  \ifthenelse{\equal{#2}{4}}{\sevenseg[#1]{{0,1,1,0,0,1,1,}}}{%
+  \ifthenelse{\equal{#2}{5}}{\sevenseg[#1]{{1,0,1,1,0,1,1,}}}{%
+  \ifthenelse{\equal{#2}{6}}{\sevenseg[#1]{{1,0,1,1,1,1,1,}}}{%
+  \ifthenelse{\equal{#2}{7}}{\sevenseg[#1]{{1,1,1,0,0,0,0,}}}{%
+  \ifthenelse{\equal{#2}{8}}{\sevenseg[#1]{{1,1,1,1,1,1,1,}}}{%
+  \ifthenelse{\equal{#2}{9}}{\sevenseg[#1]{{1,1,1,1,0,1,1,}}}{%
+  \ifthenelse{\equal{#2}{A}}{\sevenseg[#1]{{1,1,1,0,1,1,1,}}}{%
+  \ifthenelse{\equal{#2}{B}}{\sevenseg[#1]{{0,0,1,1,1,1,1,}}}{%
+  \ifthenelse{\equal{#2}{C}}{\sevenseg[#1]{{0,0,0,1,1,0,1,}}}{%
+  \ifthenelse{\equal{#2}{D}}{\sevenseg[#1]{{0,1,1,1,1,0,1,}}}{%
+  \ifthenelse{\equal{#2}{E}}{\sevenseg[#1]{{1,0,0,1,1,1,1,}}}{%
+  \ifthenelse{\equal{#2}{F}}{\sevenseg[#1]{{1,0,0,0,1,1,1,}}}{%
+  {\sevenseg[#1]{{0,0,0,0,0,0,0,}}}}}}}}}}}}}}}}}}}%
+}
 
 \tikzset{
   myarrow/.style={
@@ -202,7 +202,52 @@
 
 
 
+% \newsavebox{\future}
+% \begin{lrbox}{\future}
+%   \begin{minipage}{1.1\textwidth}
+%       \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble]{ruby}
+%         extmethod_name "blas"
+%         method_prefix "blas"
+%
+%         method do
+%           names "sgemm", "dgemm", "cgemm", "zgemm"
+%           data_operand 0
+%           types "bh_float32", "bh_float64", "bh_complex64", "bh_complex128"
+%
+%           load_data "C"
+%           load_data "A"
+%           load_data "B"
+%
+%           ...
+%         end
+%
+%         ...
+%       \end{minted}
+%   \end{minipage}
+% \end{lrbox}
 
+%
+% \newsavebox{\smeilexamplecode}
+% \begin{lrbox}{\smeilexamplecode}
+%   \begin{minipage}{1.1\textwidth}
+%     \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+%         proc seconds (in seconds_in)
+%             bus seconds_out {first_digit: u3 range 0 to 5;
+%                              second_digit: u4 range 0 to 9;};
+%             var seconds: u6 range 1 to 59;
+%             var seconds_first_temp: u3 range 0 to 5;
+%             var seconds_second_temp: u4 range 0 to 9;
+%         {
+%             seconds = seconds_in.val % 60;
+%             seconds_first_temp = seconds / 10;
+%             seconds_second_temp = seconds % 10;
+%             seconds_out.first_digit = seconds_first_temp;
+%             seconds_out.second_digit = seconds_second_temp;
+%         }
+%     \end{minted}
+%   \end{minipage}
+% \end{lrbox}
+%
 
 
 
@@ -226,10 +271,12 @@
 % \begin{frame}{Table of Contents}
 %   \begin{enumerate}
 %     \item Why should we verify hardware?
+%     \item What have we done
 %     \item What can SME do?
 %     \item SMEIL
 %     \item Simple example
-%     \item CSPm process structure
+%     \item SMEIL bus to \cspm{} channel
+%     \item \cspm{} process structure
 %     \item Monitor process
 %     \item Example continued
 %     \item Results - time to verify in FDR4?
@@ -302,10 +349,21 @@
 %%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% What have we done
+\begin{frame}{What have we done?}
+ \begin{block}{}
+   A transpiler which transpiles SMEIL code to \cspm{} in order to verify SME models with FDR4
+ \end{block}
+\end{frame}
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% What can SME do?
-\begin{frame}{What can SME do?}
+\begin{frame}{SME}
  \begin{block}{}
    The SME model builds on the CSP algebra
+   what more to add?
  \end{block}
 \end{frame}
 %%
@@ -323,6 +381,12 @@
  \begin{block}{}
    We transpile from SMEIL to \cspm{}\\
    And then verify it in FDR4
+ \end{block}
+
+ \pause
+
+ \begin{block}{}
+   Currently only works with pure SMEIL programs
  \end{block}
 
  \pause
@@ -350,28 +414,48 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Simple example
-\begin{frame}{Simple example}
- \begin{block}{Seven Segment Display}
-   Figure (Truls or something else?)
- \end{block}
-
-\end{frame}
-
-\begin{frame}{Seven Segment Display example}
+\begin{frame}{Seven segment display clock}
  \begin{block}{}
-   Write the seven segment circuit in SMEIL
+   \begin{figure}[!ht]
+        \tikz{
+          \node[inner sep=5pt, outer sep=2pt, draw=blue] {
+            \sevensegnum[size=2em, shrink=0.1]{1}
+            \sevensegnum[size=2em, shrink=0.1]{2}
+          }
+        }
+        \tikz{
+          \node[inner sep=5pt, outer sep=2pt, draw=blue] {
+            \sevensegnum[size=2em, shrink=0.1]{3}
+            \sevensegnum[size=2em, shrink=0.1]{4}
+          }
+        }
+        \tikz{
+          \node[inner sep=5pt, outer sep=2pt, draw=blue] {
+            \sevensegnum[size=2em, shrink=0.1]{5}
+            \sevensegnum[size=2em, shrink=0.1]{6}
+          }
+        }
+      \caption{Digital clock with six seven segment displays, displaying 12:34:56.}
+      \label{fig:6_displays}
+   \end{figure}
  \end{block}
 
  \pause
 
  \begin{block}{}
-  Transpile it to \cspm{}
+   Seconds since midnight
  \end{block}
 
  \pause
 
  \begin{block}{}
-  Verify in FDR4
+   Arithmetics calculate hours, seconds and minutes respectively
+ \end{block}
+
+ \pause
+
+ \begin{block}{}
+  Two seven segment displays pr. \texttt{time} process
  \end{block}
 
 \end{frame}
@@ -379,7 +463,7 @@
 \begin{frame}{Simple example}
  \begin{block}{What are we verifying}
    One seven segment example can only display the numbers 0-9. \\
-   4 bits can represent the data, but also more than needed.
+   4 bits can represent 0-15, which is more than needed.
  \end{block}
 
  \pause
@@ -388,13 +472,27 @@
    We can verify that the values communicated to the seven segment displays does not exceed the expected values.
  \end{block}
 
+ \pause
 
+ \begin{block}{}
+   In general, we verify the values comnmunicated on \cspm{} channels
+ \end{block}
+
+ \pause
+
+ \begin{block}{}
+   In this case we can restrict the assertions further. \\
+   Hours will never be more than 24, etc.
+ \end{block}
 \end{frame}
 
 
 \begin{frame}{Simple example}
  \begin{block}{Seven Segments SMEIL Structure}
-  SMEIL code
+  \texttt{SMEIL} code:
+  %   \vspace{5mm}
+  %
+  %    \scalebox{0.7}{\usebox{\smeilexamplecode}}
  \end{block}
 \end{frame}
 
@@ -432,8 +530,20 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% CSPm process structure
-\begin{frame}{CSPm process structure}
+%% SMEIL bus to \cspm{} channel
+\begin{frame}{SMEIL bus to \cspm{} channel}
+ \begin{block}{}
+   Code example
+ \end{block}
+
+\end{frame}
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \cspm{} process structure
+\begin{frame}{\cspm{} process structure}
  \begin{block}{}
    Code example
  \end{block}
@@ -456,14 +566,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Example continued
 \begin{frame}{Example continued}
- \begin{block}{Run}
-   All of the following CPU examples have been run on a Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz.
-   \vspace{5mm}
-
-   The GPGPU examples are run on GeForce GTX 680 (OpenCL C 1.1).
-   \vspace{5mm}
-
-   All examples were run 10 times and the average was measured.
+ \begin{block}{\cspm{} code}
+  \cspm{} code?
+  Do we even need this?
  \end{block}
 \end{frame}
 %%
@@ -473,10 +578,11 @@
 %% Results - time to verify in FDR4?
 \begin{frame}{Results - time to verify in FDR4?}
  \begin{block}{}
-   The seven segment example have been run on a ...
-   \vspace{5mm}
+     The seven segment example have been run on a Intel(R) Xeon(R) CPU E5-2698 v4 @ 2.20GHz.
 
-   The example were run x times and the average was measured.
+     \vspace{5mm}
+
+   The example were run x times and the average was measured. (If I have time)
  \end{block}
 \end{frame}
 %%
@@ -485,9 +591,22 @@
 %%%%%%%%%%%%%
 %% Conclusion
 \begin{frame}{Conclusion}
- \begin{block}{Productivity and performance}
-  ....
+ \begin{block}{}
+  With this system we can transpile hardware models to \cspm{}
  \end{block}
+
+ \pause
+
+ \begin{block}{}
+  and verify values on the \cspm{} channels
+ \end{block}
+
+ \pause
+
+ \begin{block}{}
+  and thereby verify the original hardware model
+ \end{block}
+
 \end{frame}
 %% /Conclusion
 %%%%%%%%%%%%%%
@@ -495,8 +614,8 @@
 %%%%%%%%%%%%%%
 %% Future work
 \begin{frame}{Future work}
- \begin{block}{DSL}
-     ....
+ \begin{block}{Rest of SMEIL grammar?}
+     + more?
  \end{block}
 \end{frame}
 %% /Future work
@@ -505,8 +624,9 @@
 %%%%%%%%%%%%%%%
 %%%% Questions?
 \begin{frame}{Questions?}
-	\begin{block}{Comments?}
-		Feel free to ask anything.
+	\begin{block}{Thank you!}
+		Thank you so much for your time. \\
+        Feel free to ask anything.
 	\end{block}
 \end{frame}
 %%%% /Questions?
