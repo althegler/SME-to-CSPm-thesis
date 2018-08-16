@@ -201,7 +201,7 @@
 
 
 
-
+%
 % \newsavebox{\future}
 % \begin{lrbox}{\future}
 %   \begin{minipage}{1.1\textwidth}
@@ -226,28 +226,66 @@
 %   \end{minipage}
 % \end{lrbox}
 
-%
-% \newsavebox{\smeilexamplecode}
-% \begin{lrbox}{\smeilexamplecode}
-%   \begin{minipage}{1.1\textwidth}
-%     \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-%         proc seconds (in seconds_in)
-%             bus seconds_out {first_digit: u3 range 0 to 5;
-%                              second_digit: u4 range 0 to 9;};
-%             var seconds: u6 range 1 to 59;
-%             var seconds_first_temp: u3 range 0 to 5;
-%             var seconds_second_temp: u4 range 0 to 9;
-%         {
-%             seconds = seconds_in.val % 60;
-%             seconds_first_temp = seconds / 10;
-%             seconds_second_temp = seconds % 10;
-%             seconds_out.first_digit = seconds_first_temp;
-%             seconds_out.second_digit = seconds_second_temp;
-%         }
-%     \end{minted}
-%   \end{minipage}
-% \end{lrbox}
-%
+
+\newsavebox{\smeilexamplecode}
+\begin{lrbox}{\smeilexamplecode}
+  \begin{minipage}{1.1\textwidth}
+    \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+        proc seconds (in seconds_in)
+            bus seconds_out {first_digit: u3 range 0 to 5;
+                             second_digit: u4 range 0 to 9;};
+            var seconds: u6 range 1 to 59;
+            var seconds_first_temp: u3 range 0 to 5;
+            var seconds_second_temp: u4 range 0 to 9;
+        {
+            seconds = seconds_in.val % 60;
+            seconds_first_temp = seconds / 10;
+            seconds_second_temp = seconds % 10;
+            seconds_out.first_digit = seconds_first_temp;
+            seconds_out.second_digit = seconds_second_temp;
+        }
+    \end{minted}
+  \end{minipage}
+\end{lrbox}
+
+
+
+\newsavebox{\smeilexamplecodex}
+\begin{lrbox}{\smeilexamplecodex}
+  \begin{minipage}{1.1\textwidth}
+        \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+        channel seconds_out_first_digit : {0..7}
+        channel seconds_out_second_digit : {0..15}
+
+            |$\vdots$|
+
+        Seconds(seconds_in) =
+        let
+            seconds = seconds_in % 60
+            seconds_first_temp = seconds / 10
+            seconds_second_temp = seconds % 10
+        within
+            seconds_out_first_digit ! seconds_first_temp ->
+            seconds_out_second_digit ! seconds_second_temp ->
+            SKIP
+        \end{minted}
+  \end{minipage}
+\end{lrbox}
+
+
+\newsavebox{\smeilexamplecodey}
+\begin{lrbox}{\smeilexamplecodey}
+  \begin{minipage}{1.1\textwidth}
+        \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+        Seconds_out_first_digit_monitor(c) =
+            c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
+        Seconds_out_second_digit_monitor(c) =
+            c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+        \end{minted}
+  \end{minipage}
+\end{lrbox}
+
+
 
 
 
@@ -490,9 +528,9 @@
 \begin{frame}{Simple example}
  \begin{block}{Seven Segments SMEIL Structure}
   \texttt{SMEIL} code:
-  %   \vspace{5mm}
-  %
-  %    \scalebox{0.7}{\usebox{\smeilexamplecode}}
+    \vspace{5mm}
+
+     \scalebox{0.8}{\usebox{\smeilexamplecode}}
  \end{block}
 \end{frame}
 
@@ -533,9 +571,11 @@
 %% SMEIL bus to \cspm{} channel
 \begin{frame}{SMEIL bus to \cspm{} channel}
  \begin{block}{}
-   Code example
- \end{block}
+   \texttt{SMEIL} code:
+     \vspace{5mm}
 
+      \scalebox{0.8}{\usebox{\smeilexamplecodex}}
+ \end{block}
 \end{frame}
 
 %%
@@ -556,7 +596,12 @@
 %% Monitor process
 \begin{frame}{Monitor process}
  \begin{block}{}
-   Code example
+   \texttt{SMEIL} code:
+     \vspace{5mm}
+
+      \scalebox{0.6}{\usebox{\smeilexamplecodey}}
+
+
  \end{block}
 
 \end{frame}
