@@ -69,8 +69,8 @@
     shrink = 0.2,
     line width = 0.3em,
     line cap = butt,
-    oncolor = green!50!black,
-    offcolor = white!75!black
+    oncolor = green,
+    offcolor = black!75!green
   }
 }
 \newcommand{\sevenseg}[2][]% options values
@@ -198,35 +198,6 @@
   every axis plot post/.style={/pgf/number format/fixed}
 }
 
-
-
-
-%
-% \newsavebox{\future}
-% \begin{lrbox}{\future}
-%   \begin{minipage}{1.1\textwidth}
-%       \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble]{ruby}
-%         extmethod_name "blas"
-%         method_prefix "blas"
-%
-%         method do
-%           names "sgemm", "dgemm", "cgemm", "zgemm"
-%           data_operand 0
-%           types "bh_float32", "bh_float64", "bh_complex64", "bh_complex128"
-%
-%           load_data "C"
-%           load_data "A"
-%           load_data "B"
-%
-%           ...
-%         end
-%
-%         ...
-%       \end{minted}
-%   \end{minipage}
-% \end{lrbox}
-
-
 \newsavebox{\smeilexamplecode}
 \begin{lrbox}{\smeilexamplecode}
   \begin{minipage}{1.1\textwidth}
@@ -248,17 +219,52 @@
   \end{minipage}
 \end{lrbox}
 
+\newsavebox{\smeilchannelexample}
+\begin{lrbox}{\smeilchannelexample}
+  \begin{minipage}{1.1\textwidth}
+    \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+        proc seconds (in seconds_in)
+            bus seconds_out {first_digit: u3 range 0 to 5;
+                             second_digit: u4 range 0 to 9;};
+    \end{minted}
+  \end{minipage}
+\end{lrbox}
 
 
-\newsavebox{\smeilexamplecodex}
-\begin{lrbox}{\smeilexamplecodex}
+\newsavebox{\smeilprocessexample}
+\begin{lrbox}{\smeilprocessexample}
+  \begin{minipage}{1.1\textwidth}
+    \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+        proc seconds (in seconds_in)
+            |$\vdots$|
+        {
+            seconds = seconds_in.val % 60;
+            seconds_first_temp = seconds / 10;
+            seconds_second_temp = seconds % 10;
+            seconds_out.first_digit = seconds_first_temp;
+            seconds_out.second_digit = seconds_second_temp;
+        }
+    \end{minted}
+  \end{minipage}
+\end{lrbox}
+
+
+
+\newsavebox{\cspmchannelexample}
+\begin{lrbox}{\cspmchannelexample}
   \begin{minipage}{1.1\textwidth}
         \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
         channel seconds_out_first_digit : {0..7}
         channel seconds_out_second_digit : {0..15}
+        \end{minted}
+  \end{minipage}
+\end{lrbox}
 
-            |$\vdots$|
 
+\newsavebox{\cspmprocessexample}
+\begin{lrbox}{\cspmprocessexample}
+  \begin{minipage}{1.1\textwidth}
+        \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
         Seconds(seconds_in) =
         let
             seconds = seconds_in % 60
@@ -273,14 +279,49 @@
 \end{lrbox}
 
 
-\newsavebox{\smeilexamplecodey}
-\begin{lrbox}{\smeilexamplecodey}
+\newsavebox{\cspmmonitorexample}
+\begin{lrbox}{\cspmmonitorexample}
   \begin{minipage}{1.1\textwidth}
-        \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+        \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
         Seconds_out_first_digit_monitor(c) =
             c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
         Seconds_out_second_digit_monitor(c) =
             c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+        \end{minted}
+  \end{minipage}
+\end{lrbox}
+
+\newsavebox{\cspmexample}
+\begin{lrbox}{\cspmexample}
+  \begin{minipage}{1.1\textwidth}
+        \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+        channel seconds_out_first_digit : {0..7}
+        channel seconds_out_second_digit : {0..15}
+
+        Seconds(seconds_in) =
+        let
+            seconds = seconds_in % 60
+            seconds_first_temp = seconds / 10
+            seconds_second_temp = seconds % 10
+        within
+            seconds_out_first_digit ! seconds_first_temp ->
+            seconds_out_second_digit ! seconds_second_temp ->
+            SKIP
+
+        Seconds_out_first_digit_monitor(c) =
+            c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
+        Seconds_out_second_digit_monitor(c) =
+            c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+
+        N_seconds = clock_out_val ? variable ->
+                    (Seconds(variable)
+                    [| {| seconds_out_first_digit|} |]
+                    Seconds_out_first_digit_monitor(seconds_out_first_digit))
+                    [| {| seconds_out_second_digit|} |]
+                    Seconds_out_second_digit_monitor(seconds_out_second_digit)
+
+        assert SKIP [F= N_seconds \ Events
+
         \end{minted}
   \end{minipage}
 \end{lrbox}
@@ -291,10 +332,14 @@
 
 
 
-
 \title[Towards Automatic Program Specification Using SME Models]{Towards Automatic Program Specification \\ Using SME Models}
 \subtitle{\tiny Communicating Process Architectures 2018 -- Technische Universität Dresden}
-\author[A. Thegler]{Alberte Thegler}
+\author[A. Thegler]
+{\textbf{Alberte Thegler},\\
+Mads Ohm Larsen,\\
+Kenneth Skovhede,\\
+and Brian Vinter\\
+}
 \institute[Niels Bohr Institute]{Niels Bohr Institute, University of Copenhagen, Denmark}
 \date[August 21]{21 August 2018}
 
@@ -327,8 +372,15 @@
 
 %%%%%%%%%%%%%%%%%%%%%%
 %%% Why should we verify hardware?
-\begin{frame}{Why should we verify hardware?}
-  \begin{block}{Ariane-5}
+\begin{frame}{Ariane-5}
+  \begin{block}{}
+    Picture?
+  \end{block}
+
+\end{frame}
+
+\begin{frame}{Ariane-5}
+  \begin{block}{}
     4th June 1996
   \end{block}
 
@@ -358,30 +410,49 @@
 
 \end{frame}
 
-\begin{frame}{Why should we verify hardware?}
-  \begin{block}{The Patriot Missile Failure}
+
+\begin{frame}{The Patriot Missile Failure}
+  \begin{block}{}
+    Picture?
+  \end{block}
+
+\end{frame}
+
+\begin{frame}{The Patriot Missile Failure}
+  \begin{block}{}
     25th February 1991 in the Persian Gulf war
   \end{block}
 
   \pause
 
   \begin{block}{}
-     A Patriot missile failed to intercept an incomming "Scud" which struck a U.S Army barracks, killing 28 soldiers.
+     A Patriot missile failed to intercept an incomming "Scud".
   \end{block}
 
   \pause
 
   \begin{block}{}
-     A bug in the system's weapons control computer caused an inaccurate tracking calculation.
      Conversion of time since last boot from an integer to a real number was performed using a 24 bit register.
   \end{block}
 
   \pause
 
   \begin{block}{}
-     Inaccurate results == missile misses target
+     The patriot missile missed the Scud which struck a U.S Army barracks, killing 28 soldiers.
   \end{block}
 
+\end{frame}
+
+\begin{frame}{Why should we verify hardware?}
+    \begin{block}{}
+        Because, as these examples have shown, the risk of not verifying can be devestating.
+            \vspace{5mm}
+
+        Loss of milions of money
+            \vspace{5mm}
+
+        Loss of human life
+    \end{block}
 \end{frame}
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -391,6 +462,21 @@
 \begin{frame}{What have we done?}
  \begin{block}{}
    A transpiler which transpiles SMEIL code to \cspm{} in order to verify SME models with FDR4
+ \begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}[auto]
+    \node[myrectangle, text width=1cm, minimum height=0.8cm, inner sep=5pt, inner ysep=5pt] (sme) {SME};
+    \node[myrectangle, text width=1cm, minimum height=0.8cm, inner sep=5pt, inner ysep=5pt] (smeil) [right=1cm of sme] {SMEIL};
+    \node[mycircle, text width=2cm, inner sep=5pt, inner ysep=5pt] (transpiler) [right=1cm of smeil] {Transpiler};
+    \node[myrectangle, text width=1cm, minimum height=0.8cm, inner sep=5pt, inner ysep=5pt] (cspm) [right=1cm of transpiler] {CSP$_M$};
+
+    \draw[myarrow] (sme) -- (smeil);
+    \draw[myarrow] (smeil) -- (transpiler);
+    \draw[myarrow] (transpiler) -- (cspm);
+  \end{tikzpicture}
+  \caption{SME to \cspm{} transpiler.}
+  \label{fig:sme-to-cspm}
+\end{figure}
  \end{block}
 \end{frame}
 %%%
@@ -398,20 +484,32 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% What can SME do?
-\begin{frame}{SME}
+\begin{frame}{How do we use SME?}
  \begin{block}{}
-   The SME model builds on the CSP algebra
-   what more to add?
+   The SME model builds on the CSP algebra and therefore all SME models have a corresponding CSP model.
+
  \end{block}
+
+ \pause
+
+  \begin{block}{}
+    We transpile not only the SME network, but also all the SME processes and their content.
+  \end{block}
+
+ \pause
+
+  \begin{block}{}
+    We can translate SME sequentially which simplifies the transpilation.
+  \end{block}
 \end{frame}
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% SMEIL
-\begin{frame}{SMEIL}
+\begin{frame}{How do we use SMEIL?}
  \begin{block}{}
-   You have just been introduced to SMEIL in the previous presentation
+    Introduced by Truls Asheim in the previous presentation
  \end{block}
 
  \pause
@@ -424,12 +522,7 @@
  \pause
 
  \begin{block}{}
-   Currently only works with pure SMEIL programs
- \end{block}
-
- \pause
-
- \begin{block}{}
+   The transpiler currently only works with pure SMEIL programs
    \begin{figure}[!ht]
   \centering
   \begin{tikzpicture}[auto]
@@ -456,19 +549,19 @@
  \begin{block}{}
    \begin{figure}[!ht]
         \tikz{
-          \node[inner sep=5pt, outer sep=2pt, draw=blue] {
+          \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
             \sevensegnum[size=2em, shrink=0.1]{1}
             \sevensegnum[size=2em, shrink=0.1]{2}
           }
         }
         \tikz{
-          \node[inner sep=5pt, outer sep=2pt, draw=blue] {
+          \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
             \sevensegnum[size=2em, shrink=0.1]{3}
             \sevensegnum[size=2em, shrink=0.1]{4}
           }
         }
         \tikz{
-          \node[inner sep=5pt, outer sep=2pt, draw=blue] {
+          \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
             \sevensegnum[size=2em, shrink=0.1]{5}
             \sevensegnum[size=2em, shrink=0.1]{6}
           }
@@ -487,7 +580,7 @@
  \pause
 
  \begin{block}{}
-   Arithmetics calculate hours, seconds and minutes respectively
+   Arithmetics calculate hours, minutes and seconds respectively
  \end{block}
 
  \pause
@@ -498,44 +591,9 @@
 
 \end{frame}
 
-\begin{frame}{Simple example}
- \begin{block}{What are we verifying}
-   One seven segment example can only display the numbers 0-9. \\
-   4 bits can represent 0-15, which is more than needed.
- \end{block}
 
- \pause
-
+\begin{frame}{Seven segment display clock}
  \begin{block}{}
-   We can verify that the values communicated to the seven segment displays does not exceed the expected values.
- \end{block}
-
- \pause
-
- \begin{block}{}
-   In general, we verify the values comnmunicated on \cspm{} channels
- \end{block}
-
- \pause
-
- \begin{block}{}
-   In this case we can restrict the assertions further. \\
-   Hours will never be more than 24, etc.
- \end{block}
-\end{frame}
-
-
-\begin{frame}{Simple example}
- \begin{block}{Seven Segments SMEIL Structure}
-  \texttt{SMEIL} code:
-    \vspace{5mm}
-
-     \scalebox{0.8}{\usebox{\smeilexamplecode}}
- \end{block}
-\end{frame}
-
-\begin{frame}{Simple example}
- \begin{block}{Seven Segments SMEIL Structure}
   \begin{figure}[!ht]
   \centering
   \begin{tikzpicture}
@@ -564,6 +622,64 @@
  \end{block}
 \end{frame}
 
+\begin{frame}{What are we verifying?}
+ \begin{block}{}
+   One seven segment display can only display the numbers 0-9. \\
+   4 bits can represent 0-15, which is more than needed.
+ \end{block}
+
+ \pause
+
+ \begin{block}{}
+   We can verify that the values communicated to all the seven segment displays does not exceed the expected values.
+ \end{block}
+
+  \pause
+
+  \begin{block}{}
+    In this case we can restrict the assertions further. \\
+    Hours will never be more than 24, etc.
+  \end{block}
+
+
+ \pause
+
+ \begin{block}{}
+   In general, we verify the values comnmunicated on \cspm{} channels
+ \end{block}
+\end{frame}
+
+\begin{frame}{Seven Segment display clock}
+ \begin{block}{}
+  \texttt{SMEIL} code:
+    \vspace{5mm}
+
+     \scalebox{0.8}{\usebox{\smeilexamplecode}}
+ \end{block}
+\end{frame}
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Now for the transpiling
+\begin{frame}{The transpiling}
+ \begin{block}{}
+   SMEIL bus to \cspm{} channel
+ \end{block}
+
+ \pause
+
+ \begin{block}{}
+   \cspm{} process structure
+ \end{block}
+
+ \pause
+
+ \begin{block}{}
+   The monitor process
+ \end{block}
+\end{frame}
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -574,7 +690,14 @@
    \texttt{SMEIL} code:
      \vspace{5mm}
 
-      \scalebox{0.8}{\usebox{\smeilexamplecodex}}
+      \scalebox{0.8}{\usebox{\smeilchannelexample}}
+ \end{block}
+ \pause
+ \begin{block}{}
+    \texttt{\cspm{}} code:
+      \vspace{5mm}
+
+       \scalebox{0.8}{\usebox{\cspmchannelexample}}
  \end{block}
 \end{frame}
 
@@ -585,7 +708,17 @@
 %% \cspm{} process structure
 \begin{frame}{\cspm{} process structure}
  \begin{block}{}
-   Code example
+   \texttt{SMEIL} code:
+     \vspace{5mm}
+
+      \scalebox{0.8}{\usebox{\smeilprocessexample}}
+ \end{block}
+ \pause
+ \begin{block}{}
+    \texttt{\cspm{}} code:
+      \vspace{5mm}
+
+       \scalebox{0.8}{\usebox{\cspmprocessexample}}
  \end{block}
 
 \end{frame}
@@ -594,14 +727,19 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Monitor process
-\begin{frame}{Monitor process}
+\begin{frame}{The monitor process}
  \begin{block}{}
    \texttt{SMEIL} code:
      \vspace{5mm}
 
-      \scalebox{0.6}{\usebox{\smeilexamplecodey}}
+      \scalebox{0.8}{\usebox{\smeilchannelexample}}
+ \end{block}
+ \pause
+ \begin{block}{}
+    \texttt{\cspm{}} code:
+      \vspace{5mm}
 
-
+       \scalebox{0.8}{\usebox{\cspmmonitorexample}}
  \end{block}
 
 \end{frame}
@@ -610,10 +748,12 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Example continued
-\begin{frame}{Example continued}
- \begin{block}{\cspm{} code}
-  \cspm{} code?
-  Do we even need this?
+\begin{frame}{Seven segment display clock}
+ \begin{block}{}
+  \texttt{\cspm{}} code:
+    \vspace{3mm}
+
+     \scalebox{0.7}{\usebox{\cspmexample}}
  \end{block}
 \end{frame}
 %%
@@ -627,7 +767,7 @@
 
      \vspace{5mm}
 
-   The example were run x times and the average was measured. (If I have time)
+   The example were run x times and the average was measured.
  \end{block}
 \end{frame}
 %%
@@ -637,19 +777,25 @@
 %% Conclusion
 \begin{frame}{Conclusion}
  \begin{block}{}
-  With this system we can transpile hardware models to \cspm{}
+  With this system we can transpile hardware models to \cspm{}.
  \end{block}
 
  \pause
 
  \begin{block}{}
-  and verify values on the \cspm{} channels
+  Verify values on the \cspm{} channels.
  \end{block}
 
  \pause
 
  \begin{block}{}
-  and thereby verify the original hardware model
+  Verify the original hardware model.
+ \end{block}
+
+ \pause
+
+ \begin{block}{}
+  Extract specification.
  \end{block}
 
 \end{frame}
@@ -659,9 +805,16 @@
 %%%%%%%%%%%%%%
 %% Future work
 \begin{frame}{Future work}
- \begin{block}{Rest of SMEIL grammar?}
-     + more?
+ \begin{block}{}
+     Hardware/software co-simulation
  \end{block}
+
+ \pause
+
+ \begin{block}{}
+     Creating more extensive examples to show the possibilities of the system
+ \end{block}
+
 \end{frame}
 %% /Future work
 %%%%%%%%%%%%%%%
@@ -669,10 +822,16 @@
 %%%%%%%%%%%%%%%
 %%%% Questions?
 \begin{frame}{Questions?}
-	\begin{block}{Thank you!}
-		Thank you so much for your time. \\
+	\begin{block}{}
+		Thank you!\\
+            \vspace{5mm}
         Feel free to ask anything.
 	\end{block}
+	% \begin{block}{}
+	% 	Contact:
+    %     tpq587@alumni.ku.dk
+    %     alberte@thegler.dk
+	% \end{block}
 \end{frame}
 %%%% /Questions?
 %%%%%%%%%%%%%%%%
