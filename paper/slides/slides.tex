@@ -729,6 +729,26 @@ and Brian Vinter\\
 %% Monitor process
 \begin{frame}{The monitor process}
  \begin{block}{}
+     \begin{figure}[!ht]
+      \centering
+      \begin{tikzpicture}[auto]
+        \node[mycircle] (P) at (-1.5, 0.0) {$P$};
+        \node[mycircle] (Q) at ( 2.5, 0.0) {$Q$};
+        \node[mycircle, shape=rectangle] (M) at ( 0.5, 1.5) {$M$};
+
+        \node[draw, shape=circle, inner sep=0pt, minimum size=5pt] (m) at (0.5, 0.0) {};
+
+
+        \draw (M) -- (P -| M) [black!50];
+        \draw [myarrow] (P) -- (Q);
+      \end{tikzpicture}
+      \caption{The monitor process \textit{M} listens in on the communication between \textit{P} and \textit{Q} in order to assert the communicated values.}
+      \label{fig:assertion_process}
+    \end{figure}
+ \end{block}
+\end{frame}
+\begin{frame}{The monitor process}
+ \begin{block}{}
    \texttt{SMEIL} code:
      \vspace{5mm}
 
