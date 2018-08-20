@@ -381,13 +381,13 @@ and Brian Vinter\\
 
 \begin{frame}{Ariane-5}
   \begin{block}{}
-    4th June 1996
+    4th June 1996.
   \end{block}
 
   \pause
 
   \begin{block}{}
-     Total failure on launch
+     Total failure on launch.
   \end{block}
 
   \pause
@@ -399,13 +399,13 @@ and Brian Vinter\\
   \pause
 
   \begin{block}{}
-    Overflow caused the self-destruct mechanism in both primary and backup computer
+    Overflow caused the self-destruct mechanism in both primary and backup computer.
   \end{block}
 
   \pause
 
   \begin{block}{}
-     No people where harmed
+     No people were harmed.
   \end{block}
 
 \end{frame}
@@ -420,7 +420,7 @@ and Brian Vinter\\
 
 \begin{frame}{The Patriot Missile Failure}
   \begin{block}{}
-    25th February 1991 in the Persian Gulf war
+    25th February 1991 in the Persian Gulf war.
   \end{block}
 
   \pause
@@ -448,10 +448,10 @@ and Brian Vinter\\
         Because, as these examples have shown, the consequences of not verifying can be devastating.
             \vspace{5mm}
 
-        Loss of milions of money
+        Loss of milions of money.
             \vspace{5mm}
 
-        Loss of human life
+        Loss of human life.
     \end{block}
 \end{frame}
 %%%
@@ -461,7 +461,7 @@ and Brian Vinter\\
 %%% What have we done
 \begin{frame}{What have we done?}
  \begin{block}{}
-   A transpiler which transpiles SMEIL code to \cspm{} in order to verify SME models with FDR4
+   A transpiler (Source-to-source compiler) which transpiles SMEIL to \cspm{} in order to verify SME models with FDR4.
  \begin{figure}[!ht]
   \centering
   \begin{tikzpicture}[auto]
@@ -509,35 +509,20 @@ and Brian Vinter\\
 %% SMEIL
 \begin{frame}{How do we use SMEIL?}
  \begin{block}{}
-    Introduced by Truls Asheim in the previous presentation
+    Introduced by Truls Asheim in the previous presentation.
  \end{block}
 
  \pause
 
  \begin{block}{}
-   We transpile from SMEIL to \cspm{}\\
-   And then verify it in FDR4
+   We transpile from SMEIL to \cspm{}.\\
+   And then verify it in FDR4.
  \end{block}
 
  \pause
 
  \begin{block}{}
-   The transpiler currently only works with pure SMEIL programs
-   \begin{figure}[!ht]
-  \centering
-  \begin{tikzpicture}[auto]
-    \node[mycircle, minimum size=1.75cm, align=center, text width=1.75cm, font=\footnotesize]    (smeil)                                       {SMEIL};
-    \node[myrectangle, text width=1.5cm, minimum height=1.0cm, inner sep=5pt, inner ysep=5pt] (csme)  [above left=-0.25cm and 1.5cm of smeil] {C\#SME};
-    \node[myrectangle, text width=1.5cm, minimum height=1.0cm, inner sep=5pt, inner ysep=5pt] (pysme) [below left=-0.25cm and 1.5cm of smeil] {PySME};
-    \node[myrectangle, text width=1.5cm, minimum height=1.0cm, inner sep=5pt, inner ysep=5pt] (vhdl)  [right=1.0cm of smeil]                {VHDL};
-
-    \draw[myarrow] (csme)  -- (smeil);
-    \draw[myarrow] (pysme) -- (smeil);
-    \draw[myarrow] (smeil) -- (vhdl);
-  \end{tikzpicture}
-  \caption{SMEIL transpiler structure.}
-  \label{fig:smeil_transpiler}
-\end{figure}
+   The transpiler currently only works with pure SMEIL programs.
  \end{block}
 \end{frame}
 %%
@@ -574,19 +559,19 @@ and Brian Vinter\\
  \pause
 
  \begin{block}{}
-   Seconds since midnight
+   Seconds since midnight.
  \end{block}
 
  \pause
 
  \begin{block}{}
-   Arithmetics calculate hours, minutes and seconds respectively
+   Arithmetics calculate hours, minutes and seconds respectively.
  \end{block}
 
  \pause
 
  \begin{block}{}
-  Two seven segment displays pr. \texttt{time} process
+  Two seven segment displays pr. \texttt{time} process.
  \end{block}
 
 \end{frame}
@@ -638,14 +623,14 @@ and Brian Vinter\\
 
   \begin{block}{}
     In this case we can restrict the assertions further. \\
-    Hours will never be more than 24, etc.
+    The time will never be more than 23:59:59.
   \end{block}
 
 
  \pause
 
  \begin{block}{}
-   In general, we verify the values comnmunicated on \cspm{} channels
+   In general, we verify the values comnmunicated on \cspm{} channels.
  \end{block}
 \end{frame}
 
@@ -664,19 +649,19 @@ and Brian Vinter\\
 %% Now for the transpiling
 \begin{frame}{The transpiling}
  \begin{block}{}
-   SMEIL bus to \cspm{} channel
+   SMEIL bus to \cspm{} channel.
  \end{block}
 
  \pause
 
  \begin{block}{}
-   \cspm{} process structure
+   \cspm{} process structure.
  \end{block}
 
  \pause
 
  \begin{block}{}
-   The monitor process
+   The monitor process.
  \end{block}
 \end{frame}
 
@@ -780,14 +765,30 @@ and Brian Vinter\\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%
+%% Example continued
+\begin{frame}{Seven segment display clock}
+     \begin{figure}[!ht]
+          \centering
+          \includegraphics[scale=0.295]{cspm_figure.jpg}
+          \caption{A seven segment display clock network in \cspm{}.}
+          \label{fig:cspm-network}
+     \end{figure}
+\end{frame}
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%
 %% Results - time to verify in FDR4?
-\begin{frame}{Results - time to verify in FDR4?}
+\begin{frame}{Verification in FDR4}
  \begin{block}{}
      The seven segment example have been run on a Intel(R) Xeon(R) CPU E5-2698 v4 @ 2.20GHz.
 
      \vspace{5mm}
+     We had a few problems with FDR4, but dividing the task was possible in this case.
 
-   The example were run x times and the average was measured.
+     \vspace{5mm}
+     When dividing the task, 0 to 131071 seconds can be verified in $\approx$ 2 hours 40 minutes.
  \end{block}
 \end{frame}
 %%
@@ -826,13 +827,13 @@ and Brian Vinter\\
 %% Future work
 \begin{frame}{Future work}
  \begin{block}{}
-     Hardware/software co-simulation
+     Hardware/software co-simulation.
  \end{block}
 
  \pause
 
  \begin{block}{}
-     Creating more extensive examples to show the possibilities of the system
+     Creating more extensive examples to show the possibilities of the system.
  \end{block}
 
 \end{frame}
@@ -843,9 +844,7 @@ and Brian Vinter\\
 %%%% Questions?
 \begin{frame}{Questions?}
 	\begin{block}{}
-		Thank you!\\
-            \vspace{5mm}
-        Feel free to ask anything.
+        Thank you!
 	\end{block}
 	% \begin{block}{}
 	% 	Contact:
