@@ -4,7 +4,7 @@ tmpdir = .tmp
 all: $(targets)
 
 view:
-	evince .tmp/$(targets)
+	open .tmp/$(targets)
 
 pdflatex = pdflatex -shell-escape -interaction=errorstopmode -halt-on-error -output-dir=$(tmpdir)
 
