@@ -30,32 +30,32 @@ In 1981, Edmund M. Clarke and E. Allen Emerson managed to combine temporal logic
 In the mid 1980s it was shown how model checking could be applied to hardware verification. However, it quickly became clear that model checking on hardware was very limited due to the state-space explosion that occurs especially on hardware. \\
 Randall Bryant from the CMU electrical engineering department invented ordered Binary decision diagrams (OBDDs). Later on, J. Burch, E. Clarke, K. McMillan et al.\cite{Burch1992} used OBDDs and created \textit{symbolic model checking} which represents the state space symbolically. The symbolic model checking can verify systems with an extremely large number of states and thus creating a solution to the problems of state space explosion.\\
 Because of the state-space explosion problem and the increasing complexity of digital electronic circuits, there was a need to be able to model the timing and data flow of a ciruit with a certain amount of abstraction. This became Hardware Description Languages (HDL) \\\\
-VHDL (VHSIC Hardware Description Language) was initially ordered by the United States Department of Defence in 1981 to help with the growing problem of hardware life cycles. It is based on the Ada programming language and have been the base Hardware Description language that was used to model hardware. In 1987 it became an IEEE standard, known as VHDL-87. After a major modification in 1993 it was known as VHDL-93. VHDL ... \todo{write something more}
+VHDL (VHSIC Hardware Description Language) was initially ordered by the United States Department of Defence in 1981 to help with the growing problem of hardware life cycles. It is based on the Ada programming language and have been the base Hardware Description language that was used to model hardware. In 1987 it became an IEEE standard, known as VHDL-87. After a major modification in 1993 it was known as VHDL-93. VHDL ...
+% TODO: write something more
+\\
 
 Verilog was published by Gateway Design Automation in 1985 and along side VHDL are the two main HDL's used for modelling circuits. Cadence Design Systems received the rights to Verilog-XL which is the HDL simulator that would end up being the de-facto standard Verilog simulator.
-
 
 
 However, VHDL and Verilog share many of the same limitations: neither is suitable for analog or mixed-signal circuit simulation; neither possesses language constructs to describe recursively-generated logic structures. Specialized HDLs (such as Confluence) were introduced with the explicit goal of fixing specific limitations of Verilog and VHDL, though none were ever intended to replace them. (From WIKI)
 (From WIKI): Essential to HDL design is the ability to simulate HDL programs. Simulation allows an HDL description of a design (called a model) to pass design verification, an important milestone that validates the design's intended function (specification) against the code implementation in the HDL description. It also permits architectural exploration. The engineer can experiment with design choices by writing multiple variations of a base design, then comparing their behaviour in simulation. Thus, simulation is critical for successful HDL design.
 
 
-Look at functional verification
+% TODO:  Look at functional verification
 
-Look at Property Specification Language
-also look at SVA (two property languages that are derived from LTL) (used for Hardware)
-
-
-HDL include explicit notation for expressing concurrency as well as a notion of time.
-HDLs are used to write executable specifications for hardware.
-Because HDLs can be executed it gives the illusion of programming languages even though it is more of a specification language or modelling language.
-First HDLs in late 60's. C.Gordon Bell and Allan Newells text "Computer Structures" in 1971 - first to give a hdl with lasting effect.
-
-(from
-http://www.techdesignforums.com/practice/guides/formal-verification-guide/) "Equivalence checking has been used for more than a decade to check that RTL and gate-level descriptions of a design represent the same design"
+% TODO: Look at Property Specification Language also look at SVA (two property languages that are derived from LTL) (used for Hardware)
 
 
-% 
+% HDL include explicit notation for expressing concurrency as well as a notion of time.
+% HDLs are used to write executable specifications for hardware.
+% Because HDLs can be executed it gives the illusion of programming languages even though it is more of a specification language or modelling language.
+% First HDLs in late 60's. C.Gordon Bell and Allan Newells text "Computer Structures" in 1971 - first to give a hdl with lasting effect.
+
+% (from
+% http://www.techdesignforums.com/practice/guides/formal-verification-guide/) "Equivalence checking has been used for more than a decade to check that RTL and gate-level descriptions of a design represent the same design"
+
+
+%
 % Take a look at Temporal logic model checking (As it is mentioned in the formal verification - evolution article)
 % - Clarke et. al. CMU 1981
 % - Sifakis et. al. Grenoble 1982
@@ -64,7 +64,7 @@ http://www.techdesignforums.com/practice/guides/formal-verification-guide/) "Equ
 % McMillan 1991
 % SMV
 
-WRIGHT\cite{Allen1997}\cite{Allen1997a} \todo{It would be worth to read more about this! They have done a bit of the same that I am to do in my thesis with auto generating \cspm}
+WRIGHT\cite{Allen1997}\cite{Allen1997a} % TODO: It would be worth to read more about this! They have done a bit of the same that I am to do in my thesis with auto generating \cspm}
 is an architecture description language which was developed at Carnegie Mellon University. They can auto generate \cspm code from WRIGHT and from there they can confirm certain properties by using FDR. http://www.cs.cmu.edu/~able/wright/
 
 
