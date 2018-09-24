@@ -1,0 +1,123 @@
+\chapter{Analysis}
+\section{SME}
+\subsection{Synchronous Message Exchange}
+SMEIL is based on the SME model and therefore we give a brief introduction to SME.
+\\
+
+SME was first introduced in 2014 and after several iterations~\cite{Vinter2014, Vinter2015, Skovhede} now presents as a programming model, a simulation library, and VHDL code generators~\cite{vhdl}. The original idea was conceived following an attempt to create hardware descriptions from a vector processor model, modeled in PyCSP~\cite{bjorndalen2007pycsp}, a Communicating
+Sequential Processes (CSP)~\cite{hoare1978communicating} library for Python.
+After this attempt, it became clear that the structure of CSP was poorly suited for modeling clocked systems, and therefore it was decided to create the SME model, based on the CSP algebra. The idea was to only use the subset of the CSP algebra that provided beneficial functionality to hardware modeling which, most importantly, meant that external choice was omitted. However, the shared-nothing property of CSP showed to be very useful, since the network state could only be changed by process communication.
+\\
+
+In SME, a network is a combination of processes that are connected through buses. The processes communicate through a collection of signals in a bus, instead of CSP's synchronous rendezvous model, but retains the shared-nothing trait of CSP.
+SME uses the term \texttt{bus} instead of \texttt{channel} to enforce the semantic correlation between the SME bus and a physical hardware signal bus.
+The process communication is handled by a hidden clock which eliminates the complexity that arose from adding synchronicity to a CSP network. The combination of the hidden clock and the synchronous message passing between processes means that the SME model provides hardware-like signal propagation.
+
+An SME clock cycle consists of three phases: it reads, executes, and writes as can be seen in Figure~\ref{fig:sme_process_flow}. The process is activated on the rising clock edge where it reads from the bus and it reads, executes and writes to the bus in one clock cycle. Just before the rising edge of the clock, all signals are propagated on all buses which means, that all communication happens simultaneously. Because of this structure, if a value is written by a process in cycle $i$, it is read by the receiving process in cycle $i+1$.
+
+SME is able to detect read/write conflicts where multiple writes are performed to a single bus within the same clock cycle as well as reads from a signal that has not been written to in the previous clock-cycle.
+\\
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}[auto]
+    \node[mycircle, text width=2cm, shape=rectangle] (read) {Read};
+    \node[mycircle, text width=2cm, shape=rectangle] (execute) [below=0.5cm of read] {Execute};
+    \node[mycircle, text width=2cm, shape=rectangle] (write)  [below=0.5cm of execute] {Write};
+
+    \draw [myarrow] (read) -- (execute);
+    \draw [myarrow] (execute) -- (write);
+    \draw [myarrow] (write) |-([shift={(5mm,-5mm)}]write.south east)-- ([shift={(5mm,5mm)}]read.north east)-| (read);
+  \end{tikzpicture}
+  \caption{SME process flow for one clock cycle.}
+  \label{fig:sme_process_flow}
+\end{figure}
+Since SME is based on CSP, all SME models have a
+corresponding CSP model, and because of this property, we are able to create a transpiler translating SME models to \cspm{}.
+The SME model is currently implemented as libraries for the general-purpose languages C\#~\cite{Skovhede}, C++~\cite{asheim2015}, and Python~\cite{asheim2016vhdl}. The Python and C\# libraries both have code generators for VHDL as well.
+
+\subsection{SMEIL}
+\label{SMEIL-section}
+With the different SME implementations, a need arose for a common intermediate language. SMEIL was developed as a Domain Specific Language (DSL) for SME, usable both as an IL and as an independent implementation language. It has a C-like syntax with a type system that makes hardware modeling simple. In spite of its simplicity, SMEIL still provides hardware-specific functionality that is more difficult to create with general-purpose languages.
+Often when modeling hardware in Hardware Description Languages (HDLs) like VHDL or Verilog, code for testing and verifying are often written in the same language as the design itself. Unfortunately, the HDLs often does not have the functionality for generating proper simulation input. Using general-purpose languages for testing hardware models are useful since the range of available libraries are much larger.
+Therefore the SMEIL simulator provides a simple language-independent API which enables SME implementations written for general-purpose languages to communicate with SME networks written in SMEIL, so-called co-simulation.
+
+\begin{listing}
+\begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+proc addone (in inbus)
+    bus outbus {
+        val: int;
+    };
+{
+    outbus.val = inbus.val + 1;
+}
+
+    |$\vdots$|
+
+network net() {
+    instance a of addone(b.outbus);
+    instance b of ..
+    |$\vdots$|
+}
+\end{minted}
+\caption{Small example of process and network syntax in SMEIL.}
+\label{lst:smeil_small_syntax_example}
+\end{listing}
+
+The two fundamental components of an SMEIL program is \texttt{process} and \texttt{network}. The process consists of variable and bus definitions, as well as the statements that are evaluated once for each clock cycle. The purpose of the \texttt{network} declaration is to define the relations between each entity in the program. A small example of process and network syntax can be seen in Listing~\ref{lst:smeil_small_syntax_example}.
+
+There are several different ways to use SMEIL, one being co-simulation as described above. However, in this work, we focus on the independent SMEIL representation and thus we only present examples in pure SMEIL. These pure SMEIL programs must contain a process which generates input for the network since the network cannot receive input elsewhere. The program is simulated using the command line tool. Simulation is done in order to test the design of the system.
+
+During the simulation, ranges for all observed values are captured so the observed values and types can be used to constrain the original defined types and ranges. This property is of great value when translating into \cspm{}, and when creating assertions, since we can use these values to actually assert the network.
+The number of clock cycles, that the simulation is run for, is specified by the programmer via the command line tool. If the simulation is not passing through enough clock cycles, the verification might be inadequate. Since the verification builds on the observed values, the simulation needs to be long enough such that the whole possible range of input values is exhausted.
+
+In Figure~\ref{fig:smeil_transpiler} the SMEIL transpiler structure can be seen.
+
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}[auto]
+    \node[mycircle, minimum size=1.75cm, align=center, text width=1.75cm, font=\footnotesize]    (smeil)                                       {SMEIL};
+    \node[myrectangle, text width=1.5cm, minimum height=1.0cm, inner sep=5pt, inner ysep=5pt] (csme)  [above left=-0.25cm and 1.5cm of smeil] {C\#SME};
+    \node[myrectangle, text width=1.5cm, minimum height=1.0cm, inner sep=5pt, inner ysep=5pt] (pysme) [below left=-0.25cm and 1.5cm of smeil] {PySME};
+    \node[myrectangle, text width=1.5cm, minimum height=1.0cm, inner sep=5pt, inner ysep=5pt] (vhdl)  [right=1.0cm of smeil]                {VHDL};
+
+    \draw[myarrow] (csme)  -- (smeil);
+    \draw[myarrow] (pysme) -- (smeil);
+    \draw[myarrow] (smeil) -- (vhdl);
+  \end{tikzpicture}
+  \caption{SMEIL transpiler structure.}
+  \label{fig:smeil_transpiler}
+\end{figure}
+
+\section{SMEIL}
+%\textbf{This is where the theory go. fx. SME and the correlation between that and CSP.}
+%CSPm was devised by Bryan Scattergood as a machine-readable dialect of CSP  - se the paper \textit{The Semantics and Implementation of Machine-Readable CSP}\\\\
+%" FDR2 is often described as a model checker, but is technically a refinement checker, in that it converts two CSP process expressions into Labelled Transition Systems (LTSs), and then determines whether one of the processes is a refinement of the other within some specified semantic model (traces, failures, or failures/divergence)" (from Wikipedia - se paper \textit{Model-checking CSP - af Roscoe} \\\\
+\section{CSP}
+Today, Communicating Sequential Processes (CSP) is a process algebra that provides a way to express concurrent systems. By using message passing between processes the language avoids certain problems that arise with the use of e.g shared variables. An essential part of CSP is message passing and the syntax for input is \texttt{X?c}. This represents an input from channel\texttt{X} and an assignment of the input value to the variable \texttt{c}. The output syntax is \texttt{X!c} where the value of the variable \texttt{c} is sent over the output channel \texttt{X}. At first Hoare had defined the message syntax to use the process names, but later on when CSP was developed into a proper process algebra, the syntax changed into using channels in order to be able to have several processes connected via the same channels.   \textbf{do not write too much here. just short explain csp}
+\section{\cspm{}}
+\cspm is a formal language that combines CSP with a functional programming language in order to make it easier for the programmer to model the systems and then use the code on tools that can animate, verify or similar.
+\section{FDR}
+FDR (Failures Divergence Refinement) tool is a refinement checker for
+
+In the paper \textit{A primer on model checking}\cite{Ben-ari2010} Mordechai Ben-Ari explains a concurrent problem that he had used for many years, to teach his students about concurrency. ... \textbf{write this when I have read the article again}
+
+\section{Supporting Technologies}
+\subsection{FDR4}
+We not only want to transpile SMEIL to \cspm{}, we also want to be able to verify different properties in \cspm{} in order to prove correctness. Today, there exists several tools for formal verification, both in academia and in the industry. One of the currently most favored tools is the Failures-Divergences Refinement tool (FDR4). This tool is a CSP refinement checker that can analyze programs written in the machine-readable version of CSP; \cspm{}.
+It provides a parallel refinement-checking engine that can scale up linearly with the number of cores. This means that it can handle processes with a large number of states in a reasonable time. FDR4 can handle several different types of assertions, deadlocks being the most used. However, due to the structure of SMEIL, we use FDR4 in a different way than is typical. Since the SME model cannot have cyclic-wait we have no need to verify the system in this manner.
+
+For our current implementation of the transpiler, we can assert the ranges of the channel inputs, for example, we can automatically assert that the observed ranges, provided by the SMEIL simulation, and the possible input on the \cspm{} channels are not conflicting.
+In hardware, we would typically want to verify that the communication on a bus does not exceed a certain range or that the sum of multiple signals does not exceed a specific value. A bus might be able to carry other data than needed, and being able to model a circuit that can assert that the bus never carries other data than expected, is of great value.
+\\
+
+CSP was not initially developed for hardware modeling, and therefore it is not evident how to handle the clock cycle, which is an essential part of hardware modeling. When we transpile the SME network into \cspm{} the SMEIL simulation have provided the ranges of all values from the simulation and therefore all clock cycles. This means that when FDR4 asserts a property it asserts on all possible communication combinations for all the simulated clock cycles. Therefore, even though we are transpiling from an SME model, where the clock is crucial, we can simply translate ``one-to-one" from the SMEIL program and still get an accurate assertion on the properties.
+
+\subsection{Transpiling SMEIL to \cspm{}} \label{sec:transpiling}
+When transpiling from SMEIL to \cspm{} one of the difficult components was to find a generalized method for transpiling, that could be generalized to most problems. We have worked on separation of concerns in order to simplify, but also have a greater chance of being able to match more SMEIL programs.
+
+An SMEIL process consists of bus and variable declarations, the statements to be run per clock cycle as well as the outgoing communication from the process.  Channels within an SMEIL bus can be translated directly to \cspm{} channels. It is, however, important to give channel names that will be unique since a \cspm{} channel is global as opposed to the local channel within each SMEIL bus. An example of an SMEIL process, where the process structure is evident, can be seen in Listing~\ref{lst:range_smeil} and the corresponding \cspm{} code in Listing~\ref{lst:channel_range_cspm}.
+
+In order to keep the outwards communication and the arithmetic statements together within each process in \cspm{}, we generate \cspm{} processes with a \texttt{let within} statement. The arithmetic statements go into the \texttt{let} section and the communications go into the \texttt{within} section. This gives us the possibility of separating the outwards communication and arithmetic statements while still keeping them within the same \cspm{} process. In Listing~\ref{lst:channel_range_cspm}, an example of the \texttt{let within} statement can be seen in lines 7-14. This structure will work as a general translation structure from SMEIL processes to \cspm{} processes.
+
+The network in an SMEIL program is the crucial part which ties all the processes and communication together. We can standardize the network generation by creating a two-step communication part. Instead of having the actual processes receive the incoming data, they receive the data by their process parameter. The process parameter is then set by the network process which receives the communication from the channels and provides the process with the communicated value.
+This ensures that we can generate the processes easily without having to traverse the network in the SMEIL program beforehand to find out which channel provides input for which process. An example of this is shown in Listing~\ref{lst:cspm} in the appendix on lines 61 to 66.

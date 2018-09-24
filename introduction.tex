@@ -1,0 +1,125 @@
+\chapter{Introduction}
+When we create programs, we wish to verify that it is also correct. There are several ways to do this, one commenly used is \texttt{testing} which require that the programmer creates several different scenarios and its expected output, or that the programmer programs a test-generator to create the scenarios and expected output. This, however, is not adequate for critical systems since it is never a 100\% accurate. Therefore it is of high interest to create a formal verification of the system or program.\\
+%Talk about how verification was first created and how it became to be used for concurrent systems. Then write about how it works and then write about the different systems and formal languages that is used for it. \\\\
+
+
+In this thesis we look at model checking, that is, verifying that a specific property will always hold for a piece of code.
+\\\\
+
+Formal verification is the process of checking whether a program satisfies specific properties. Different methods have evolved, all having different advantages and disadvantages. FDR is sometimes referred to as a model checker however is it actually a refinement checker.
+\\\\
+
+The Internet of Things, computerized medical implants, and the omnipresent growth in robotics, brings with them an increased demand for programmers to develop software for those devices. While this observation may not in itself appear to present a new challenge, many other areas have previously presented a need for more programmers. The new challenge is that these new growth areas are all focused on small size, low power consumption, and high reliability. This means that traditional software engineering methods, and thus traditionally trained programmers, are often not sufficiently qualified to develop these technologies.
+In previous decades such systems have been developed by electronic engineers that apply far more rigid development approaches. Especially for hardware solutions like VLSI\footnote{Very-large-scale integration.} and FPGA\footnote{Field-Programmable Gate Array.}, correctness has always been favored over productivity.
+While tools have obviously improved and methods refined, the VLSI process is still mostly the same as presented in~\cite{Agrawal:1985:VDP:320599.322570}. The primary workflow from~\cite{Agrawal:1985:VDP:320599.322570} is shown in Figure~\ref{fig:Agrawal}; note the focus on verification in each step.
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}[auto, scale=0.8, every node/.style={scale=0.8}]
+    \node[myrectangle] (synthesis)                            {Synthesis and test generation};
+    \node[myrectangle] (layout)    [right=2.5cm of synthesis] {Layout};
+    \node[myrectangle] (wafer)     [right=2.5cm of layout]    {Wafer\\fabrication and packaging};
+
+    \node[myrectangle] (verification1) [below=0.5cm of synthesis] {Verification};
+    \node[myrectangle] (verification2) [below=0.5cm of layout]    {Verification};
+    \node[myrectangle] (verification3) [below=0.5cm of wafer]     {Testing};
+
+    \node (input) [left=1.5cm of synthesis] {};
+    \draw[myarrow] (input) -- node[near start] {\scriptsize Requirements} (synthesis);
+
+    \node (output) [right=1.5cm of wafer] {};
+    \draw[myarrow] (wafer) -- node[near end] {\scriptsize VLSI devices} (output);
+
+    \draw[myarrow] (synthesis) -- node[text width=2cm, align=center, midway] {\scriptsize Logic design and test data} (layout);
+    \draw[myarrow] (layout)    -- node[text width=2cm, align=center, midway] {\scriptsize Mask and test data} (wafer);
+
+    \draw[myarrow] (synthesis)     to[out=345, in=15]  (verification1);
+    \draw[myarrow] (verification1) to[out=165, in=195] (synthesis);
+
+    \draw[myarrow] (layout)        to[out=345, in=15]  (verification2);
+    \draw[myarrow] (verification2) to[out=165, in=195] (layout);
+
+    \draw[myarrow] (wafer)         to[out=345, in=15]  (verification3);
+    \draw[myarrow] (verification3) to[out=165, in=195] (wafer);
+
+    \draw[myarrow] (verification3) -- node[text width=3cm, align=center, midway, below=2mm] {\scriptsize Timing, testability, quality, reliability, and yield problems} (verification2);
+    \draw[myarrow] (verification2) -- node[text width=3cm, align=center, midway, below=2mm] {\scriptsize Timing, testability, quality, reliability, and yield problems} (verification1);
+  \end{tikzpicture}
+  \caption{VLSI process workflow.}
+  \label{fig:Agrawal}
+\end{figure}
+
+While the VLSI community is fundamentally following this 1980's design approach, more high-level tools and abstractions have been introduced. Philippe et al.~\cite{ coussy2009introduction} show a workflow (reproduced in Figure~\ref{fig:coussy}) where the important part is the verification that has been partly automated by basing the development on a formal specification of the solution.
+
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}[auto]
+    \node[myrectangle, text width=3cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (specification) {Specification};
+    \node[myrectangle, text width=3cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (compilation) [right=0.5cm of specification] {Compilation};
+    \node[myrectangle, text width=3cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (formalmodel) [right=0.5cm of compilation] {Formal model};
+
+    \node[myrectangle, text width=3cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (behavioral) [right=0.5cm of formalmodel] {Behavioral synthesis};
+
+    \node[myrectangle, text width=3cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (generation) [below=1cm of specification] {Generation};
+    \node[myrectangle, text width=3cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (rtl) [right=0.5cm of generation] {RTL architecture};
+    \node[myrectangle, text width=3cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (logic) [right=0.5cm of rtl] {Logic synthesis};
+
+    \node[] (dotdotdot) [right=0.5cm of logic] {...};
+
+    \draw[myarrow] (specification) -- (compilation);
+    \draw[myarrow] (compilation) -- (formalmodel);
+    \draw[myarrow] (formalmodel) -- (behavioral);
+
+    \draw[myarrow] (behavioral) |-([shift={(0mm,-5mm)}]behavioral.south west) -- ([shift={(0mm,5mm)}]generation.north east)-| (generation);
+
+    \draw[myarrow] (generation) -- (rtl);
+    \draw[myarrow] (rtl) -- (logic);
+    \draw[myarrow] (logic) -- (dotdotdot);
+  \end{tikzpicture}
+  \caption{Reproduced workflow from Philippe et al.~\cite{coussy2009introduction}.}
+  \label{fig:coussy}
+\end{figure}
+
+There is no denying that the subjectively slow and rigid development process in the VLSI world~\cite{kepner2004hpc} is highly successful in producing correct and reliable circuits. At the same time, conventional software development is highly focused on productivity and time-to-market, for example, smartphone applications are often developed for continuous release, where bug patches and new features are rolled out daily. This is of course not possible with hardware.
+
+Thus, the authors argue that there is a growing chasm between the way most programmers are trained and the competencies that are needed to support the growth in mission critical embedded devices.
+\\
+
+In this work, we propose a tool to help bridge the gap between available programmer profiles and the required competencies for embedded devices. Our approach is based on building a specification from a software implementation and test-suite observations. The overarching goal is to reach a level where a conventional software programmer can write a solution in Synchronous Message Exchange (SME)~\cite{Vinter2014, Vinter2015}, and develop a conventional test suite in the software engineering tradition. By combining the implementation with the \emph{observed} values of internal states in an SME based system implementation, we can produce a formal specification of the system. This specification can be fed into a formal verification tool and thus improve the correctness guarantees from only what is covered by the individual test vectors to the entire space that is spawned by the set of test vectors. We approach the task by transpiling\footnote{Source-to-source compile.} the new SME Implementation Language (SMEIL)~\cite{smeil} for SME into \cspm{}~\cite{Scattergood1998} and verify the formal properties of this version with a tool like FDR4~\cite{fdr}.
+\\
+
+This paper builds on the SME model, which have been covered in papers~\cite{Vinter2014, Vinter2015, Skovhede}. In this paper we only include a brief description of the elements required to understand the setup we have developed, and encourage readers to seek out more information in the mentioned papers.
+\\\\
+
+
+\textit{"Matematicians tend to reject proofs by exhaustive checking of all cases as being less satisfying than deductive proofs, and with good reason. First, they are not applicable for proving theorems about integers and real numbers, which are infinite domains so that the number of interpretations is infinite and they cannot be exhaustively checked. Second, they offer no insight into why a theorem is true. But computer scientists have more practical concerns. If they can check all computations of a program and show that they all satisfy a correctness property, we will be willing to forego elegance and be more than satisfied that our program has been proven correct."} from "A primer on model checking af Ben-Ari" \cite{Ben-ari2010}\
+
+\section{Motivation}
+\subsection{Ariane 5 failure}
+The Ariane 5 space rocket\cite{InquiryBoard1996} was designed to launch large payloads into Earths orbit, such as communications satelites, etc. Ariane 5 was the follow-up on the sucessful Ariane 4 launchers. On june 4th, 1996, the Ariane 5 rocket had its first test flight. The rocket, which was owned by The European Space Agency (ESA) and the French spatial agency Centre national d'\'etudes spatiales (CNES) was manufactured by Airbus Defence and Space.\\ The rocket was launched in French Guiana, and only 37 seconds after successful lift-off, the rocket flipped 90 degrees and two seconds later the forces of aerodynamics ripped the boosters appart from the core stage. This caused the self-destruct mechanism to trigger and the rocket self-destructed in a giant explotion shortly afterwards.\\ This giant disaster cost approximately 500 million dollars and it was a huge loss for ESA and CNES.  \\
+The reason for the failure was an error that could have easily been avoided. Luckily the rocket was unmanned, but this kind of error could happen in any other space rocket. This launch failure is acknowledged as one of the most expensive failures in history. \\
+The failure was caused by a bug in the Inertial Reference System (SRI). The SRI system is used to determine the orientation of the rocket, which is also known as the horizontal bias or the BH value. The error occured when a 64-bit floating point number, representing the horizontal velocity, was converted to a 16-bit signed integer, without any exception handling. This code was written in Ada, a language that other Hardware Description Languages (HDLs) have later been based on.\\ As the rockets velocity increased the 64-bit floating point number became larger than what can fit into a 16-bit signed integer and therefore causing an overflow. The SRI system misinterpreted this as true flight-data, and to counteract the "wrong" direction, the engines thrusted to change course and thus it was ripped apart by aerodynamics. The backup system, that should take over when errors occur in the main system, was running the exact same code as the main system and therefore it had failed, for the same reasons, just before the main system failed, causing the self-destruct mechanism to activate.\\
+
+This insident becomes even more horrible when discovered that the BH value, which was the cause of the failure, was not neseccary after launch. The code had been reused from the Ariane 4 rocket, which required the value after launch, but the Ariane 5 rocket did not. The code that could have handled these problems had been disabled due to performance issues on Ariane 4 and had not been reapplied on Ariane 5. Also, Ariane 4 was launched with a less steep trajectory than Ariane 5, and therefore it did not overflow the BH value. However, since Ariane 5 ascent to space faster, it was highly probable that the BH value would overflow. If anyone had taken a look at this, taken the new rocket into account, this massive failure might have been avoided.
+\subsection{Therac-25 failure}
+In the 80's the company Atomic Energy of Canada Limited (AECL) manufactured a revolutionary radiation therapy machine, the Therac-25\cite{Leveson1993}, which could provide two different kinds of treatment. At that time, hospitals would typically have two different machines for the two different treatments that the Therac-25 machine could provide in one machine. The two treatments consisted of a beam of low-energy electrons which used scanning magnets to spread the electron beam, and a beam of higher-energy X-Ray photons which worked by rotating four components into the beam. The Therac-25 was build based on the previous Therac-20 and Therac-6 and some code from the Therac-20 was reused in the Therac-25. Unfortunately, there were no independent protective circuits for monitoring the electron beam or any interlocks to ensure safety with the Therac-25, which had been in the previous versions. AECL put more faith on software reliability than on hardware. \\ After the Therac-25 had been operational for a couple of years on several different hospitals, a series of incidents happened where patients were exposed to too much radiation and that led to six patients being seriously injured or killed. Friz Hager, the staff physicist at East Texas Cancer Center, tried to reproduce the errors they had experienced on the Therac-25, and was successful. When the user selected the X-Ray mode on the Therac-25, the machine began setting up for high-powered X-rays, which took about 8 seconds. If the user switched to Electron mode before the machine finished setting up for X-ray mode, i.e within 8 seconds, the turntable would not switch to the correct position causing an enormous amount of radiation to reach the patient.\\
+After solving the problem and releasing a new version of the Therac-25, another problem emerged where a patient was overdosed. This time it turned out to be a counter overflow. If a command was sent at the exact moment the counter overflowed, the machine would not set op properly and again, resulting in an overdose of radiation for the patient. \\
+After this incident with the Therac-25, it was found that some of the same software problems was found in Therac-20, but due to the hardware precautions on the Therac-20, the problems never occurred.
+\\ This example shows how important it is for critical systems to be well designed as well as well tested or verified.
+
+\subsection{The patriot misile failure}
+During the Persian Gulf war on February 25, 1991, an American Patriot Misile failed to intercept an incomming Iraqi Scud misile which caused the Scud to hit an American Army barracks which injured around 100 people and killed 28 soldiers. The Patriot Misile failed due to an error when converting an interger, representing time since last boot, to a real number using a 24-bit register. As time since last boot increased, the chopping error increased due to the fact that the conversion was fixed to a 24-bit range. At the time of the incident, the Patriod Misile Battery had been up for approximately 100 hours, which caused the chopping inaccuracy to be around 0.34 seconds. The Scud travels at around 1.676 meters per second, and therefore in the 0.34 seconds it travels more than a half kilometer. The consequences of this restriction in  registers caused the precision to be inacurate and so the Patriot Misile did not struck the Scud as it was meant to.
+
+
+%Intels-division bug \\
+%Toyota bremse-fejl\\
+\section{Learning goals}
+The learning goals accepted for this project are:
+\begin{itemize}
+\item Reflect on the set of SME expressible problems, that are verifiable with FDR4.
+\item Reason about efficient code transformation from an executable format to a verifiable format
+\item Reason about design choices and their consequences for execution performance.
+\item Demonstrate efficient constraint transfer from SME to FDR4.
+\item Reason about SME program size and time to verification.
+\item Reflect on the generality of a generic verification template.
+\item Disseminate project results to a professional audience.
+\end{itemize}
