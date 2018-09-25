@@ -95,7 +95,7 @@ Today, Communicating Sequential Processes (CSP) is a process algebra that provid
 \cspm{} is a formal language that combines CSP with a functional programming language in order to make it easier for the programmer to model the systems and then use the code on tools that can animate, verify or similar.
 
 
-\subsection{FDR4}
+\section{FDR4}
 %" FDR2 is often described as a model checker, but is technically a refinement checker, in that it converts two CSP process expressions into Labelled Transition Systems (LTSs), and then determines whether one of the processes is a refinement of the other within some specified semantic model (traces, failures, or failures/divergence)" (from Wikipedia - se paper \textit{Model-checking CSP - af Roscoe} \\\\
 FDR (Failures Divergence Refinement) tool is a refinement checker for
 
@@ -111,7 +111,7 @@ In hardware, we would typically want to verify that the communication on a bus d
 
 CSP was not initially developed for hardware modeling, and therefore it is not evident how to handle the clock cycle, which is an essential part of hardware modeling. When we transpile the SME network into \cspm{} the SMEIL simulation have provided the ranges of all values from the simulation and therefore all clock cycles. This means that when FDR4 asserts a property it asserts on all possible communication combinations for all the simulated clock cycles. Therefore, even though we are transpiling from an SME model, where the clock is crucial, we can simply translate ``one-to-one" from the SMEIL program and still get an accurate assertion on the properties.
 
-\subsection{Transpiling SMEIL to \cspm{}} \label{sec:transpiling}
+\section{Transpiling SMEIL to \cspm{}} \label{sec:transpiling}
 When transpiling from SMEIL to \cspm{} one of the difficult components was to find a generalized method for transpiling, that could be generalized to most problems. We have worked on separation of concerns in order to simplify, but also have a greater chance of being able to match more SMEIL programs.
 
 An SMEIL process consists of bus and variable declarations, the statements to be run per clock cycle as well as the outgoing communication from the process.  Channels within an SMEIL bus can be translated directly to \cspm{} channels. It is, however, important to give channel names that will be unique since a \cspm{} channel is global as opposed to the local channel within each SMEIL bus. An example of an SMEIL process, where the process structure is evident, can be seen in Listing~\ref{lst:range_smeil} and the corresponding \cspm{} code in Listing~\ref{lst:channel_range_cspm}.
