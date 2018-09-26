@@ -208,6 +208,21 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 
+
+%%%%%%%%%%%%%%%%%%%%%%
+% Bibliography Setup %
+%%%%%%%%%%%%%%%%%%%%%%
+% \usepackage[backend=biber]{biblatex}
+% \addbibresource{library.bib}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Header and Footer Setup %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \lhead{Alberte Thegler}
 \chead{Master's Thesis}
 \rhead{August 2018}
@@ -216,6 +231,10 @@
 \renewcommand{\footrulewidth}{0.4pt} % thickness of line at footer
 \setlength{\belowcaptionskip}{-10pt} % space below captions
 
+
+%%%%%%%%%%%%%%%%%%%%
+% Front-page Setup %
+%%%%%%%%%%%%%%%%%%%%
 
 \opgave{Master's Thesis}
 \title{Towards Automatic Program Specification From SME Models}
@@ -281,11 +300,17 @@ Abstract
 \label{chap:related-work}
 \input{chapters/related_work}
 
-% \chapter{Theory}
-% \input{chapters/theory.tex}
+\chapter{Approach}
+\input{chapters/approach}
 
-% \chapter{Method}
-% \input{chapters/practice.tex}
+\chapter{Background technologies}
+\input{chapters/background}
+
+\chapter{Analysis}
+\input{chapters/analysis}
+
+\chapter{Design}
+\input{chapters/design}
 
 \chapter{Experiments and results}
 \label{chap:exp}
@@ -294,25 +319,35 @@ Abstract
 \chapter{Discussion}
 \input{chapters/discussion}
 
+\chapter{Future work}
+\input{chapters/future_work}
+
 \chapter{Conclusion}
 \input{chapters/conclusion}
 
-
-
-
-
-
-% \section*{Acknowledgements}
+% \chapter*{Acknowledgements}
 % Thanks to Uwe Zimmermann who made the seven segment example in TikZ on \url{http://www.texample.net/tikz/examples/segment-display/}.
 
 
 
 
 
+%%%%%%%%%%%%%%%%
+% Bibliography %
+%%%%%%%%%%%%%%%%
+
+% \clearpage
+% \addcontentsline{toc}{chapter}{References}
+% \printbibliography[title={References}]
 
 \newpage
 \bibliographystyle{abbrv}
 \bibliography{library}
 
+%%%%%%%%%%%%%%%%%%%%
+% Include Appendix %
+%%%%%%%%%%%%%%%%%%%%
+\appendix
 \input{chapters/appendix}
+
 \end{document}
