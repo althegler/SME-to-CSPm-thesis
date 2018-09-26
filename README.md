@@ -1,2 +1,2 @@
 # SME-to-CSPm-thesis
-This is the latex repository for my thesis report with the title "Towards formal verification of FDR4"
+This is the repository for my master thesis report with the title "Towards Automatic Program Specification From SME Models"
