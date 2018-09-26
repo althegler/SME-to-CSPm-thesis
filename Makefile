@@ -1,4 +1,4 @@
-targets = thesis.pdf
+targets = main.pdf
 tmpdir = .tmp
 
 all: $(targets)
