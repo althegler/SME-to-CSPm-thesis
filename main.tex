@@ -260,13 +260,42 @@ Abstract
 
 % \input{introduction}
 % \input{related_work}
-\input{analysis}
+% % \input{background}
+% \input{analysis}
 % \input{translation}
 % \input{experiments_and_results}
 % \input{discussion}
 % \input{future_work}
 % \input{conclusion}
 
+%%%%%%%%%%%%%%%%%%%
+% Include Content %
+%%%%%%%%%%%%%%%%%%%
+\chapter{Introduction}
+\input{chapters/introduction}
+
+%\chapter{Notations and Abbreviations}
+%\input{chapters/conventions.tex}
+
+\chapter{Related Work}
+\label{chap:related-work}
+\input{chapters/related_work}
+
+% \chapter{Theory}
+% \input{chapters/theory.tex}
+
+% \chapter{Method}
+% \input{chapters/practice.tex}
+
+\chapter{Experiments and results}
+\label{chap:exp}
+\input{chapters/experiments_and_results}
+
+\chapter{Discussion}
+\input{chapters/discussion}
+
+\chapter{Conclusion}
+\input{chapters/conclusion}
 
 
 
@@ -285,5 +314,5 @@ Abstract
 \bibliographystyle{abbrv}
 \bibliography{library}
 
-\input{appendix}
+\input{chapters/appendix}
 \end{document}
