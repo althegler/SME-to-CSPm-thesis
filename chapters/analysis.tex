@@ -1,31 +1,82 @@
 % This section should contain information about the problem, but not the solution. I am analysing the problem and explaining what will be problematic when translating from SMEIL to CSPm.
 
 % Der er tre dele i SMEIL jeg har interesse i:
-% Three components:
-% - Behavioral description - hvad den enkelte funktion gør. det oversættes ret nemt. Jeg bekymre mig ikke om variable og sådan nogle ting. Det er allerede gjort før det gøres til SMEIL, og dem kan jeg genbruge i min code generation.  Funktionel indhold af processer/ opførsel af den enkelte process - det er rimelig nemt oversat direkte til CSPm. Her kan man beskrive hvis der er nogle sproglige udfordringer, fx hvis CSPm ikke har loops eller lign.
-% - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
-% - Opserverede værdier - "known limits". Meta information i SMEIL, og det skal oversættes til faktiske processer med faktiske semantic i FDR der også er en del af topologien. (Det er essensen for mig).
-
-% Vigtigt at have de tre dele adskilt i afsnittet. Brug figuren fra side 107 i bujo til at henvise til at jeg har en Magic 8-ball (Mit system) og jeg skal fra SMEIL til FDR og henvise til at det er det flow jeg har brug for.
-
+% Three components: Behavioral, structural, meta data
 
 % Jeg skal ikke fortælle hvordan jeg har gjort det men analyse af problemet og ikke af løsningen. Jeg skal blot beskrive problemstillingerne.
 
 
-% I SMEIL har jeg et prædefineret konsistent navnerum. Jeg skal ikke lave en symboltabel. Jeg arver direkte fra SMEIL til CSPm. Så her kan jeg snakke om at hvis jeg gjorde det på en anden måde ville jeg ikke kunne gøre det sådan. Det skal jeg skrive om her.
+
 
 \section{Transpiling SMEIL to \cspm{}} \label{sec:transpiling}
+When transpiling from source to source the difficult part is to understand the structure of each language and to understand how to translate structures from one language to the other without losing functionality but still maintaining the structure of the languages.
+
 When transpiling from SMEIL to \cspm{} one of the difficult components was to find a generalized method for transpiling, that could be generalized to most problems. We have worked on separation of concerns in order to simplify, but also have a greater chance of being able to match more SMEIL programs.
 
-An SMEIL process consists of bus and variable declarations, the statements to be run per clock cycle as well as the outgoing communication from the process.  Channels within an SMEIL bus can be translated directly to \cspm{} channels. It is, however, important to give channel names that will be unique since a \cspm{} channel is global as opposed to the local channel within each SMEIL bus. An example of an SMEIL process, where the process structure is evident, can be seen in Listing~\ref{lst:range_smeil} and the corresponding \cspm{} code in Listing~\ref{lst:channel_range_cspm}.
+% TODO: Something about functional language to imperative language
 
-In order to keep the outwards communication and the arithmetic statements together within each process in \cspm{}, we generate \cspm{} processes with a \texttt{let within} statement. The arithmetic statements go into the \texttt{let} section and the communications go into the \texttt{within} section. This gives us the possibility of separating the outwards communication and arithmetic statements while still keeping them within the same \cspm{} process. In Listing~\ref{lst:channel_range_cspm}, an example of the \texttt{let within} statement can be seen in lines 7-14. This structure will work as a general translation structure from SMEIL processes to \cspm{} processes.
 
-The network in an SMEIL program is the crucial part which ties all the processes and communication together. We can standardize the network generation by creating a two-step communication part. Instead of having the actual processes receive the incoming data, they receive the data by their process parameter. The process parameter is then set by the network process which receives the communication from the channels and provides the process with the communicated value.
-This ensures that we can generate the processes easily without having to traverse the network in the SMEIL program beforehand to find out which channel provides input for which process. An example of this is shown in Listing~\ref{lst:cspm} in the appendix on lines 61 to 66.
+% Vigtigt at have de tre dele adskilt i afsnittet. Brug figuren fra side 107 i bujo til at henvise til at jeg har en Magic 8-ball (Mit system) og jeg skal fra SMEIL til FDR og henvise til at det er det flow jeg har brug for.
+
+
+% I SMEIL har jeg et prædefineret konsistent navnerum. Jeg skal ikke lave en symboltabel. Jeg arver direkte fra SMEIL til CSPm. Så her kan jeg snakke om at hvis jeg gjorde det på en anden måde ville jeg ikke kunne gøre det sådan. Det skal jeg skrive om her.
+
+
+When analysing the general structure of SMEIL programs, there are three structures that are particular interesting when we are interested in translating from SMEIL to \cspm{}. These three structures are:
+\begin{enumerate}
+    \item \textbf{Behavioral:} The general behavior of each process and function.
+    \item \textbf{Structural:} How the circuit is connected, i.e which buses connects to which processes.
+    \item \textbf{Meta information/Observed values\todo{Meta information or observed values?}}: The information that are meta information but provides an understanding of what data flows through the network.
+\end{enumerate}
+
 
 \subsection{Behavioral}
+%% - Behavioral description - hvad den enkelte funktion gør. det oversættes ret nemt. Jeg bekymre mig ikke om variable og sådan nogle ting. Det er allerede gjort før det gøres til SMEIL, og dem kan jeg genbruge i min code generation.  Funktionel indhold af processer/ opførsel af den enkelte process - det er rimelig nemt oversat direkte til CSPm. Her kan man beskrive hvis der er nogle sproglige udfordringer, fx hvis CSPm ikke har loops eller lign.
+
+From the introduction to both SMEIL and \cspm it is clear that the main intention of each language is different and therefore the transpiling of a process in SMEIL to a \cspm process might not be completely trivial. All data from the SMEIL process will need to be translated into data and structures within the \cspm model, calculations and communications alike.
+  % TODO: Understand CSPm processes better
+A process in SMEIL is defined by the \texttt{proc} keyword and then consists of bus and variable declarations, the statements to be run for each clock cycle as well as the outgoing communication from the process. This is a somewhat recognisable function structure for functional languages. In \cspm the structure is commonly consisting of communication which might include some kind of calculations, but the main purpose of \cspm processes are usually to express communication. \todo{Add reference to FDR example (I took it from FDRs website - test example https://www.cs.ox.ac.uk/projects/fdr/manual/examples/index.html. Dining Philosophers)}
+
+\begin{listing}
+\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+PHIL(i) = thinks.i -> sits!i -> picks!i!i -> picks!i!((i+1)%N) ->
+          eats!i -> putsdown!i!((i+1)%N) -> putsdown!i!i -> getsup!i -> PHIL(i)
+
+\end{minted}
+\caption{x}
+\label{x}
+\end{listing}
+
+However, since we do have the process processes in both SMEIL and \cspm, transpiling SMEIL to \cspm should be possible since the general behaviour can be created in \cspm. The main two things important in the behaviour of an SMEIL program is the communication and the calculations. The communication will be possible to transpile in a fairly simple manner, and since \cspm is based on mixing the CSP algebra with a functional language, the calculations should also be possible to transpile in a reasonable manner.
+For simplicity of the generated code, it would be beneficial to be able to keep the communication and calculations from the same SMEIL process in the same \cspm structure.
+
+%% Translating variables directly because we expect errors or other things to have been handled before transpiling the code.
+When translating the process from SMEIL to \cspm we will be able to translate variables and calculations directly without having to translate the meaning of the it, since we are expecting SMEIL to handle behavioural errors.
+
+% TODO: Write something more about FDR not supporting floating point
+When translating from SMEIL to \cspm we will run into a problem with floating point numbers. SMEIL does support floating point numbers, but FDR4 does not, \todo{add reference. is it only FDR4 or is it build into CSP not to support it? } and therefore we will have to convert the floating point numbers to integer, or simply not trying to verify programs that rely on floating poing numbers. The reason FDR does not support floating point numbers are... %TODO: write more here
+
+
+%% I cannot assume that the output bus is defined in a busdeclaration in the process
+In an SMEIL, each process can have any number and combinations of input buses, output buses and constant parameters and since SMEIL have been created so that the creation of a circuit gives the most flexibility, we have to handle several different ways of defining these in \cspm.
+Process input buses can be defined in the parameter when defining the process or the communication can be created by directly using the buses through their hierarchical names %TODO: reference truls master page 20
+
+Process output buses can be defined the same as input buses; as a parameter in the process or by using the hierarchical names of the buses. It is also possible not to have the output bus defined in the parameters but to have a bus declaration inside the process description.
+
+Constants can also be defined as a parameter and as a constant declaration within the process description. %TODO: Find out more about constants. are we interested in them, then I need to write more, otherwise I can close this part early.
+When transpiling to \cspm there is a need for the transpiler to be able to recognize all different ways of defining buses and constants within the SMEIL program.
+
+%% What to do if there is several channels in one bus that acts as an input bus for a process.
+In SMEIL each bus can consist of several different channels. When accessing the communicated values, the process have to refer to the specific bus and the specific channel name. In \cspm all communications are done with channels. The translation between SMEIL buses and \cspm channels should be straightforward, since channels is a subset of buses in SMEIL and therefore a bus with two channels would be the same as two buses with one channel. However, when defining the input for the proceses in SMEIL, only the bus name is used and therefore the transpiling will have to be able to recognize which channels belongs to which bus in order to give the correct channels as input for the \cspm processes.
+
+
+
 \subsection{Structural}
+% - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
+
+The network in an SMEIL program is the crucial part which ties all the processes and communication together. In the network buses or instances of processes are defined as well as the input and output for those proceses. In order to generate a correct network in \cspm the translation of the SMEIL network is crucial. In \cspm there is also a structure that is similar to the network structure in SMEIL. When synchronizing processes together with channels in a new process in \cspm we create the structure of what channels each process communicates on and which processes communicate to which processes. This translation step will require carefully planning in order to get all the information for each part, in the correct position of one another. In SMEIL buses can also be declared in the network declaration but.. %TODO: ...currently the system does not handle other than pure SMEIL programs and therefore we do not need to handle if these buses are not both an input and output bus in some processes.
+
 \subsection{Meta}
+% - Opserverede værdier - "known limits". Meta information i SMEIL, og det skal oversættes til faktiske processer med faktiske semantic i FDR der også er en del af topologien. (Det er essensen for mig).
 
-
+In the process description, the chanels of the bus are defined as well as the types and observed values for these channels. This data is the crucial data to gather in order for FDR4 to be able to verify the values communicated on the channels. In SMEIL it is simply data that is used when simulating the program or if translated to VHDL \todo{it is VHDL right?}. The circuit does not need to know exactly what values are communicated or what type that is.
