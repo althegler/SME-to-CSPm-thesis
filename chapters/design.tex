@@ -1,7 +1,10 @@
 % Description of the actual solutions
 
 % channels from SMEIL to CSPm
-Channels within an SMEIL bus can be translated directly to \cspm{} channels. It is, however, important to give channel names that will be unique since a \cspm{} channel is global as opposed to the local channel within each SMEIL bus. An example of an SMEIL process, where the process structure is evident, can be seen in Listing~\ref{lst:range_smeil} and the corresponding \cspm{} code in Listing~\ref{lst:channel_range_cspm}.
+Channels within an SMEIL bus can be translated directly to \cspm{} channels. Since a SMEIL bus consist of channels, the translation is quite simple. It is, however, important to give channel names that will be unique since a \cspm{} channel is global as opposed to the local channel within each SMEIL bus. Because there are several different ways to define a bus in SMEIL %TODO: see the analysis chapter,
+the translation will have to recognize the different types and generate the \cspm channels no matter where they where defined.  
+
+An example of an SMEIL process, where the process structure is evident, can be seen in Listing~\ref{lst:range_smeil} and the corresponding \cspm{} code in Listing~\ref{lst:channel_range_cspm}.
 
 % Let within statement
 In order to keep the outwards communication and the arithmetic statements together within each process in \cspm{}, we generate \cspm{} processes with a \texttt{let within} statement. The arithmetic statements go into the \texttt{let} section and the communications go into the \texttt{within} section. This gives us the possibility of separating the outwards communication and arithmetic statements while still keeping them within the same \cspm{} process. In Listing~\ref{lst:channel_range_cspm}, an example of the \texttt{let within} statement can be seen in lines 7-14. This structure will work as a general translation structure from SMEIL processes to \cspm{} processes.
