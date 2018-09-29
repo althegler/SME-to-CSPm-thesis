@@ -2,9 +2,11 @@
 
 % channels from SMEIL to CSPm
 Channels within an SMEIL bus can be translated directly to \cspm{} channels. Since a SMEIL bus consist of channels, the translation is quite simple. It is, however, important to give channel names that will be unique since a \cspm{} channel is global as opposed to the local channel within each SMEIL bus. Because there are several different ways to define a bus in SMEIL %TODO: see the analysis chapter,
-the translation will have to recognize the different types and generate the \cspm channels no matter where they where defined.  
+the translation will have to recognize the different types and generate the \cspm channels no matter how they where defined.
 
-An example of an SMEIL process, where the process structure is evident, can be seen in Listing~\ref{lst:range_smeil} and the corresponding \cspm{} code in Listing~\ref{lst:channel_range_cspm}.
+
+
+% An example of an SMEIL process, where the process structure is evident, can be seen in Listing~\ref{lst:range_smeil} and the corresponding \cspm{} code in Listing~\ref{lst:channel_range_cspm}.
 
 % Let within statement
 In order to keep the outwards communication and the arithmetic statements together within each process in \cspm{}, we generate \cspm{} processes with a \texttt{let within} statement. The arithmetic statements go into the \texttt{let} section and the communications go into the \texttt{within} section. This gives us the possibility of separating the outwards communication and arithmetic statements while still keeping them within the same \cspm{} process. In Listing~\ref{lst:channel_range_cspm}, an example of the \texttt{let within} statement can be seen in lines 7-14. This structure will work as a general translation structure from SMEIL processes to \cspm{} processes.
@@ -13,283 +15,264 @@ In order to keep the outwards communication and the arithmetic statements togeth
 We can standardize the network generation by creating a two-step communication part. Instead of having the actual processes receive the incoming data, they receive the data by their process parameter. The process parameter is then set by the network process which receives the communication from the channels and provides the process with the communicated value.
 This ensures that we can generate the processes easily without having to traverse the network in the SMEIL program beforehand to find out which channel provides input for which process. An example of this is shown in Listing~\ref{lst:cspm} in the appendix on lines 61 to 66.
 
+% Instances and two networks.
+% TODO: Add an example showing two different networks and how it translates.
+
+When translating the instances of a SMEIL network, the transpiler does not need to keep the instances together in a certain way. Each instance will be translated into a seperate \cspm network and even though the networks might have communication in common, they do not need to be connected in \cspm. If the networks/instances have communication in common, it will be handled by the communication in \cspm. When translating from an instance into a network in \cspm it is simply to map the communication from the correct channels and to the correct channels in \cspm. If the process is connected to a monitor process this is also in the network that the monitor process is added to the communication it will be listening in on.
+In a SMEIL program it is possible to have several networks in one program. There is not much of a point in doing so, since it will result in the same as having all instances in one network \todo{Am I 100\% sure that two networks is the same as one? ask Truls}, but never the less, if there is two networks it will not matter in the \cspm translation. One SMEIL instance represents one \cspm network, and all these networks or instances are combined via communications on channels or buses. The only thing we are interested in when translating the SMEIL instances are the communication defined in each instance. And that is what creates the network. This means that we can generate the \cspm networks without looking at what SMEIL network that specific SMEIL instance came from, because the important thing, the communication, is defined in the instance and therefore all data about how the SMEIL network is combined together we still keep intact even though we translate the instances without considering the rest of that SMEIL network.
+% Instances with the same process twice
+% TODO: Add an example showing one process added twice and hwo it translates.
+When defining instances in the SMEIL network, it is possible to define the same process several times and have it receive different input or send different output or constants. When translating this to a \cspm network, the process itself will be generated as all other processes, but simply the network will be two seperate network, as if it was two SMEIL instances calling two different SMEIL processes. The only difference between the two networks are that the input channel will be different, if that is the difference between the two SMEIL instances.
+
+% Monitor processes
 
 
 
-\section{Seven Segment Display Clock in SMEIL}\label{sec:example-smeil}
-In order to explain how we can transpile programs from SMEIL to \cspm{}, we have designed an example using a seven segment display clock.
-In this section, the seven segment display example will be explained as well as the SMEIL implementation of the network.
-\\
-
-A seven segment display is an electronic display device which is used in displays such as digital clocks or other types of devices that display numerals. An example of a typical digital clock display can be seen in Figure~\ref{fig:6_displays}. When a digit has been determined for a seven segment display, it is encoded to a bitstream that represents the digit in the correctly activated display segments.
-\begin{figure}[!ht]
-  \begin{center}
-    \tikz{
-      \node[inner sep=5pt, outer sep=2pt, draw=blue] {
-        \sevensegnum[size=2em, shrink=0.1]{1}
-        \sevensegnum[size=2em, shrink=0.1]{2}
-      }
-    }
-    \tikz{
-      \node[inner sep=5pt, outer sep=2pt, draw=blue] {
-        \sevensegnum[size=2em, shrink=0.1]{3}
-        \sevensegnum[size=2em, shrink=0.1]{4}
-      }
-    }
-    \tikz{
-      \node[inner sep=5pt, outer sep=2pt, draw=blue] {
-        \sevensegnum[size=2em, shrink=0.1]{5}
-        \sevensegnum[size=2em, shrink=0.1]{6}
-      }
-    }
-  \end{center}
-  \caption{Digital clock with six seven segment displays, displaying 12:34:56.}
-  \label{fig:6_displays}
-\end{figure}
-In this example, we wish to model a typical digital clock that is able to calculate and display the current time in hours, minutes, and seconds. Listing~\ref{lst:python} shows this example written in Python.
-When creating this model in SMEIL some input must be added to the network, just like \texttt{time\_since\_midnight} in Listing~\ref{lst:python}. The input value represents seconds since midnight, and in order to calculate hours, minutes, and seconds we model three different processes, called the \texttt{time} processes in this example.
-
-When writing hardware models in pure SMEIL, the only way to generate input for the network is to create a data generator process. This process, called the \texttt{clock} process in our example, is instantiated with the start time and is incremented by 1 for each simulation cycle, representing a one second increase. The result is communicated on the process output bus, where the three \texttt{time} processes are listening. These \texttt{time} processes receive the number and by the use of simple integer arithmetic, calculate the hours, minutes, and seconds since midnight respectively. It is obvious that at some point in time, each \texttt{time} process will calculate a two-digit result, for example at 12 hours or 42 seconds. However, a single seven segment display can only show one digit between 0 and 9. Therefore we need two seven segment displays for each \texttt{time} process in order to show the correct time in a 24-hour interval. Each \texttt{time} process has an output bus with two individual channels that represent the communication to each different display. The number representing either hours, minutes, or seconds are separated into first and second digit, by $\lfloor \frac{x}{10} \rfloor$ and $(x \text{ mod } 10)$. These six different results are then communicated onto the six different channels which represent the six different seven segment displays.
-The outline of this network can be seen in Figure~\ref{fig:smeil_network}.
-\begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{python}
-from math import floor
-
-def time(time_since_midnight):
-    hours   = floor(time_since_midnight / 3600)
-    minutes = floor((time_since_midnight - hours * 3600) / 60)
-    seconds = time_since_midnight - hours * 3600 - minutes * 60
-    return [hours, minutes, seconds]
-
-print(time( 57100)) # =>  15:51:40
-print(time(  3601)) # =>  01:00:01
-print(time( 66666)) # =>  18:31:06
-\end{minted}
-\caption{A Python implementation of the seven segment display example.}
-\label{lst:python}
-\end{listing}
-\begin{figure}[!ht]
-  \centering
-  \begin{tikzpicture}
-    \node [mycircle] (I) at (0,0) {$I$};
-
-    \node [mycircle] (H) at (2.5,  1.50) {$H$};
-    \node [mycircle] (M) at (2.5,  0.00) {$M$};
-    \node [mycircle] (S) at (2.5, -1.50) {$S$};
-
-    \draw [myarrow] (I) -- (M);
-
-    \draw [myarrow, smooth] (I) to[out=0, in=180] (H);
-    \draw [myarrow, smooth] (I) to[out=0, in=180] (S);
-
-    % Output arrows without processes
-    \draw [myarrow] (3.125,  1.625) -- (4.000,  1.750);
-    \draw [myarrow] (3.125,  1.375) -- (4.000,  1.250);
-    \draw [myarrow] (3.125,  0.125) -- (4.000,  0.250);
-    \draw [myarrow] (3.125, -0.125) -- (4.000, -0.250);
-    \draw [myarrow] (3.125, -1.375) -- (4.000, -1.250);
-    \draw [myarrow] (3.125, -1.625) -- (4.000, -1.750);
-  \end{tikzpicture}
-  \caption{SMEIL network for a seven segment display clock. Each SMEIL process is represented by a cicle with a letter corresponding to the processes Input, Hours, Minutes and Seconds respectively.}
-  \label{fig:smeil_network}
-\end{figure}
-
-In Figure~\ref{fig:smeil_network} the network consists of four processes, the data generator process, \textit{I}, which creates the input that is broadcasted out on the network. The three \texttt{time} processes, hours (\textit{H}), minutes (\textit{M}), and seconds (\textit{S}) are the processes described above, which calculate each part of the current time. The outputs are communicated on the six outgoing channels.
-
-The full SMEIL code for this example can be seen in Listing~\ref{lst:smeil} in  the appendix.
-
-\section{Seven Segment Display Clock Transpiling}
-In the following we use a classic hardware design to illustrate each of the steps in the transpiling, and how the types, constraints, and assertions are carried from the original SMEIL program into the \cspm{} program.
-
-\begin{figure}[!ht]
-  \centering
-  \begin{tikzpicture}[auto]
-    \node[myrectangle, text width=2cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (sme) {SME};
-    \node[myrectangle, text width=2cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (smeil) [right=1cm of sme] {SMEIL};
-    \node[mycircle, text width=2cm, inner sep=5pt, inner ysep=5pt] (transpiler) [right=1cm of smeil] {Transpiler};
-    \node[myrectangle, text width=2cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (cspm) [right=1cm of transpiler] {CSP$_M$};
-
-    \draw[myarrow] (sme) -- (smeil);
-    \draw[myarrow] (smeil) -- (transpiler);
-    \draw[myarrow] (transpiler) -- (cspm);
-  \end{tikzpicture}
-  \caption{SME to \cspm{} transpiler.}
-  \label{fig:sme-to-cspm}
-\end{figure}
-
-We wish to model the network presented in Section~\ref{sec:example-smeil} in SMEIL in order to transpile it to \cspm{} so that we may verify properties in FDR4. In Figure~\ref{fig:sme-to-cspm} the workflow of this system can be seen.
-
-Even though SME buses can contain a series of channels, every single channel is translated into a \cspm{} channel. The properties we will assert with FDR4, are the width of the \cspm{} channels. That is, we want to prove that certain values will never be communicated on certain channels.
-It is easy to imagine that 4 bits can be communicated between the \texttt{time} processes and the seven segment displays. But 4 bits can represent the numbers 0 through 15, and our seven segment displays can only display the numbers 0 through 9. Therefore we wish to assert that even though the channels can carry 4 bits, the actual communication on the six output channels does not exceed 9. In general, the displays will be able to display 0 through 9, but since the example is a clock showing a 24-hour interval, the displays will of course not be able to show minutes and seconds above 59 and hours above 23.
-
-We know that a program in pure SMEIL must have a data generation process, but this is not the case in a CSP network. Since we are only transpiling from pure SMEIL networks, we can be certain that there will always be a process which just contributes an initial value to the rest of the network.
-We also know that a process must either have communication in or out or both.
-Therefore, we can assume that all SMEIL processes with no input bus will be a data generator process of some kind, and therefore must have some outwards communication.
-So when transpiling to \cspm{}, we do not translate the SMEIL process to a \cspm{} process, but simply create a \cspm{} channel that represents the values communicated out of this SMEIL process.
-\\
-
-We assume that the SMEIL programs we transpile only contains channels with types and range annotations. During the simulation, the type will be restricted to the lowest representation possible. For example, if a channel was originally set to be \texttt{int} (unbounded), but the observed values from the simulation show that it could be changed to an \texttt{i8} (signed 8-bit integer with a range of -128 to 127), then the simulated output would be \texttt{i8}.
-
-When creating channels in \cspm{}, we need to define its range of possible values. If a channel is only defined by having the integer type, FDR4 would try to verify for all possible integers, which results in a seemingly unbounded runtime. As explained in Section~\ref{SMEIL-section}, all simulated SMEIL programs will include the observed range and restricted types for all channels and variables. The types represent the observed width of the channels in bits, and by calculating the possible range from these types, we can create the corresponding channels in \cspm{}, and thereby avoid having a seemingly endless runtime in FDR4.
-
-Since the assertion we wish to make is to verify the widths of the channels, it might seem redundant to create \cspm{} channels with a limited range. FDR4 would always only check the values in the defined channel range and therefore there is no point in asserting if the values go beyond this range. After simulating the SME network, SMEIL provides us with both a type and a range of observed values. The type is used to create the \cspm{} channel range and the observed values are used for the assertion. The type will always represent equal or more values than the range of observed values, and by using these values the assertions becomes valuable.
-\\
-
-\begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-proc seconds (in seconds_in)
-    bus seconds_out {first_digit: u3 range 0 to 5;
-                     second_digit: u4 range 0 to 9;};
-    var seconds: u6 range 1 to 59;
-    var seconds_first_temp: u3 range 0 to 5;
-    var seconds_second_temp: u4 range 0 to 9;
-{
-    seconds = seconds_in.val % 60;
-    seconds_first_temp = seconds / 10;
-    seconds_second_temp = seconds % 10;
-    seconds_out.first_digit = seconds_first_temp;
-    seconds_out.second_digit = seconds_second_temp;
-}
-\end{minted}
-\caption{Example of the \texttt{seconds} process from the SMEIL seven segment display example. See full example in Listing~\ref{lst:smeil} in the appendix.}
-\label{lst:range_smeil}
-\end{listing}
-
-When it comes to transpiling the data generator process into a \cspm{} channel, we also use the types of the SMEIL simulation to define it. We use this instead of the observed values because we cannot guarantee the precise input values of the system. If we used the observed values, the assertions will pass every time, since it will test the values already used to generate the rest of the observed values.
-
-An example of simulated SMEIL code can be seen in Listing~\ref{lst:range_smeil}. Notice on lines 2 and 3 that the two channels are defined both with a type \texttt{u3} and \texttt{u4} and with a range 0 to 5 and 0 to 9. These are the observed types and value ranges the simulation tracked for the specific channel. In order to create the \cspm{} channels based on the types, we need to convert \texttt{u3} and \texttt{u4} into its corresponding range, which for \texttt{u3} is 0 through 7 and for \texttt{u4} is 0 through 15. In Listing~\ref{lst:channel_range_cspm} on lines 1 and 2, the calculated ranges are used to define the \cspm{} channels.
-
-\begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-channel seconds_out_first_digit : {0..7}
-channel seconds_out_second_digit : {0..15}
-
-    |$\vdots$|
-
-Seconds(seconds_in) =
-let
-    seconds = seconds_in % 60
-    seconds_first_temp = seconds / 10
-    seconds_second_temp = seconds % 10
-within
-    seconds_out_first_digit ! seconds_first_temp ->
-    seconds_out_second_digit ! seconds_second_temp ->
-    SKIP
-\end{minted}
-\caption{Example of the \texttt{Seconds} process from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
-\label{lst:channel_range_cspm}
-\end{listing}
-
-When creating the assertions, we decided to create separate assert functions to keep the code structure clean. We know that for each \cspm{} channel there must be an assertion, except for the input channel.
-Consequently, we create a \textit{monitor} process for each channel and its only job is to listen in on the channel communication and assert the values communicated there. The monitor process is a process that we add specifically for asserting legal communication values in FDR4 and it does not affect the original SME network.
-In Figure~\ref{fig:assertion_process} the outline of this kind of structure can be seen and we expect that this structure can be used for several different types of problems and thereby ensure a cleaner code structure.
-
-The monitor process asserts the observed values of the \cspm{} channels and in Listing~\ref{lst:monitor_range_cspm} the two monitor processes for the Seconds \texttt{time} process can be seen. The values used for these statements are the observed values from the SMEIL simulation, as can be seen at the end of lines 2 and 3 in Listing~\ref{lst:range_smeil}. In Listing~\ref{lst:monitor_range_cspm} the ranges are used to assert that the only values communicated on the channels are within 0 and 5, and 0 and 9 respectively.
-
-\begin{figure}[!ht]
-  \centering
-  \begin{tikzpicture}[auto]
-    \node[mycircle] (P) at (-1.5, 0.0) {$P$};
-    \node[mycircle] (Q) at ( 2.5, 0.0) {$Q$};
-    \node[mycircle, shape=rectangle] (M) at ( 0.5, 1.5) {$M$};
-
-    \node[draw, shape=circle, inner sep=0pt, minimum size=5pt] (m) at (0.5, 0.0) {};
-
-
-    \draw (M) -- (P -| M) [black!50];
-    \draw [myarrow] (P) -- (Q);
-  \end{tikzpicture}
-  \caption{The monitor process \textit{M} listens in on the communication between \textit{P} and \textit{Q} in order to assert the communicated values.}
-  \label{fig:assertion_process}
-\end{figure}
-
-\begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-Seconds_out_first_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
-Seconds_out_second_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
-\end{minted}
-\caption{Example of the \texttt{Seconds} monitor processes from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
-\label{lst:monitor_range_cspm}
-\end{listing}
-s
-
-After translating the SMEIL processes and creating the monitor processes, we need to create the network described in the last part of the SMEIL program, see lines 53 to 59 in Listing~\ref{lst:smeil} in the appendix. We wish only to assert the values the \texttt{time} processes are communicating to the monitor processes, and therefore we have to synchronize these processes into a single network in \cspm{}. We create three network processes, one for each part of the network, and we create a nested synchronization, in order to have all monitor processes synchronized with the \texttt{time} process. An example of this network can be seen in on lines 61 to 66 in Listing~\ref{lst:cspm} in the appendix. This network process is also the process that receives the input from the input channel. By not adding the receiving communication in the \texttt{time} processes, we avoid having to specify the name of the input channels before creating the network which simplifies the translation, as described in Section~\ref{sec:transpiling}. In SMEIL, this information is part of the \texttt{network} section, and therefore it fits well within this part of the \cspm{} code.
-
-After creating the network we add the actual assert function calls. For these kinds of assertions, where we want to check a range, the best solution is to assert that the network processes behave as the \texttt{SKIP} process. This is done by having the monitor process running the \texttt{SKIP} process if the value is within the range and the \texttt{STOP} process if not. Two examples can be seen in lines 2 and 4 in Listing~\ref{lst:monitor_range_cspm}. We assert this by using the FDR4 failures model on the the \texttt{SKIP} process along with hiding communication events, which can be seen in lines 68, 78 and 88 in Listing~\ref{lst:cspm} in the appendix.
-\\
-
-The different parts of transpiling the seven segment display example have been presented and in Figure~\ref{fig:cspm-network} the corresponding network of the \cspm{} system is presented.
-The corresponding network in \cspm{} consists of 12 different processes, all created so that not only the network is simulated correctly, but also so the assertions we wish to make, are in place. The input is represented by a triangle, since it transpiles from an SME process to a \cspm{} channel. Each of the dotted squares represents the network of synchronizations for each \texttt{time} processes, which in itself is a process in \cspm{}. For each network, we have the \texttt{time} processes and two monitor processes, for example, $H$, $M_{H_1}$ and $M_{H_2}$.
-\\
-
-% Errornous example
-\begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-channel clock_out_val : {0..131071}
-
-channel hours_out_first_digit : {0..3}
-channel hours_out_second_digit : {0..15}
-    |$\vdots$|
-
-Hours(hours_in) =
-let
-    hours = hours_in / 3600
-    |$\vdots$|
-
-Hours_out_first_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 2 then SKIP else STOP
-Hours_out_second_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
-
-\end{minted}
-\caption{Example of an erroneous version of the \texttt{Hours} process from the \cspm{} seven segment display example seen in Listing~\ref{lst:smeil} and in Listing~\ref{lst:cspm} in the appendix.}
-\label{lst:cspm_error}
-\end{listing}
-
-In order to show that the verification is accurate, the example in Listing~\ref{lst:cspm_error} contains an error that results in FDR4 failing the verification. In Listing~\ref{lst:cspm_error} the example is only able to handle an input that is below 24 hours. This is because the calculation in the \texttt{Hours} process does not handle the wrap around at the 24\textsuperscript{th} hour. This means that if the input represents more than 24 hours, the assertions will fail in FDR4 because one seven segment display suddenly has to display two digits instead of one. An example of such could be the input \texttt{131071}, which represents 36 hours, 24 minutes and 31 seconds, or 1 day, 12 hours, 24 minutes and 31 seconds. When trying to assert the code from Listing~\ref{lst:cspm_error} in FDR4, the assertion fails. The counterexample shows that the number 3 is communicated on \texttt{hours\_out\_first\_digit}, which is not allowed according to the monitor process on lines 12 and 13 in Listing~\ref{lst:cspm_error}.
-
-This example of failure shows how verifying the solution with a tool like FDR4 actually catches errors that the programmer might have overseen. In this case, the error is simply corrected by adding \texttt{\% 24} on the end of line 9 in Listing~\ref{lst:cspm_error} and can be seen corrected in Listing~\ref{lst:cspm} in the appendix at line 15. Now when we try to assert the example in FDR4, it passes. By using modulo on the result, we ensure that we still get the accurate time of day, no matter how many full days the input represents.
-
-The full SMEIL and \cspm{} code for the seven segment display example can be seen in Listing~\ref{lst:smeil} and in Listing~\ref{lst:cspm} in the appendix.
-% Errornous example end
-
-\section{Target solution}
-
-\section{Manual translation}
-The first step in translating from SMEIL to \cspm is to create a small example and create a manual translation. This ensures that we have a suitable example to test the automatic gode generation, but also gives a good understanding of how the translation could be created and what kind of challenges there will arise from translating from SMEIL to \cspm.
-The example \textit{Seven segment example} is an example of modelling a digital clock that consists of 6 different 7-segment displays. A 7-segment display is a display device for displaying decimal numerals. It consist of 7 identical segments which can be lit in different combinations in order to show the Arabic numerals 0 to 9. In the example we model a circuit that receives an input in the form; "seconds after midnight" and from this, calculates and displays the correct hours, minutes and seconds on the displays. Since only one digit can be shown on each 7-segment display it is necessary to separate the actual number into two e.g if the hour is 12 it will be shown as 1 and 2 on two separate displays. \\ The SME example in figure \ref{seven_segments_exaple.sme} inputs a numeral from a source process that is incremented by one for each run. It then sends the input out on the output bus where three different calculating processes receives from. Each process calculates respectively hours, minutes and seconds and separates the number in order to output the result to the two output channels. \\ The \cspm code in figure \ref{seven_segments_exaple.csp} is the handmade translation from the SME file. \\ The translation in \cspm is equivalent to the SME version where each process calculates either the hours, minutes or seconds and separate the result into two digits, one for each output channel.\\
-What we need to assert in this example is the number that is sent to the 7-segment displays. A 7 segment display can only represent 0-9 but 4 bits can represent 0-15. This means that we are interested in figuring out if this model can result in an ouput less that 10, in which case, the assertion fails and the model needs to be changed. The assertion used in \cspm checks if the processes refines the \texttt{SKIP} process i.e if the process terminates. This works because of the \texttt{if-then-else} statement that ensures that the process never stops (\texttt{STOP}) if one of the outputs are larger than 10. \\\\
-One problem that arises when trying to translate SMEIL to \cspm, is that in SMEIL the input has to be generated by a process, i.e there is no input from file or stdout.
-Therefore we create a source process, in this case the \texttt{clock()} process, that does not have any input but, in this case, generates a variable which is saved and incremented by one for each run.
-Now, FDR checks all possible inputs and therefore we have to find a solution so that we can figure out the entire input range automatic.
-The solution lies in the SMIEL simulator.
-When simulating the sme program, it creates a range of all observed inputs on all channels in order to change the general \texttt{int} to e.g \texttt{i4} if all observed inputs are within i4.
-Then we can observe and generalize that a process with no input bus will be the source process that generates the input for the circuit.
-Due to this generalization, we can translate the output bus of the source process in sme to be the the input channel in \cspm.
-That is, the range observed on the output bus in sme will be translated into the range of the input channel in \cspm.
-So in reality the source process is not created as an actual process in \cspm and therefore it is also crucial that the source process in sme does not have hidden channels or do calculations that we wish to assert on. \\
-In \cspm, one always note the input ranges of channel if the channel carries numerals. However if we simply write \texttt{channel input : int}, then FDR will check for all integers, which will last forever, therefore we wish to create the proper range on the input channel by using the source process in sme.
-However for the rest of the circuit, we might need to assert on the input or output of the busses and therefore we do not wish to use the ranges from the sme simulator on other busses than the output bus from the source process.
-Since it is necessary to give a range to all channels in \cspm, as mentioned above, the challenge lies in figuring out the correct ranges for these channels. \\
-
-\begin{figure}
-\label{seven_segments_exaple.sme}
-\caption{Seven segments example in SMEIL}
-\end{figure}
+% \section{Seven Segment Display Clock in SMEIL}\label{sec:example-smeil}
+% In order to explain how we can transpile programs from SMEIL to \cspm{}, we have designed an example using a seven segment display clock.
+% In this section, the seven segment display example will be explained as well as the SMEIL implementation of the network.
+% \\
+%
+% A seven segment display is an electronic display device which is used in displays such as digital clocks or other types of devices that display numerals. An example of a typical digital clock display can be seen in Figure~\ref{fig:6_displays}. When a digit has been determined for a seven segment display, it is encoded to a bitstream that represents the digit in the correctly activated display segments.
+% \begin{figure}[!ht]
+%   \begin{center}
+%     \tikz{
+%       \node[inner sep=5pt, outer sep=2pt, draw=blue] {
+%         \sevensegnum[size=2em, shrink=0.1]{1}
+%         \sevensegnum[size=2em, shrink=0.1]{2}
+%       }
+%     }
+%     \tikz{
+%       \node[inner sep=5pt, outer sep=2pt, draw=blue] {
+%         \sevensegnum[size=2em, shrink=0.1]{3}
+%         \sevensegnum[size=2em, shrink=0.1]{4}
+%       }
+%     }
+%     \tikz{
+%       \node[inner sep=5pt, outer sep=2pt, draw=blue] {
+%         \sevensegnum[size=2em, shrink=0.1]{5}
+%         \sevensegnum[size=2em, shrink=0.1]{6}
+%       }
+%     }
+%   \end{center}
+%   \caption{Digital clock with six seven segment displays, displaying 12:34:56.}
+%   \label{fig:6_displays}
+% \end{figure}
+% In this example, we wish to model a typical digital clock that is able to calculate and display the current time in hours, minutes, and seconds. Listing~\ref{lst:python} shows this example written in Python.
+% When creating this model in SMEIL some input must be added to the network, just like \texttt{time\_since\_midnight} in Listing~\ref{lst:python}. The input value represents seconds since midnight, and in order to calculate hours, minutes, and seconds we model three different processes, called the \texttt{time} processes in this example.
+%
+% When writing hardware models in pure SMEIL, the only way to generate input for the network is to create a data generator process. This process, called the \texttt{clock} process in our example, is instantiated with the start time and is incremented by 1 for each simulation cycle, representing a one second increase. The result is communicated on the process output bus, where the three \texttt{time} processes are listening. These \texttt{time} processes receive the number and by the use of simple integer arithmetic, calculate the hours, minutes, and seconds since midnight respectively. It is obvious that at some point in time, each \texttt{time} process will calculate a two-digit result, for example at 12 hours or 42 seconds. However, a single seven segment display can only show one digit between 0 and 9. Therefore we need two seven segment displays for each \texttt{time} process in order to show the correct time in a 24-hour interval. Each \texttt{time} process has an output bus with two individual channels that represent the communication to each different display. The number representing either hours, minutes, or seconds are separated into first and second digit, by $\lfloor \frac{x}{10} \rfloor$ and $(x \text{ mod } 10)$. These six different results are then communicated onto the six different channels which represent the six different seven segment displays.
+% The outline of this network can be seen in Figure~\ref{fig:smeil_network}.
+% \begin{listing}
+% \begin{minted}[escapeinside=||, mathescape=true]{python}
+% from math import floor
+%
+% def time(time_since_midnight):
+%     hours   = floor(time_since_midnight / 3600)
+%     minutes = floor((time_since_midnight - hours * 3600) / 60)
+%     seconds = time_since_midnight - hours * 3600 - minutes * 60
+%     return [hours, minutes, seconds]
+%
+% print(time( 57100)) # =>  15:51:40
+% print(time(  3601)) # =>  01:00:01
+% print(time( 66666)) # =>  18:31:06
+% \end{minted}
+% \caption{A Python implementation of the seven segment display example.}
+% \label{lst:python}
+% \end{listing}
+% \begin{figure}[!ht]
+%   \centering
+%   \begin{tikzpicture}
+%     \node [mycircle] (I) at (0,0) {$I$};
+%
+%     \node [mycircle] (H) at (2.5,  1.50) {$H$};
+%     \node [mycircle] (M) at (2.5,  0.00) {$M$};
+%     \node [mycircle] (S) at (2.5, -1.50) {$S$};
+%
+%     \draw [myarrow] (I) -- (M);
+%
+%     \draw [myarrow, smooth] (I) to[out=0, in=180] (H);
+%     \draw [myarrow, smooth] (I) to[out=0, in=180] (S);
+%
+%     % Output arrows without processes
+%     \draw [myarrow] (3.125,  1.625) -- (4.000,  1.750);
+%     \draw [myarrow] (3.125,  1.375) -- (4.000,  1.250);
+%     \draw [myarrow] (3.125,  0.125) -- (4.000,  0.250);
+%     \draw [myarrow] (3.125, -0.125) -- (4.000, -0.250);
+%     \draw [myarrow] (3.125, -1.375) -- (4.000, -1.250);
+%     \draw [myarrow] (3.125, -1.625) -- (4.000, -1.750);
+%   \end{tikzpicture}
+%   \caption{SMEIL network for a seven segment display clock. Each SMEIL process is represented by a cicle with a letter corresponding to the processes Input, Hours, Minutes and Seconds respectively.}
+%   \label{fig:smeil_network}
+% \end{figure}
+%
+% In Figure~\ref{fig:smeil_network} the network consists of four processes, the data generator process, \textit{I}, which creates the input that is broadcasted out on the network. The three \texttt{time} processes, hours (\textit{H}), minutes (\textit{M}), and seconds (\textit{S}) are the processes described above, which calculate each part of the current time. The outputs are communicated on the six outgoing channels.
+%
+% The full SMEIL code for this example can be seen in Listing~\ref{lst:smeil} in  the appendix.
+%
+% \section{Seven Segment Display Clock Transpiling}
+% In the following we use a classic hardware design to illustrate each of the steps in the transpiling, and how the types, constraints, and assertions are carried from the original SMEIL program into the \cspm{} program.
+%
+% \begin{figure}[!ht]
+%   \centering
+%   \begin{tikzpicture}[auto]
+%     \node[myrectangle, text width=2cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (sme) {SME};
+%     \node[myrectangle, text width=2cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (smeil) [right=1cm of sme] {SMEIL};
+%     \node[mycircle, text width=2cm, inner sep=5pt, inner ysep=5pt] (transpiler) [right=1cm of smeil] {Transpiler};
+%     \node[myrectangle, text width=2cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (cspm) [right=1cm of transpiler] {CSP$_M$};
+%
+%     \draw[myarrow] (sme) -- (smeil);
+%     \draw[myarrow] (smeil) -- (transpiler);
+%     \draw[myarrow] (transpiler) -- (cspm);
+%   \end{tikzpicture}
+%   \caption{SME to \cspm{} transpiler.}
+%   \label{fig:sme-to-cspm}
+% \end{figure}
+%
+% We wish to model the network presented in Section~\ref{sec:example-smeil} in SMEIL in order to transpile it to \cspm{} so that we may verify properties in FDR4. In Figure~\ref{fig:sme-to-cspm} the workflow of this system can be seen.
+%
+% Even though SME buses can contain a series of channels, every single channel is translated into a \cspm{} channel. The properties we will assert with FDR4, are the width of the \cspm{} channels. That is, we want to prove that certain values will never be communicated on certain channels.
+% It is easy to imagine that 4 bits can be communicated between the \texttt{time} processes and the seven segment displays. But 4 bits can represent the numbers 0 through 15, and our seven segment displays can only display the numbers 0 through 9. Therefore we wish to assert that even though the channels can carry 4 bits, the actual communication on the six output channels does not exceed 9. In general, the displays will be able to display 0 through 9, but since the example is a clock showing a 24-hour interval, the displays will of course not be able to show minutes and seconds above 59 and hours above 23.
+%
+% We know that a program in pure SMEIL must have a data generation process, but this is not the case in a CSP network. Since we are only transpiling from pure SMEIL networks, we can be certain that there will always be a process which just contributes an initial value to the rest of the network.
+% We also know that a process must either have communication in or out or both.
+% Therefore, we can assume that all SMEIL processes with no input bus will be a data generator process of some kind, and therefore must have some outwards communication.
+% So when transpiling to \cspm{}, we do not translate the SMEIL process to a \cspm{} process, but simply create a \cspm{} channel that represents the values communicated out of this SMEIL process.
+% \\
+%
+% We assume that the SMEIL programs we transpile only contains channels with types and range annotations. During the simulation, the type will be restricted to the lowest representation possible. For example, if a channel was originally set to be \texttt{int} (unbounded), but the observed values from the simulation show that it could be changed to an \texttt{i8} (signed 8-bit integer with a range of -128 to 127), then the simulated output would be \texttt{i8}.
+%
+% When creating channels in \cspm{}, we need to define its range of possible values. If a channel is only defined by having the integer type, FDR4 would try to verify for all possible integers, which results in a seemingly unbounded runtime. As explained in Section~\ref{SMEIL-section}, all simulated SMEIL programs will include the observed range and restricted types for all channels and variables. The types represent the observed width of the channels in bits, and by calculating the possible range from these types, we can create the corresponding channels in \cspm{}, and thereby avoid having a seemingly endless runtime in FDR4.
+%
+% Since the assertion we wish to make is to verify the widths of the channels, it might seem redundant to create \cspm{} channels with a limited range. FDR4 would always only check the values in the defined channel range and therefore there is no point in asserting if the values go beyond this range. After simulating the SME network, SMEIL provides us with both a type and a range of observed values. The type is used to create the \cspm{} channel range and the observed values are used for the assertion. The type will always represent equal or more values than the range of observed values, and by using these values the assertions becomes valuable.
+% \\
+%
+% \begin{listing}
+% \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+% proc seconds (in seconds_in)
+%     bus seconds_out {first_digit: u3 range 0 to 5;
+%                      second_digit: u4 range 0 to 9;};
+%     var seconds: u6 range 1 to 59;
+%     var seconds_first_temp: u3 range 0 to 5;
+%     var seconds_second_temp: u4 range 0 to 9;
+% {
+%     seconds = seconds_in.val % 60;
+%     seconds_first_temp = seconds / 10;
+%     seconds_second_temp = seconds % 10;
+%     seconds_out.first_digit = seconds_first_temp;
+%     seconds_out.second_digit = seconds_second_temp;
+% }
+% \end{minted}
+% \caption{Example of the \texttt{seconds} process from the SMEIL seven segment display example. See full example in Listing~\ref{lst:smeil} in the appendix.}
+% \label{lst:range_smeil}
+% \end{listing}
+%
+% When it comes to transpiling the data generator process into a \cspm{} channel, we also use the types of the SMEIL simulation to define it. We use this instead of the observed values because we cannot guarantee the precise input values of the system. If we used the observed values, the assertions will pass every time, since it will test the values already used to generate the rest of the observed values.
+%
+% An example of simulated SMEIL code can be seen in Listing~\ref{lst:range_smeil}. Notice on lines 2 and 3 that the two channels are defined both with a type \texttt{u3} and \texttt{u4} and with a range 0 to 5 and 0 to 9. These are the observed types and value ranges the simulation tracked for the specific channel. In order to create the \cspm{} channels based on the types, we need to convert \texttt{u3} and \texttt{u4} into its corresponding range, which for \texttt{u3} is 0 through 7 and for \texttt{u4} is 0 through 15. In Listing~\ref{lst:channel_range_cspm} on lines 1 and 2, the calculated ranges are used to define the \cspm{} channels.
+%
+% \begin{listing}
+% \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+% channel seconds_out_first_digit : {0..7}
+% channel seconds_out_second_digit : {0..15}
+%
+%     |$\vdots$|
+%
+% Seconds(seconds_in) =
+% let
+%     seconds = seconds_in % 60
+%     seconds_first_temp = seconds / 10
+%     seconds_second_temp = seconds % 10
+% within
+%     seconds_out_first_digit ! seconds_first_temp ->
+%     seconds_out_second_digit ! seconds_second_temp ->
+%     SKIP
+% \end{minted}
+% \caption{Example of the \texttt{Seconds} process from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
+% \label{lst:channel_range_cspm}
+% \end{listing}
+%
+% When creating the assertions, we decided to create separate assert functions to keep the code structure clean. We know that for each \cspm{} channel there must be an assertion, except for the input channel.
+% Consequently, we create a \textit{monitor} process for each channel and its only job is to listen in on the channel communication and assert the values communicated there. The monitor process is a process that we add specifically for asserting legal communication values in FDR4 and it does not affect the original SME network.
+% In Figure~\ref{fig:assertion_process} the outline of this kind of structure can be seen and we expect that this structure can be used for several different types of problems and thereby ensure a cleaner code structure.
+%
+% The monitor process asserts the observed values of the \cspm{} channels and in Listing~\ref{lst:monitor_range_cspm} the two monitor processes for the Seconds \texttt{time} process can be seen. The values used for these statements are the observed values from the SMEIL simulation, as can be seen at the end of lines 2 and 3 in Listing~\ref{lst:range_smeil}. In Listing~\ref{lst:monitor_range_cspm} the ranges are used to assert that the only values communicated on the channels are within 0 and 5, and 0 and 9 respectively.
+%
+% \begin{figure}[!ht]
+%   \centering
+%   \begin{tikzpicture}[auto]
+%     \node[mycircle] (P) at (-1.5, 0.0) {$P$};
+%     \node[mycircle] (Q) at ( 2.5, 0.0) {$Q$};
+%     \node[mycircle, shape=rectangle] (M) at ( 0.5, 1.5) {$M$};
+%
+%     \node[draw, shape=circle, inner sep=0pt, minimum size=5pt] (m) at (0.5, 0.0) {};
+%
+%
+%     \draw (M) -- (P -| M) [black!50];
+%     \draw [myarrow] (P) -- (Q);
+%   \end{tikzpicture}
+%   \caption{The monitor process \textit{M} listens in on the communication between \textit{P} and \textit{Q} in order to assert the communicated values.}
+%   \label{fig:assertion_process}
+% \end{figure}
+%
+% \begin{listing}
+% \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+% Seconds_out_first_digit_monitor(c) =
+%     c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
+% Seconds_out_second_digit_monitor(c) =
+%     c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+% \end{minted}
+% \caption{Example of the \texttt{Seconds} monitor processes from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
+% \label{lst:monitor_range_cspm}
+% \end{listing}
+% s
+%
+% After translating the SMEIL processes and creating the monitor processes, we need to create the network described in the last part of the SMEIL program, see lines 53 to 59 in Listing~\ref{lst:smeil} in the appendix. We wish only to assert the values the \texttt{time} processes are communicating to the monitor processes, and therefore we have to synchronize these processes into a single network in \cspm{}. We create three network processes, one for each part of the network, and we create a nested synchronization, in order to have all monitor processes synchronized with the \texttt{time} process. An example of this network can be seen in on lines 61 to 66 in Listing~\ref{lst:cspm} in the appendix. This network process is also the process that receives the input from the input channel. By not adding the receiving communication in the \texttt{time} processes, we avoid having to specify the name of the input channels before creating the network which simplifies the translation, as described in Section~\ref{sec:transpiling}. In SMEIL, this information is part of the \texttt{network} section, and therefore it fits well within this part of the \cspm{} code.
+%
+% After creating the network we add the actual assert function calls. For these kinds of assertions, where we want to check a range, the best solution is to assert that the network processes behave as the \texttt{SKIP} process. This is done by having the monitor process running the \texttt{SKIP} process if the value is within the range and the \texttt{STOP} process if not. Two examples can be seen in lines 2 and 4 in Listing~\ref{lst:monitor_range_cspm}. We assert this by using the FDR4 failures model on the the \texttt{SKIP} process along with hiding communication events, which can be seen in lines 68, 78 and 88 in Listing~\ref{lst:cspm} in the appendix.
+% \\
+%
+% The different parts of transpiling the seven segment display example have been presented and in Figure~\ref{fig:cspm-network} the corresponding network of the \cspm{} system is presented.
+% The corresponding network in \cspm{} consists of 12 different processes, all created so that not only the network is simulated correctly, but also so the assertions we wish to make, are in place. The input is represented by a triangle, since it transpiles from an SME process to a \cspm{} channel. Each of the dotted squares represents the network of synchronizations for each \texttt{time} processes, which in itself is a process in \cspm{}. For each network, we have the \texttt{time} processes and two monitor processes, for example, $H$, $M_{H_1}$ and $M_{H_2}$.
+% \\
+%
+% % Errornous example
+% \begin{listing}
+% \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+% channel clock_out_val : {0..131071}
+%
+% channel hours_out_first_digit : {0..3}
+% channel hours_out_second_digit : {0..15}
+%     |$\vdots$|
+%
+% Hours(hours_in) =
+% let
+%     hours = hours_in / 3600
+%     |$\vdots$|
+%
+% Hours_out_first_digit_monitor(c) =
+%     c ? x -> if 0 <= x and x <= 2 then SKIP else STOP
+% Hours_out_second_digit_monitor(c) =
+%     c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+%
+% \end{minted}
+% \caption{Example of an erroneous version of the \texttt{Hours} process from the \cspm{} seven segment display example seen in Listing~\ref{lst:smeil} and in Listing~\ref{lst:cspm} in the appendix.}
+% \label{lst:cspm_error}
+% \end{listing}
+%
+% In order to show that the verification is accurate, the example in Listing~\ref{lst:cspm_error} contains an error that results in FDR4 failing the verification. In Listing~\ref{lst:cspm_error} the example is only able to handle an input that is below 24 hours. This is because the calculation in the \texttt{Hours} process does not handle the wrap around at the 24\textsuperscript{th} hour. This means that if the input represents more than 24 hours, the assertions will fail in FDR4 because one seven segment display suddenly has to display two digits instead of one. An example of such could be the input \texttt{131071}, which represents 36 hours, 24 minutes and 31 seconds, or 1 day, 12 hours, 24 minutes and 31 seconds. When trying to assert the code from Listing~\ref{lst:cspm_error} in FDR4, the assertion fails. The counterexample shows that the number 3 is communicated on \texttt{hours\_out\_first\_digit}, which is not allowed according to the monitor process on lines 12 and 13 in Listing~\ref{lst:cspm_error}.
+%
+% This example of failure shows how verifying the solution with a tool like FDR4 actually catches errors that the programmer might have overseen. In this case, the error is simply corrected by adding \texttt{\% 24} on the end of line 9 in Listing~\ref{lst:cspm_error} and can be seen corrected in Listing~\ref{lst:cspm} in the appendix at line 15. Now when we try to assert the example in FDR4, it passes. By using modulo on the result, we ensure that we still get the accurate time of day, no matter how many full days the input represents.
+%
+% The full SMEIL and \cspm{} code for the seven segment display example can be seen in Listing~\ref{lst:smeil} and in Listing~\ref{lst:cspm} in the appendix.
+% % Errornous example end
 
 
-\begin{figure}
-\label{seven_segments_exaple.csp}
-\caption{Seven segments example in \cspm}
-\end{figure}
+% It is important to mention that the FDR version of the SMEIL program are represented as one clock cycle and therefore we do not have to handle implicit clock cycle issues. we can just translate one-to-one, because FDR models one clock cycle and the input represents all possible input in one clock cycle.
 
 
-\section{Automated translation}
- \textbf{It is important to mention that the FDR version of the SMEIL program are represented as one clock cycle and therefore we do not have to handle implicit clock cycle issues. we can just translate one-to-one, because FDR models one clock cycle and the input represents all possible input in one clock cycle.}
 
- \textbf{From my paper - the ANTLR section}
+%TODO: This should be in a implementation section
 \subsection{ANTLR4}
 For the transpiling between SMEIL source code and \cspm{} source code, we decided to use ANTLR4~\cite{antlr} for creating a parser and a lexer. ANTLR4 is a Java-based parser generator library that, based on a grammar, can generate parsers in Java or another target language. ANTLR4 provided a tool that could easily transform the given grammar into a parser and lexer that could immediately be used to transform into \cspm{}.
 
