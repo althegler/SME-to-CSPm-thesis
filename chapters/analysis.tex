@@ -72,7 +72,7 @@ When transpiling to \cspm there is a need for the transpiler to be able to recog
 In SMEIL each bus can consist of several different channels. When accessing the communicated values, the process have to refer to the specific bus and the specific channel name. In \cspm all communications are done with channels. The translation between SMEIL buses and \cspm channels should be straightforward, since channels is a subset of buses in SMEIL and therefore a bus with two channels would be the same as two buses with one channel. However, when defining the input for the proceses in SMEIL, only the bus name is used and therefore the transpiling will have to be able to recognize which channels belongs to which bus in order to give the correct channels as input for the \cspm processes.
 
 
-%%% Generator processes
+%%%%% Generator processes %%%%%
 When writing pure SMEIL programs, there is a need to generate input for the network. If the program was not written as pure SMEIL, the input for the network would be provided by the surrounding code. But in the case of pure SMEIL, the input data must be generated which is done by a generator process.
 %%% Generator processes - clock cycles
 The transpiler must be able to handle all these different processes and must ensure that the data are representing all possible values from the SMEIL program. \cspm are not able to simulate clock cycles and therefore all data communicated in the \cspm program will represent the clock cycles from the SMEIL representation.
@@ -89,13 +89,32 @@ We can assume that all SMEIL processes with no input bus will be a data generato
 It becomes a bit more tricky if the process have an input bus, because it is to receive data later on, but it also works as an instantiator, either by having a value defined in the process declaration %TODO: Is this possible? Fx. if clock() had an input bus but still generated the starting point.
 or by having a constant as an input argument in the process parameters. In this case the transpiler will have to recognize the data generator process or the initial starting point of the network and generate the data of the network from that. %TODO: Add an example that shows a generator process without an input, where it is generated as in 7segexample, also a version like the addone example and others if I can come up with them.
 %TODO: also add text that explain each of them
-In \cspm it is not possible to create a loop which generates data. Since the purpose of \cspm or FDR4 is to look at all possible states of a system, a loop generating data would not make sense. Typically the data possible for the system are defined in channel definitions or initialized via a parameter for a process function, both types can be seen in Figure %TODO: Add figure with two types of data generation in \cspm. Fx. either Var(0) or channel X : 0. 
+In \cspm it is not possible to create a loop which generates data. Since the purpose of \cspm or FDR4 is to look at all possible states of a system, a loop generating data would not make sense. Typically the data possible for the system are defined in channel definitions or initialized via a parameter for a process function, both types can be seen in Figure %TODO: Add figure with two types of data generation in \cspm. Fx. either Var(0) or channel X : 0.
 Here it becomes crucial that the transpiler generates the data correctly so the system checks all possible values, but still keep the structure of the network intact, and therefore it might be necessary to seperate the data generation from the process in order to keep the process task intact.
 
 %%% Generator processes - More than one process
 In SMEIL it is possible to have more than one proces which generates data for the network. These processes can generate data in all the ways described above, and can be combined together in various ways. In the case of more than one generator process with no input bus, it should not be more complex to translate than the case with one single data generator process, since the processes task still only consist of generating data and communicating them via their outbus bus. The receiving process are declared in the SMEIL network structure and therefore as long as the transpiler generates the same network in \cspm, it will not matter wheather there are one or more data generator processes.
 If the generator processes are part of the network as the process in x%TODO: Create a reference to an example like the one in AddOne, where the process is a generator process but still have a task to do afterwards.
 then the translation will have to create the data without destroying the purpose of the process, %TODO: Write some more here when I know more. If having more than one generator process with an input bus, does not change the solution from having one generator process with an input bus, then write that, else write how to solve it if there are more than one and why it is different than having one generator process with input bus.
+
+
+
+
+
+% %%%% Channels %%%%%
+In SMEIL channels are an integrated part of the bus and in \cspm the only communication device is a channel. Therefore when translating from SMEIL to \cspm, the transpiler have to be cautious and make sure to translate without losing data or functionality.
+% %%%% Calling the channel in the bus
+In SMEIL, the processes refer to its input buses and output buses, but when calling to receive or to send, the process wil have to call the specific channel in that specific bus.
+% TODO: Add an example where a process calls the channel in the input bus. Also create an example where the bus is not defined with channels.
+
+% %%%% Bus only defined as parameter
+If the (output?) bus is not defined with channels, as can be seen in figure x,
+% TODO: Create reference to the figure created above
+the process still needs to reference that specific channel in the bus. It is not possible in SMEIL to call a bus without a channel. So when the bus is called, as long as the channel called match what has been defined as channels for that specific bus, then all is good. The translation of this should be rather simple, since all buses consists of channels, all channels should be possible to translate directly to \cspm channels.
+% %%%% Channel names
+The difficult part of translating SMEIL channels to \cspm channels will be to be sure that the naming is unique. In SMEIL the names of the channels are local to the bus, but in \cspm all channels are global. Therefore the naming of the channels needs to be unique and then all references to the channels in SMEIL should be possible to reuse with the \cspm channel naming.
+% TODO: write something about adding the range of the channel to \cspm
+
 
 \subsection{Structural}
 % - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
