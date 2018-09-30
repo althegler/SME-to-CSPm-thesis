@@ -46,6 +46,19 @@ If there are several processes in the SMEIL program that acts as a data generato
 If the processes are not simple data generator processes, then the transpiler will have to handle it differently %TODO: Figure out how I can handle this in a better way than simply ask the programmer not to create processes like this, and write about it. - Same as with one process but if it becomes more complicated with more than one, then write it here!
 
 
+
+% %%%% Channels %%%%%
+When generating the channels that represents bus channels in SMEIL, each SMEIL channel will be generated into an \cspm channel.
+% %%%% Channel names
+The naming will be created by concatinating the channel name, bus name and process name along with underscore in order to generate human readable code. It would also be possible simply to generate a unique string, which might give more security than using a concatinated version, but in this case we decided to make it easier for humans to read and understand the generated code, since the system is still in a "new state".
+% %%%% Calling the channel in the bus
+If the bus is generated in the network, then the naming will be the channel, bus and network name instead.
+% TODO: add an example of naming in SMEIL and then in CSPm. Both with process and network defined buses
+In the generated \cspm code, the reference to the each channel, whether it is defined in a process or in a network declaration, will be the specific name generated from the channel, bus and process/network name, as mentioned above. This means that all calls using the syntax \texttt{bus.channel} in SMEIL will be translated to \texttt{bus\_channel} in \cspm.
+% %%%% Bus only defined as parameter
+If the bus is only defined as a parameter in the process, the process will still have to call the bus channels in order to receive or send data on the bus. This is up to the programmer to make sure that the channel name used, are the channel names that the bus have been defined with, no matter where in the program the bus is defined. When generating the \cspm code, the calls to the channels will be the same, no matter where the buses was defined in the original SMEIL program. The channels will all be defined as global channels and the references will be the same as mentioned above (maybe add reference)
+% TODO: Maybe add a refernece to a figure here.
+
 % Monitor processes
 
 
