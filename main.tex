@@ -1,8 +1,9 @@
 \documentclass[a4paper]{report}
+\usepackage[english, science, titlepage]{ku-frontpage}
 
 \usepackage[latin1]{inputenc}
 \usepackage{palatino}
-\usepackage[usenames]{color}
+% \usepackage[usenames]{color}
 
 \usepackage{hyperref}
 
@@ -33,7 +34,8 @@
 \usepackage{xcolor}
 \usepackage{booktabs, caption, siunitx}
 
-\usepackage[babel, en, nat, farve, titelside]{ku-forside}
+% NOTE: The margins become wider just by including the geometry package
+% \usepackage{geometry}
 
 \usepackage{url}
 \usepackage{pgfplots}
@@ -208,6 +210,8 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 
+% \geometry{vmargin=7.5cm}
+
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Bibliography Setup %
@@ -235,13 +239,14 @@
 %%%%%%%%%%%%%%%%%%%%
 % Front-page Setup %
 %%%%%%%%%%%%%%%%%%%%
-
-\opgave{Master's Thesis}
-\title{Towards Automatic Program Specification From SME Models}
-\undertitel{Department of Computer Science}
+%
+\assignment{Master's Thesis}
 \author{Alberte Thegler - alberte@thegler.dk}
-\date{November 2018}
-\vejleder{Advisors: Professor Brian Vinter and Kenneth Skovhede}
+\title{Towards Automatic Program Specification \\ From SME Models}
+\subtitle{Department of Computer Science}
+\date{Handed in: \today}
+\advisor{Supervisors: Brian Vinter and Kenneth Skovhede}
+
 
 \begin{document}
 
