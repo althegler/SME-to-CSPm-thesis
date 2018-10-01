@@ -58,8 +58,53 @@ In the generated \cspm code, the reference to the each channel, whether it is de
 % %%%% Bus only defined as parameter
 If the bus is only defined as a parameter in the process, the process will still have to call the bus channels in order to receive or send data on the bus. This is up to the programmer to make sure that the channel name used, are the channel names that the bus have been defined with, no matter where in the program the bus is defined. When generating the \cspm code, the calls to the channels will be the same, no matter where the buses was defined in the original SMEIL program. The channels will all be defined as global channels and the references will be the same as mentioned above (maybe add reference)
 % TODO: Maybe add a refernece to a figure here.
+% %%%% Bus used as input bus with more that one channel
+If a bus is used as input bus in a process, the process will have to call the specific channel of the bus in order to access the data, comunicated on that specific bus. If the channel have more that one channel, the method of calling does not change, and it is up to the programmer to make sure that the channel called, are actually a channel within that specific input bus.
 
-% Monitor processes
+% %%%% Monitor processes %%%%%
+When creating the assertions, we decided to create separate assert functions to keep the code structure clean. We know that for each \cspm{} channel there must be an assertion, except for the input channel.
+% TODO: Only in the case where we assert channel ranges.. maybe add something about that.
+Consequently, we create a \textit{monitor} process for each channel and its only job is to listen in on the channel communication and assert the values communicated there. The monitor process is a process that we add specifically for asserting legal communication values in FDR4 and it does not affect the original SME network.
+In Figure~\ref{fig:assertion_process} the outline of this kind of structure can be seen and we expect that this structure can be used for several different types of problems and thereby ensure a cleaner code structure.
+
+% The monitor process asserts the observed values of the \cspm{} channels and in Listing~\ref{lst:monitor_range_cspm} the two monitor processes for the Seconds \texttt{time} process can be seen. The values used for these statements are the observed values from the SMEIL simulation, as can be seen at the end of lines 2 and 3 in Listing~\ref{lst:range_smeil}. In Listing~\ref{lst:monitor_range_cspm} the ranges are used to assert that the only values communicated on the channels are within 0 and 5, and 0 and 9 respectively.
+
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}[auto]
+    \node[mycircle] (P) at (-1.5, 0.0) {$P$};
+    \node[mycircle] (Q) at ( 2.5, 0.0) {$Q$};
+    \node[mycircle, shape=rectangle] (M) at ( 0.5, 1.5) {$M$};
+
+    \node[draw, shape=circle, inner sep=0pt, minimum size=5pt] (m) at (0.5, 0.0) {};
+
+
+    \draw (M) -- (P -| M) [black!50];
+    \draw [myarrow] (P) -- (Q);
+  \end{tikzpicture}
+  \caption{The monitor process \textit{M} listens in on the communication between \textit{P} and \textit{Q} in order to assert the communicated values.}
+  \label{fig:assertion_process}
+\end{figure}
+
+% \begin{listing}
+% \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+% Seconds_out_first_digit_monitor(c) =
+%     c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
+% Seconds_out_second_digit_monitor(c) =
+%     c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+% \end{minted}
+% \caption{Example of the \texttt{Seconds} monitor processes from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
+% \label{lst:monitor_range_cspm}
+% \end{listing}
+
+% %%%% Monitor processes: More that one monitor process for a channel
+It is possible to have as many monitor processes as needed in the network. Since they dont change the functionality of the system, they can be added without problems. In both \cspm and SMEIL a channel has an input and an output, but the output is not for a specific process. all processes can acces the data on a bus in SMEIL, as long as the network describes the communication, and the same in \cspm.
+% %%%% Monitor processes: Monitor observed ranges
+
+
+% %%%% Monitor processes: monitor something else that ranges
+
+
 
 
 
