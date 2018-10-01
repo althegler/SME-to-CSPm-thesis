@@ -116,6 +116,10 @@ The difficult part of translating SMEIL channels to \cspm channels will be to be
 % TODO: write something about adding the range of the channel to \cspm
 
 
+
+
+
+
 \subsection{Structural}
 % - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
 
@@ -125,9 +129,17 @@ The network in an SMEIL program is the crucial part which ties all the processes
 
 % TODO: Write about how one process can be defined in SMEIL several times and how it does not matter, since the process will be defined the same in CSPm but that the network will simply be generated twice with two different names and inputs or similar. (Does that also work if it is different output?)
 
+
+
+
 \subsection{Meta}
 % - Opserverede værdier - "known limits". Meta information i SMEIL, og det skal oversættes til faktiske processer med faktiske semantic i FDR der også er en del af topologien. (Det er essensen for mig).
 
 In the process description in SMEIL, the channels of a bus are defined as well as the types and observed values for these channels. This data is the crucial data to gather in order for FDR4 to be able to verify the values communicated on the channels. In SMEIL it is simply data that is used when simulating the program or if translated to VHDL
 %TODO it is VHDL right?
 . The circuit does not need to know exactly what values are communicated or what type that is.
+
+
+% %%%% Monitor processes %%%%%
+When verifying attributes(?) in FDR4, we need some specifics to verify on. One scenario is that we want to verify that no values are communicated on a channel, that does not lie within the expected range. In this case we will have to get the correct data from the SMEIL program and handle them in a way that gives FDR4 something to verify.
+% TODO: Maybe write something about getting the ranges and thereby we should simulate or the programmer should annotate the code herself. I have already added some stuff about this in the design part
