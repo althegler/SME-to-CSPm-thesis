@@ -351,18 +351,4 @@ It is possible to have as many monitor processes as needed in the network. Since
 
 
 
-%TODO: This should be in a implementation section
-\subsection{ANTLR4}
-For the transpiling between SMEIL source code and \cspm{} source code, we decided to use ANTLR4~\cite{antlr} for creating a parser and a lexer. ANTLR4 is a Java-based parser generator library that, based on a grammar, can generate parsers in Java or another target language. ANTLR4 provided a tool that could easily transform the given grammar into a parser and lexer that could immediately be used to transform into \cspm{}.
 
-ANTLR takes a grammar, defined in .g4 (BKNF?) and create the parser and lexer of the files.
-
-A lexical analysis, which is what the lexer does, is a process of converting a string of characters into tokens, which is also called tokenization. Each token represents a lexer rule in the grammer, for instance, if the string is "123" and there is a lexer rule "INT: {0-9}+" which means one or more of 0-9 digits. Then the token would be an INT.
-
-A parser...%TODO: write more here
-
-Currently, only a subset of the SMEIL grammar have been implemented for translating and parts of the grammar have been changed slightly to match the expectations from a simulated SMEIL program, which varies a bit from a non-simulated SMEIL program. An example of this could be that in the original SMEIL grammar a channel declaration only includes an optional range, however, we are expecting a simulated SMEIL program and therefore the simulation would always have generated ranges of observed values for each channel. Therefore, in the grammar, created for ANTLR4, the range for each channel must always be defined.
-
-The ANTRL4 grammar is provided in a filetype called \texttt{.g4} but the structure of the grammar is similar to standard grammar notation.
-After running ANTLR4 and generating a parser and a lexer, one can decide to traverse the parse tree itself or use a listener or visitor that ANTLR4 provides. The main difference between the two is that the methods the listener provides are called by the walker object, which ANTLR4 provides, and the visitor methods must call their children explicitly to walk them.
-For our implementation, we used the ANTLR4 listener along with Python. When generating a parser and lexer for another target language than Java, the programmer only has to specify this in the ANTLR4 command in the command-line.
