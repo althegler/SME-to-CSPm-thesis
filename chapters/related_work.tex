@@ -71,10 +71,11 @@ is an architecture description language which was developed at Carnegie Mellon U
 Both theorem provers and model checkers have been, and are still, widely used for both software and hardware. There is a third form of formal verification that is also being used more often now. This is equivalence checking, which compares two models of a design and produces an outcome that either shows that they are equal or provides a counter-example to show when they disagree. It is beginning to become common practice for hardware designers to use equvalence checking to compare the design of an optimized digital design and an unoptimized digital design. This way it is possible for the designer to check that the optimizations did not change the functionality of the design.
 
 
-
+Since \cspm is a specification language, the need to have a hardware model of the system was evident since the \cspm program would verify the model but could not be programmed into hardware. Therefore several attempts have been made to translate \cspm or subsets of \cspm into different hardware description languages. Marcel Oliveria and Jim Woodcock have translated a subset of CSP into Handel-C\cite{Celoxia2002} in their paper from 2007\cite{Oliveira2007}. As they describe \textit{A translation between the specification language and a practical programming language is still needed and is usually rather problematic.}
+In \cite{Oliveira2007} Oliveria and Woodcock describes how they create the system \texttt{csp2hs} which takes an CSP abstraction, in their case it is \cspm for FDR4, and automatically translate this abstraction into Handel-C code which can be programmed onto an FPGA.
+In order to provide the information needed for the \texttt{csp2hs} system so it can create a correct translation into Handel-C code, the \cspm code must be annotated with specific \cspm comments, called directives (--!!).
+This means that the programmer must add specific comments to their \cspm code that is only used for the code generation. However, since they appear as \cspm comments, they do not change the network structure at all, and therefore do not affect the results of the FDR4 verification.
 % From Automatic Generation of Verified Concurrent Hardware:
-
-% 'A translation between the specification language and a practical programming language is still needed and is usually rather problematic'
 
 % 'Using CSP, we may capture systems descriptions at the levels of specification, design and implementation. This allows a stepwise development in a single framework from a specification to an implementation.'
 
