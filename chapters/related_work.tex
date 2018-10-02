@@ -75,7 +75,4 @@ Since \cspm is a specification language, the need to have a hardware model of th
 In \cite{Oliveira2007} Oliveria and Woodcock describes how they create the system \texttt{csp2hs} which takes an CSP abstraction, in their case it is \cspm for FDR4, and automatically translate this abstraction into Handel-C code which can be programmed onto an FPGA.
 In order to provide the information needed for the \texttt{csp2hs} system so it can create a correct translation into Handel-C code, the \cspm code must be annotated with specific \cspm comments, called directives (--!!).
 This means that the programmer must add specific comments to their \cspm code that is only used for the code generation. However, since they appear as \cspm comments, they do not change the network structure at all, and therefore do not affect the results of the FDR4 verification.
-% From Automatic Generation of Verified Concurrent Hardware:
-
-% 'Using CSP, we may capture systems descriptions at the levels of specification, design and implementation. This allows a stepwise development in a single framework from a specification to an implementation.'
 
