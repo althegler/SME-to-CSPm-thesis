@@ -9,9 +9,9 @@
 
 
 \section{Transpiling SMEIL to \cspm{}} \label{sec:transpiling}
-When transpiling from source to source the difficult part is to understand the structure of each language and to understand how to translate structures from one language to the other without losing functionality but still maintaining the structure of the languages.
+When transpiling from source to source the difficult part is to understand the structure of each language and to understand how to translate structures from one language to the other without losing functionality but still maintaining the structure of each language.
 
-When transpiling from SMEIL to \cspm{} one of the difficult components was to find a generalized method for transpiling, that could be generalized to most problems. We have worked on separation of concerns in order to simplify, but also have a greater chance of being able to match more SMEIL programs.
+When transpiling from SMEIL to \cspm{} the goal was to find a method for transpiling, that could be generalized to most problems. We have worked on separation of concerns in order to simplify, but also to have a greater chance of being able to match more SMEIL programs.
 
 % TODO: Something about functional language to imperative language
 
@@ -20,6 +20,9 @@ When transpiling from SMEIL to \cspm{} one of the difficult components was to fi
 
 
 % I SMEIL har jeg et prædefineret konsistent navnerum. Jeg skal ikke lave en symboltabel. Jeg arver direkte fra SMEIL til CSPm. Så her kan jeg snakke om at hvis jeg gjorde det på en anden måde ville jeg ikke kunne gøre det sådan. Det skal jeg skrive om her.
+
+Usually when doing any form of translation either by a compiler or interpreter, the use of a symbol table is often needed in order to keep information about variable names, function names, classes, communication ect. Usually the translation, when reaching a symbol in the translation, use the symbol table to look up a symbol and retrieve its context if it has any information about said symbol. This can be to check that a variable have been declared or for type checking ect.. The symbol table is usually generated in the analysis section and are used for look ups througout the compilation or interpretation.
+
 
 
 When analysing the general structure of SMEIL programs, there are three structures that are particular interesting when we are interested in translating from SMEIL to \cspm{}. These three structures are:
