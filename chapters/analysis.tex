@@ -19,10 +19,7 @@ When transpiling from SMEIL to \cspm{} the goal was to find a method for transpi
 % Vigtigt at have de tre dele adskilt i afsnittet. Brug figuren fra side 107 i bujo til at henvise til at jeg har en Magic 8-ball (Mit system) og jeg skal fra SMEIL til FDR og henvise til at det er det flow jeg har brug for.
 
 
-% I SMEIL har jeg et prædefineret konsistent navnerum. Jeg skal ikke lave en symboltabel. Jeg arver direkte fra SMEIL til CSPm. Så her kan jeg snakke om at hvis jeg gjorde det på en anden måde ville jeg ikke kunne gøre det sådan. Det skal jeg skrive om her.
-
-Usually when doing any form of translation either by a compiler or interpreter, the use of a symbol table is often needed in order to keep information about variable names, function names, classes, communication ect. Usually the translation, when reaching a symbol in the translation, use the symbol table to look up a symbol and retrieve its context if it has any information about said symbol. This can be to check that a variable have been declared or for type checking ect.. The symbol table is usually generated in the analysis section and are used for look ups througout the compilation or interpretation.
-
+% I SMEIL har jeg et prædefineret konsistent navnerum. Jeg skal ikke lave en symboltabel. Jeg arver direkte fra SMEIL til CSPm. Så her kan jeg snakke om at hvis jeg gjorde det på en anden måde ville jeg ikke kunne gøre det sådan. Det skal jeg skrive om her. TODO: Make a decision about where this belongs. It does not seem to be fitting in with the analysis, but on the other hand this was what Brian told me. But is he right?
 
 
 When analysing the general structure of SMEIL programs, there are three structures that are particular interesting when we are interested in translating from SMEIL to \cspm{}. These three structures are:
@@ -126,13 +123,14 @@ The difficult part of translating SMEIL channels to \cspm channels will be to be
 \subsection{Structural}
 % - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
 
-The network in an SMEIL program is the crucial part which ties all the processes and communication together. In the network buses or instances of processes are defined as well as the input and output for those proceses. In order to generate a correct network in \cspm the translation of the SMEIL network is crucial. In \cspm there is also a structure that is similar to the network structure in SMEIL. When synchronizing processes together with channels in a new process in \cspm we create the structure of what channels each process communicates on and which processes communicate to which processes. This translation step will require carefully planning in order to get all the information for each part, in the correct position of one another. In SMEIL buses can also be declared in the network declaration but.. %TODO: ...currently the system does not handle other than pure SMEIL programs and therefore we do not need to handle if these buses are not both an input and output bus in some processes.
+The network in an SMEIL program is the crucial part which ties all the processes and communication together. In the network buses or instances of processes are defined as well as the input and output for those proceses. In order to generate a correct network in \cspm the translation of the SMEIL network is crucial. In \cspm there is also a structure that is similar to the network structure in SMEIL. When synchronizing processes together with channels in a new process in \cspm we create the structure of what channels each process communicates on, and therefore which processes communicate to which processes.
+% TODO: Change this last sentence to not sound like design (Above) 
+This translation step will require carefully planning in order to get all the information for each part, in the correct position of one another. In SMEIL buses can also be declared in the network declaration but.. %TODO: ...currently the system does not handle other than pure SMEIL programs and therefore we do not need to handle if these buses are not both an input and output bus in some processes.
 
-% TODO: Write about two networks and how it will be translated to a network and therefore we should be able to have them seperated easily and the communication is what combines them, and that is the same in cspm.
+% TODO: Write about two networks and how it will be translated to a network and therefore we should be able to have them seperated easily and the communication is what combines them, and that is the same in cspm. TODO: But ask Truls if this would even make sense. To have to networks.
 
 % TODO: Write about how one process can be defined in SMEIL several times and how it does not matter, since the process will be defined the same in CSPm but that the network will simply be generated twice with two different names and inputs or similar. (Does that also work if it is different output?)
-
-
+In SMEIL the networks of the system are constructed by a series of entities and these entities are connected by bus communication. For each instance, the process and communication will be declared and thus, connecting the network. SMEIL also have the great advantage that it is possible to have several instances of the same process with different parameters. This means that a process defined in the network can be instantiated several times, with differen parameters and thereby reusing code, without having to create the process once again. Since the network structure, as mentioned above, is created by syncronizing processes together with channels in \cspm, having several different instances of the same process should not prove to be difficult, however it is evident that TAPS keep the information about each instance of each process seperate so that no information is lost in the translation.
 
 
 \subsection{Meta}
