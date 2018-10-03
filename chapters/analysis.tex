@@ -102,6 +102,19 @@ then the translation will have to create the data without destroying the purpose
 \subsection{Structural}
 % - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
 
+In SMEIL a bus are used as the glue between the processes to connect them into a network. The bus are used for communication between the SME processes in the network and each bus consist of one or more channels. A channel is singly assigned a process and each channel have a type, however the same types does not have to apply to all channels in the same bus. All channels in a single bus is connected at the same time, but each process communicates on a single channel.
+Buses may form many-to-many relationships between processes and thus creating a similar situation as consists in hardware buses with physical wires where several different components can be connected to the same physical wire.
+% TODO: Figure out if I should introduce the basics of SMEIL like examples of buses declarations etc.
+
+In SMEIL a bus is simply a shell that contains channels. It does not have a type or values, it simply contains channels which then each has a name, type and values etc. Each bus in SMEIL does have an identifier and this is used to reference the specific bus.
+
+Since a bus is connected with all channels at the same time, the processes of SMEIL does not receive the channel as input parameter, but the bus itself. It is then up to the body of the process to call the correct channel in the input bus so to get the content that was communicated on the specific channel.
+
+% TODO: Maybe add something here about outbus bus/channels and how they are defined and called. 
+
+
+
+
 The network in an SMEIL program is the crucial part which ties all the processes and communication together. In the network buses or instances of processes are defined as well as the input and output for those proceses. In order to generate a correct network in \cspm the translation of the SMEIL network is crucial. In \cspm there is also a structure that is similar to the network structure in SMEIL. When synchronizing processes together with channels in a new process in \cspm we create the structure of what channels each process communicates on, and therefore which processes communicate to which processes.
 % TODO: Change this last sentence to not sound like design (Above)
 This translation step will require carefully planning in order to get all the information for each part, in the correct position of one another. In SMEIL buses can also be declared in the network declaration but.. %TODO: ...currently the system does not handle other than pure SMEIL programs and therefore we do not need to handle if these buses are not both an input and output bus in some processes.
