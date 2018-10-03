@@ -1,3 +1,7 @@
+
+Usually when doing any form of translation either by a compiler or interpreter, the use of a symbol table is often needed in order to keep information about variable names, function names, classes, communication ect. Usually the translation, when reaching a symbol in the translation, use the symbol table to look up a symbol and retrieve its context if it has any information about said symbol. This can be to check that a variable have been declared or for type checking ect.. The symbol table is usually generated in the analysis section and are used for look ups througout the compilation or interpretation.
+....
+
 \subsection{ANTLR4}
 For the transpiling between SMEIL source code and \cspm{} source code, we decided to use ANTLR4~\cite{antlr} for creating a parser and a lexer. ANTLR4 is a Java-based parser generator library that, based on a grammar, can generate parsers in Java or another target language. ANTLR4 provided a tool that could easily transform the given grammar into a parser and lexer that could immediately be used to transform into \cspm{}.
 
