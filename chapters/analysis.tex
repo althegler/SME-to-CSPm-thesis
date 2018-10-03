@@ -64,12 +64,11 @@ In an SMEIL, each process can have any number and combinations of input buses, o
 Process input buses can be defined in the parameter when defining the process or the communication can be created by directly using the buses through their hierarchical names %TODO: reference truls master page 20
 
 Process output buses can be defined the same as input buses; as a parameter in the process or by using the hierarchical names of the buses. It is also possible not to have the output bus defined in the parameters but to have a bus declaration inside the process description.
+% TODO: Might need to go in structure section
 
 Constants can also be defined as a parameter and as a constant declaration within the process description. %TODO: Find out more about constants. are we interested in them, then I need to write more, otherwise I can close this part early.
 When transpiling to \cspm there is a need for the transpiler to be able to recognize all different ways of defining buses and constants within the SMEIL program.
 
-%% What to do if there is several channels in one bus that acts as an input bus for a process.
-In SMEIL each bus can consist of several different channels. When accessing the communicated values, the process have to refer to the specific bus and the specific channel name. In \cspm all communications are done with channels. The translation between SMEIL buses and \cspm channels should be straightforward, since channels is a subset of buses in SMEIL and therefore a bus with two channels would be the same as two buses with one channel. However, when defining the input for the proceses in SMEIL, only the bus name is used and therefore the transpiling will have to be able to recognize which channels belongs to which bus in order to give the correct channels as input for the \cspm processes.
 
 
 %%%%% Generator processes %%%%%
@@ -100,12 +99,29 @@ then the translation will have to create the data without destroying the purpose
 
 
 
+\subsection{Structural}
+% - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
+
+The network in an SMEIL program is the crucial part which ties all the processes and communication together. In the network buses or instances of processes are defined as well as the input and output for those proceses. In order to generate a correct network in \cspm the translation of the SMEIL network is crucial. In \cspm there is also a structure that is similar to the network structure in SMEIL. When synchronizing processes together with channels in a new process in \cspm we create the structure of what channels each process communicates on, and therefore which processes communicate to which processes.
+% TODO: Change this last sentence to not sound like design (Above)
+This translation step will require carefully planning in order to get all the information for each part, in the correct position of one another. In SMEIL buses can also be declared in the network declaration but.. %TODO: ...currently the system does not handle other than pure SMEIL programs and therefore we do not need to handle if these buses are not both an input and output bus in some processes.
+
+% TODO: Write about two networks and how it will be translated to a network and therefore we should be able to have them seperated easily and the communication is what combines them, and that is the same in cspm. TODO: But ask Truls if this would even make sense. To have to networks.
+
+% TODO: Write about how one process can be defined in SMEIL several times and how it does not matter, since the process will be defined the same in CSPm but that the network will simply be generated twice with two different names and inputs or similar. (Does that also work if it is different output?)
+In SMEIL the networks of the system are constructed by a series of entities and these entities are connected by bus communication. For each instance, the process and communication will be declared and thus, connecting the network. SMEIL also have the great advantage that it is possible to have several instances of the same process with different parameters. This means that a process defined in the network can be instantiated several times, with differen parameters and thereby reusing code, without having to create the process once again. Since the network structure, as mentioned above, is created by syncronizing processes together with channels in \cspm, having several different instances of the same process should not prove to be difficult, however it is evident that TAPS keep the information about each instance of each process seperate so that no information is lost in the translation.
+
+
 
 % %%%% Channels %%%%%
+% TODO: Add more general about channels
 In SMEIL channels are an integrated part of the bus and in \cspm the only communication device is a channel. Therefore when translating from SMEIL to \cspm, the transpiler have to be cautious and make sure to translate without losing data or functionality.
 % %%%% Calling the channel in the bus
 In SMEIL, the processes refer to its input buses and output buses, but when calling to receive or to send, the process wil have to call the specific channel in that specific bus.
+
 % TODO: Add an example where a process calls the channel in the input bus. Also create an example where the bus is not defined with channels.
+
+% %%%% Input bus have more than one channel
 
 % %%%% Bus only defined as parameter
 If the (output?) bus is not defined with channels, as can be seen in figure x,
@@ -116,21 +132,11 @@ The difficult part of translating SMEIL channels to \cspm channels will be to be
 % TODO: write something about adding the range of the channel to \cspm
 
 
+%% What to do if there is several channels in one bus that acts as an input bus for a process.
+In SMEIL each bus can consist of several different channels. When accessing the communicated values, the process have to refer to the specific bus and the specific channel name. In \cspm all communications are done with channels. The translation between SMEIL buses and \cspm channels should be straightforward, since channels is a subset of buses in SMEIL and therefore a bus with two channels would be the same as two buses with one channel. However, when defining the input for the proceses in SMEIL, only the bus name is used and therefore the transpiling will have to be able to recognize which channels belongs to which bus in order to give the correct channels as input for the \cspm processes.
 
 
 
-
-\subsection{Structural}
-% - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
-
-The network in an SMEIL program is the crucial part which ties all the processes and communication together. In the network buses or instances of processes are defined as well as the input and output for those proceses. In order to generate a correct network in \cspm the translation of the SMEIL network is crucial. In \cspm there is also a structure that is similar to the network structure in SMEIL. When synchronizing processes together with channels in a new process in \cspm we create the structure of what channels each process communicates on, and therefore which processes communicate to which processes.
-% TODO: Change this last sentence to not sound like design (Above) 
-This translation step will require carefully planning in order to get all the information for each part, in the correct position of one another. In SMEIL buses can also be declared in the network declaration but.. %TODO: ...currently the system does not handle other than pure SMEIL programs and therefore we do not need to handle if these buses are not both an input and output bus in some processes.
-
-% TODO: Write about two networks and how it will be translated to a network and therefore we should be able to have them seperated easily and the communication is what combines them, and that is the same in cspm. TODO: But ask Truls if this would even make sense. To have to networks.
-
-% TODO: Write about how one process can be defined in SMEIL several times and how it does not matter, since the process will be defined the same in CSPm but that the network will simply be generated twice with two different names and inputs or similar. (Does that also work if it is different output?)
-In SMEIL the networks of the system are constructed by a series of entities and these entities are connected by bus communication. For each instance, the process and communication will be declared and thus, connecting the network. SMEIL also have the great advantage that it is possible to have several instances of the same process with different parameters. This means that a process defined in the network can be instantiated several times, with differen parameters and thereby reusing code, without having to create the process once again. Since the network structure, as mentioned above, is created by syncronizing processes together with channels in \cspm, having several different instances of the same process should not prove to be difficult, however it is evident that TAPS keep the information about each instance of each process seperate so that no information is lost in the translation.
 
 
 \subsection{Meta}

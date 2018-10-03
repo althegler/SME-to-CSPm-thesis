@@ -3,10 +3,6 @@
 %% - Behavioral description - hvad den enkelte funktion gør. det oversættes ret nemt. Jeg bekymre mig ikke om variable og sådan nogle ting. Det er allerede gjort før det gøres til SMEIL, og dem kan jeg genbruge i min code generation.  Funktionel indhold af processer/ opførsel af den enkelte process - det er rimelig nemt oversat direkte til CSPm. Her kan man beskrive hvis der er nogle sproglige udfordringer, fx hvis CSPm ikke har loops eller lign.
 
 
-% channels from SMEIL to CSPm
-Channels within an SMEIL bus can be translated directly to \cspm{} channels. Since a SMEIL bus consist of channels, the translation is quite simple. It is, however, important to give channel names that will be unique since a \cspm{} channel is global as opposed to the local channel within each SMEIL bus. Because there are several different ways to define a bus in SMEIL %TODO: see the analysis chapter,
-the translation will have to recognize the different types and generate the \cspm channels no matter how they where defined.
-
 % Let within statement
 In order to keep the outwards communication and the arithmetic statements together within each process in \cspm{}, we generate \cspm{} processes with a \texttt{let within} statement. The arithmetic statements go into the \texttt{let} section and the communications go into the \texttt{within} section. This gives us the possibility of separating the outwards communication and arithmetic statements while still keeping them within the same \cspm{} process. In Listing~\ref{lst:channel_range_cspm}, an example of the \texttt{let within} statement can be seen in lines 7-14. This structure will work as a general translation structure from SMEIL processes to \cspm{} processes.
 
@@ -30,8 +26,35 @@ If the processes are not simple data generator processes, then the transpiler wi
 
 
 
+% An example of an SMEIL process, where the process structure is evident, can be seen in Listing~\ref{lst:range_smeil} and the corresponding \cspm{} code in Listing~\ref{lst:channel_range_cspm}.
+
+\subsection{Structural}
+% - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
+
+% TODO: Write about two networks and how it will be translated to a network and therefore we should be able to have them seperated easily and the communication is what combines them, and that is the same in cspm. TODO: But ask Truls if this would even make sense. To have to networks.
+
+% TODO: Write about how one process can be defined in SMEIL several times and how it does not matter, since the process will be defined the same in CSPm but that the network will simply be generated twice with two different names and inputs or similar. (Does that also work if it is different output?)
+
+% %%%% Generating the network
+We can standardize the network generation by creating a two-step communication part. Instead of having the actual processes receive the incoming data, they receive the data by their process parameter. The process parameter is then set by the network process which receives the communication from the channels and provides the process with the communicated value.
+This ensures that we can generate the processes easily without having to traverse the network in the SMEIL program beforehand to find out which channel provides input for which process. An example of this is shown in Listing~\ref{lst:cspm} in the appendix on lines 61 to 66.
+
+% %%%% Instances and two networks.
+% TODO: Add an example showing two different networks and how it translates.
+When translating the instances of a SMEIL network, the transpiler does not need to keep the instances together in a certain way. Each instance will be translated into a seperate \cspm network and even though the networks might have communication in common, they do not need to be connected in \cspm. If the networks/instances have communication in common, it will be handled by the communication in \cspm. When translating from an instance into a network in \cspm it is simply to map the communication from the correct channels and to the correct channels in \cspm. If the process is connected to a monitor process this is also in the network that the monitor process is added to the communication it will be listening in on.
+In a SMEIL program it is possible to have several networks in one program. There is not much of a point in doing so, since it will result in the same as having all instances in one network %TODO: Am I 100\% sure that two networks is the same as one? ask Truls
+, but never the less, if there is two networks it will not matter in the \cspm translation. One SMEIL instance represents one \cspm network, and all these networks or instances are combined via communications on channels or buses. The only thing we are interested in when translating the SMEIL instances are the communication defined in each instance. And that is what creates the network. This means that we can generate the \cspm networks without looking at what SMEIL network that specific SMEIL instance came from, because the important thing, the communication, is defined in the instance and therefore all data about how the SMEIL network is combined together we still keep intact even though we translate the instances without considering the rest of that SMEIL network.
+% %%%% Instances with the same process twice
+% TODO: Add an example showing one process added twice and hwo it translates.
+When defining instances in the SMEIL network, it is possible to define the same process several times and have it receive different input or send different output or constants. When translating this to a \cspm network, the process itself will be generated as all other processes, but simply the network will be two seperate network, as if it was two SMEIL instances calling two different SMEIL processes. The only difference between the two networks are that the input channel will be different, if that is the difference between the two SMEIL instances.
+
+
+
 % %%%% Channels %%%%%
 When generating the channels that represents bus channels in SMEIL, each SMEIL channel will be generated into an \cspm channel.
+% TODO: write more here above. Why can we do this. Add something about ranges.
+% TODO: What if I need to translate a bus with letters, or something else? what kind of channel does that become?
+
 % %%%% Channel names
 The naming will be created by concatinating the channel name, bus name and process name along with underscore in order to generate human readable code. It would also be possible simply to generate a unique string, which might give more security than using a concatinated version, but in this case we decided to make it easier for humans to read and understand the generated code, since the system is still in a "new state".
 % %%%% Calling the channel in the bus
@@ -45,30 +68,10 @@ If the bus is only defined as a parameter in the process, the process will still
 If a bus is used as input bus in a process, the process will have to call the specific channel of the bus in order to access the data, comunicated on that specific bus. If the channel have more that one channel, the method of calling does not change, and it is up to the programmer to make sure that the channel called, are actually a channel within that specific input bus.
 
 
-% An example of an SMEIL process, where the process structure is evident, can be seen in Listing~\ref{lst:range_smeil} and the corresponding \cspm{} code in Listing~\ref{lst:channel_range_cspm}.
 
-\subsection{Structural}
-% - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
-
-% TODO: Write about two networks and how it will be translated to a network and therefore we should be able to have them seperated easily and the communication is what combines them, and that is the same in cspm. TODO: But ask Truls if this would even make sense. To have to networks.
-
-% TODO: Write about how one process can be defined in SMEIL several times and how it does not matter, since the process will be defined the same in CSPm but that the network will simply be generated twice with two different names and inputs or similar. (Does that also work if it is different output?)
-
-
-% Generating the network
-We can standardize the network generation by creating a two-step communication part. Instead of having the actual processes receive the incoming data, they receive the data by their process parameter. The process parameter is then set by the network process which receives the communication from the channels and provides the process with the communicated value.
-This ensures that we can generate the processes easily without having to traverse the network in the SMEIL program beforehand to find out which channel provides input for which process. An example of this is shown in Listing~\ref{lst:cspm} in the appendix on lines 61 to 66.
-
-% Instances and two networks.
-% TODO: Add an example showing two different networks and how it translates.
-
-When translating the instances of a SMEIL network, the transpiler does not need to keep the instances together in a certain way. Each instance will be translated into a seperate \cspm network and even though the networks might have communication in common, they do not need to be connected in \cspm. If the networks/instances have communication in common, it will be handled by the communication in \cspm. When translating from an instance into a network in \cspm it is simply to map the communication from the correct channels and to the correct channels in \cspm. If the process is connected to a monitor process this is also in the network that the monitor process is added to the communication it will be listening in on.
-In a SMEIL program it is possible to have several networks in one program. There is not much of a point in doing so, since it will result in the same as having all instances in one network %TODO: Am I 100\% sure that two networks is the same as one? ask Truls
-, but never the less, if there is two networks it will not matter in the \cspm translation. One SMEIL instance represents one \cspm network, and all these networks or instances are combined via communications on channels or buses. The only thing we are interested in when translating the SMEIL instances are the communication defined in each instance. And that is what creates the network. This means that we can generate the \cspm networks without looking at what SMEIL network that specific SMEIL instance came from, because the important thing, the communication, is defined in the instance and therefore all data about how the SMEIL network is combined together we still keep intact even though we translate the instances without considering the rest of that SMEIL network.
-% Instances with the same process twice
-% TODO: Add an example showing one process added twice and hwo it translates.
-When defining instances in the SMEIL network, it is possible to define the same process several times and have it receive different input or send different output or constants. When translating this to a \cspm network, the process itself will be generated as all other processes, but simply the network will be two seperate network, as if it was two SMEIL instances calling two different SMEIL processes. The only difference between the two networks are that the input channel will be different, if that is the difference between the two SMEIL instances.
-
+% channels from SMEIL to CSPm
+Channels within an SMEIL bus can be translated directly to \cspm{} channels. Since a SMEIL bus consist of channels, the translation is quite simple. It is, however, important to give channel names that will be unique since a \cspm{} channel is global as opposed to the local channel within each SMEIL bus. Because there are several different ways to define a bus in SMEIL %TODO: see the analysis chapter,
+the translation will have to recognize the different types and generate the \cspm channels no matter how they where defined.
 
 
 \subsection{Meta}
