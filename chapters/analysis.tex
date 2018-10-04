@@ -5,9 +5,6 @@
 
 % Jeg skal ikke fortælle hvordan jeg har gjort det men analyse af problemet og ikke af løsningen. Jeg skal blot beskrive problemstillingerne.
 
-
-
-
 \section{Transpiling SMEIL to \cspm{}} \label{sec:transpiling}
 When transpiling from source to source the difficult part is to understand the structure of each language and to understand how to translate structures from one language to the other without losing functionality but still maintaining the structure of each language.
 
@@ -36,10 +33,15 @@ When analysing the general structure of SMEIL programs, there are three structur
 \subsection{Behavioral}
 %% - Behavioral description - hvad den enkelte funktion gør. det oversættes ret nemt. Jeg bekymre mig ikke om variable og sådan nogle ting. Det er allerede gjort før det gøres til SMEIL, og dem kan jeg genbruge i min code generation.  Funktionel indhold af processer/ opførsel af den enkelte process - det er rimelig nemt oversat direkte til CSPm. Her kan man beskrive hvis der er nogle sproglige udfordringer, fx hvis CSPm ikke har loops eller lign.
 
-% %%%% SMEIL processes %%%%
-A SMEIL process consists of an identifier, process parameters, bus and variable declarations as well as the process statements which include communications and calculations.
+\subsubsection{Processes}
 
-A process in SMEIL is defined by the \texttt{proc} keyword and then consists of bus and variable declarations, the statements to be run for each clock cycle as well as the outgoing communication from the process. This is a somewhat recognisable function structure for functional languages. In \cspm the structure is commonly consisting of communication which might include some kind of calculations, but the main purpose of \cspm processes are usually to express communication. %TODO: Add reference to FDR example (I took it from FDRs website - test example https://www.cs.ox.ac.uk/projects/fdr/manual/examples/index.html. Dining Philosophers)
+% %%%% SMEIL processes %%%%
+A SMEIL process consists of
+
+A SMEIL process is defined by the \texttt{proc} keyword and consists of an identifier, process parameters, bus and variable declarations as well as the process statements which include communications and calculations and are to be run for each clock cycle. This is a somewhat recognizable function structure for functional languages.
+
+
+In \cspm the structure is commonly consisting of communication which might include some kind of calculations, but the main purpose of \cspm processes are usually to express communication. %TODO: Add reference to FDR example (I took it from FDRs website - test example https://www.cs.ox.ac.uk/projects/fdr/manual/examples/index.html. Dining Philosophers)
 
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
@@ -60,17 +62,6 @@ When translating the process from SMEIL to \cspm we will be able to translate va
 % TODO: Write something more about FDR not supporting floating point
 When translating from SMEIL to \cspm we will run into a problem with floating point numbers. SMEIL does support floating point numbers, but FDR4 does not, %TODO: add reference. is it only FDR4 or is it build into CSP not to support it?
 and therefore we will have to convert the floating point numbers to integer, or simply not trying to verify programs that rely on floating poing numbers. The reason FDR does not support floating point numbers are... %TODO: write more here
-
-
-%% I cannot assume that the output bus is defined in a busdeclaration in the process
-In an SMEIL, each process can have any number and combinations of input buses, output buses and constant parameters and since SMEIL have been created so that the creation of a circuit gives the most flexibility, we have to handle several different ways of defining these in \cspm.
-Process input buses can be defined in the parameter when defining the process or the communication can be created by directly using the buses through their hierarchical names %TODO: reference truls master page 20
-
-Process output buses can be defined the same as input buses; as a parameter in the process or by using the hierarchical names of the buses. It is also possible not to have the output bus defined in the parameters but to have a bus declaration inside the process description.
-% TODO: Might need to go in structure section
-
-Constants can also be defined as a parameter and as a constant declaration within the process description. %TODO: Find out more about constants. are we interested in them, then I need to write more, otherwise I can close this part early.
-When transpiling to \cspm there is a need for the transpiler to be able to recognize all different ways of defining buses and constants within the SMEIL program.
 
 
 % %%%% CSPm processes %%%%
@@ -188,7 +179,17 @@ In SMEIL the networks of the system are constructed by a series of entities and 
 
 
 
+%% I cannot assume that the output bus is defined in a busdeclaration in the process
+In an SMEIL, each process can have any number and combinations of input buses, output buses and constant parameters and since SMEIL have been created so that the creation of a circuit gives the most flexibility, we have to handle several different ways of defining these in \cspm.
+Process input buses can be defined in the parameter when defining the process or the communication can be created by directly using the buses through their hierarchical names %TODO: reference truls master page 20
 
+Process output buses can be defined the same as input buses; as a parameter in the process or by using the hierarchical names of the buses. It is also possible not to have the output bus defined in the parameters but to have a bus declaration inside the process description.
+% TODO: Might need to go in structure section
+
+
+
+Constants can also be defined as a parameter and as a constant declaration within the process description. %TODO: Find out more about constants. are we interested in them, then I need to write more, otherwise I can close this part early.
+When transpiling to \cspm there is a need for the transpiler to be able to recognize all different ways of defining buses and constants within the SMEIL program.
 
 \subsection{Meta}
 % - Opserverede værdier - "known limits". Meta information i SMEIL, og det skal oversættes til faktiske processer med faktiske semantic i FDR der også er en del af topologien. (Det er essensen for mig).
