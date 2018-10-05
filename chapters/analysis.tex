@@ -78,21 +78,59 @@ and variables can be used without declaring them first, for example
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 Proc(x) =
     let
-        m = x * 60
+        m = x % 60
     within
-        |$\vdots$|
+        channel ! m -> SKIP
 \end{minted}
 
 To translate constants and variables from SMEIL to \cspm should not prove difficult, since the structures are quite similar. However the translation of ranges and types, both in constants and variables might provide some challenges, and it important to explore if these data are even necessary within the generated \cspm program.
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
+\\\\
 
+The other part of an SMEIL process is the statement part where the actual behaviour of the process is defined. The semantics of statements in SMEIL corresponds to what we typically see in C-like languages.
+
+\paragraph{Assignments}
+An assignment in SMEIL consists of a name and an expression. It can be used in two different ways within the SMEIL process statements; one is assigning to a variable and the other is assigning to a bus channel. In SMEIL the compiler will always be able to recognize what is being assigned by looking at the type of the object.
+This property might cause problems when translating to \cspm, since channel communication and variable assignments are two different parts of the \cspm program. Thus TAPS will have to be able to recognize what type of assignment it is, in order to create the correct translation.
+\paragraph{if-statements}
+If-statements are structured like we know from other languages with an if-expression, then-expression, elif-expression and an else-expression.
+These kinds of statements can also be defined in \cspm, but \cspm does not support elif-expressions within the if-statement, so the translation would have to restructure the elif-expression to a nested if-expression.
+Since the structure of the \cspm process is different, an if-statement might have a different context in the \cspm program. It is possible that TAPS have to take extra precautions to provide the correct context to the if-statement.
+\paragraph{Loops}
+% TODO: Write something here when I am sure how loops work in CSPm.
+
+\paragraph{Traces and assertions}
+The trace statement in SMEIL is not affecting the behaviour of the process, but it simply prints out the string and arguments that is given, like a printf.
+In \cspm it is possible to add a print statement, but this will appear in the right hand side of the FDR4 session window for easy evaluation. Thus the print statements in SMEIL is not compatible with \cspm since strings are not what is evaluated in FDR4.\\\\
+The assert statements are used internally in SMEIL and evaluated during program execution. If the assert statement is not valid, then the execution is halted and the error message, defined in the assert statement, is printed, for instance
+\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+assert(hour < 23, "hours cannot be greater than 23");
+\end{minted}
+Even though we wish to assert properties in FDR4, the properties that FDR4 can verify are not similar to the properties that the assert statements in SMEIL are used for. Even if it was possible to verify the assert statements in FDR4, there would be no point in doing it, since the assertion result from FDR4 would be the same as the result from executing the SMEIL program.
+\paragraph{Switch statements}
+% TODO: Write something about switch statements when I know more.
+
+\paragraph{Expressions}
+Expressions in SMEIL and their precedence rules are similar to C-like languages. Expressions are used for defining calculations, naming, function calls etc.\\
+In \cspm the standard binary operators like \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/} and \texttt{\%} all take two arguments of type \texttt{Int} and return a value of type \texttt{Int}. It is important to notice that in \cspm \texttt{/} returns the quotient and rounds towards negative infinity. The \texttt{\%} operator in \cspm returns the modulus.
+
+The relational operators \texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}, \texttt{==} and \texttt{==} returns boolean values both in SMEIL and in \cspm.
+
+The logical operators \texttt{\&\&} and \texttt{||} ... %TODO: Do they exists in CSPm?
+% TODO: Make sure that the precedence and binding strength are the same in SMEIL and CSPm
+
+% TODO: Find out how many of the operators are actually possible to use in CSPm.
+
+% TODO: Just above I show that binary operators only work with Int, and maybe it is here I should write about floating points in CSPm vs. SMEIL?
+
+
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
 
 
 However, since we do have the process processes in both SMEIL and \cspm, transpiling SMEIL to \cspm should be possible since the general behaviour can be created in \cspm. The main two things important in the behaviour of an SMEIL program is the communication and the calculations. The communication will be possible to transpile in a fairly simple manner, and since \cspm is based on mixing the CSP algebra with a functional language, the calculations should also be possible to transpile in a reasonable manner.
-For simplicity of the generated code, it would be beneficial to be able to keep the communication and calculations from the same SMEIL process in the same \cspm structure. Another potential challenge is to determine the value of a constant or variable that has not been declared with either range or initial value. 
+For simplicity of the generated code, it would be beneficial to be able to keep the communication and calculations from the same SMEIL process in the same \cspm structure. Another potential challenge is to determine the value of a constant or variable that has not been declared with either range or initial value.
 
 
 
