@@ -1,3 +1,4 @@
+%!TEX root = ../main.tex
 % Description of the actual solutions
 \section{Designing SMEIL to \cspm{}}
 
@@ -29,6 +30,8 @@ If there are several processes in the SMEIL program that acts as a data generato
 %TODO: Find an example with more than one data generation process.
 If the processes are not simple data generator processes, then the transpiler will have to handle it differently %TODO: Figure out how I can handle this in a better way than simply ask the programmer not to create processes like this, and write about it. - Same as with one process but if it becomes more complicated with more than one, then write it here!
 
+
+% TODO: Write something about even though variables are defined int the declaration, we do not need to use that part and can basically ignore it. This also means that if there is a variable or const that has not been used in the statements, the translation wont know. But also on page 27 of truls master it shows that having unused variables would result in an error from SMEIL.
 
 
 % An example of an SMEIL process, where the process structure is evident, can be seen in Listing~\ref{lst:range_smeil} and the corresponding \cspm{} code in Listing~\ref{lst:channel_range_cspm}.
