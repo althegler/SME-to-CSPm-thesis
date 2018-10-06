@@ -1,3 +1,5 @@
+%!TEX root = ../main.tex
+
 % This section should contain information about the problem, but not the solution. I am analysing the problem and explaining what will be problematic when translating from SMEIL to CSPm.
 
 % Der er tre dele i SMEIL jeg har interesse i:
@@ -33,6 +35,7 @@ When analysing the general structure of SMEIL programs, there are three structur
 \subsection{Behavioral}
 %% - Behavioral description - hvad den enkelte funktion gør. det oversættes ret nemt. Jeg bekymre mig ikke om variable og sådan nogle ting. Det er allerede gjort før det gøres til SMEIL, og dem kan jeg genbruge i min code generation.  Funktionel indhold af processer/ opførsel af den enkelte process - det er rimelig nemt oversat direkte til CSPm. Her kan man beskrive hvis der er nogle sproglige udfordringer, fx hvis CSPm ikke har loops eller lign.
 
+% TODO: Add something here so it does not go from one header to another
 \subsubsection{Processes}
 % TODO: Maybe I only need to introduce SMEIL stuff that TAPS support?
 
@@ -59,16 +62,11 @@ When declaring a variable in SMEIL, the only difference between variable and con
 var minutes: u6 = 0 range 0 to 59;
 \end{minted}
 The assignment of \texttt{= 0} is simply to give an initial value of the variable, but can be omitted, as well as the ranges. The range are used to give an expected value range of the variable and is used to calculate the bit size required of the variable type.
-% TODO: Here we show a uint type, but we know that we never should see one of those in the translations and therefore I need to introduce the simulation part and the stuff about the types, but do I add it here or somewhere else?
-\paragraph{Enumerations}
-In SMEIL it is also possible to declare enumerations within a process or a network declaration. Emumerations can be used to referencing symbolic constants instead of its numerical constants which can improve the readability of the program.
-Currently enumerations are not implemented in TAPS.
-% TODO: Enummerations are not implemented in TAPS, so should I even write about it here?
+% TODO: I need to introduce the simulation part, but do I add it here or somewhere else?
 
-
-% TODO: Should I say something about Generators?
-% \paragraph{Generators}
-% SMEIL does not support this, so I also wont support this and therefore I might not need this paragraph. It is however interesting because it is kind of a foor loop, but not because of the side effects but to simplyfy generation of code structures.
+In SMEIL, the types of variable and constants must always be defined and this also applies to bus channel declaration. The types can be of either unlimited size integers, \texttt{int} and \texttt{uint},  or restricted to a specific bit-length. The prefixes \texttt{i} and \texttt{u} refers to signed and unsigned integers which with a number following the prefix, restricts the integer to a bit-length. For instance, \texttt{i4} represents a signed 4-bit integer.
+The unlimited bit size \texttt{int} and \texttt{uint} are not realistic to have in \cspm, since when verifying a program, FDR4 will look at the entire possible statespace, and with unlimited integers, the statespace will be enormous. FDR4 restricts its integer types to signed 32-bit\cite{UniversityofOxford}, but this might still leave the verification taking an unrealistic amount of time to finish. \cspm does not apply types to its variables and constants the same way as SMEIL and therefore the types might be irrelevant in the translation. It might also prove to be a necessary meta information for the verification of the model.
+\\
 
 In \cspm, constant can be declared as we know it from many other languages;
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
@@ -83,8 +81,19 @@ Proc(x) =
         channel ! m -> SKIP
 \end{minted}
 
-To translate constants and variables from SMEIL to \cspm should not prove difficult, since the structures are quite similar. However the translation of ranges and types, both in constants and variables might provide some challenges, and it important to explore if these data are even necessary within the generated \cspm program.
-\\\\
+To translate constants and variables from SMEIL to \cspm should not prove difficult, since the structures are quite similar.
+A potential challenge is to determine the value of a constant or variable that has not been declared with either range or initial value. So the translation of ranges and types, both in constants and variables might provide some challenges, and it important to explore if these data are even necessary within the generated \cspm program.
+
+\paragraph{Enumerations}
+In SMEIL it is also possible to declare enumerations within a process or a network declaration. Emumerations can be used to referencing symbolic constants instead of its numerical constants which can improve the readability of the program.
+Currently enumerations are not implemented in TAPS.
+% TODO: Enummerations are not implemented in TAPS, so should I even write about it here?
+
+
+% TODO: Should I say something about Generators?
+% \paragraph{Generators}
+% SMEIL does not support this, so I also wont support this and therefore I might not need this paragraph. It is however interesting because it is kind of a foor loop, but not because of the side effects but to simplyfy generation of code structures.
+
 
 The other part of an SMEIL process is the statement part where the actual behaviour of the process is defined. The semantics of statements in SMEIL corresponds to what we typically see in C-like languages.
 
@@ -111,62 +120,51 @@ Even though we wish to assert properties in FDR4, the properties that FDR4 can v
 
 \paragraph{Expressions}
 Expressions in SMEIL and their precedence rules are similar to C-like languages. Expressions are used for defining calculations, naming, function calls etc.\\
-In \cspm the standard binary operators like \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/} and \texttt{\%} all take two arguments of type \texttt{Int} and return a value of type \texttt{Int}. It is important to notice that in \cspm \texttt{/} returns the quotient and rounds towards negative infinity. The \texttt{\%} operator in \cspm returns the modulus.
-
-The relational operators \texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}, \texttt{==} and \texttt{==} returns boolean values both in SMEIL and in \cspm.
-
-The logical operators \texttt{\&\&} and \texttt{||} ... %TODO: Do they exists in CSPm?
+In \cspm the standard binary operators like \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/} and \texttt{\%} all take two arguments of type \texttt{Int} and return a value of type \texttt{Int}.
+It is important to notice that in \cspm \texttt{/} returns the quotient and rounds towards negative infinity. The \texttt{\%} operator in \cspm returns the modulus.
+Floating point number are, to our knowledge, not supported by FDR4\cite{Scattergood2011} which is also clear from the fact that the binary operators take only \texttt{Int} as their inputs. SMEIL is supposed to support floating point numbers, but due to the (See page 25 in truls thesis) % TODO: Finish this later when you know the extent of the support in SMEIL
+The unary \texttt{-} operator, representing a negation of an integer and the unary \texttt{!} operator, representing logical negation are both represented in the FDR4 syntax.
+The relational operators \texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}, \texttt{==} and \texttt{!=} returns boolean values both in SMEIL and in \cspm.
+The logical conjunction and disjunction operators \texttt{\&\&} and \texttt{||} are also represented in both SMEIL and \cspm and both only accepting boolean values.
+The presedence of the above mentioned operators are not entirely identical acroos SMEIL and \cspm.
 % TODO: Make sure that the precedence and binding strength are the same in SMEIL and CSPm
 
 % TODO: Find out how many of the operators are actually possible to use in CSPm.
+% \texttt{<<}, \texttt{>>}, \texttt{&}, \texttt{|}, \texttt{^}, \texttt{+}(identity), \texttt{~}(bitwise not),
 
-% TODO: Just above I show that binary operators only work with Int, and maybe it is here I should write about floating points in CSPm vs. SMEIL?
+% TODO: Write something about array types. Can we have that in CSPm?(Page 25 in truls master)
 
+% TODO: write something about type unification rules. Can we have that in CSPm ?(Page 25 in truls master)
 
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-
-
-However, since we do have the process processes in both SMEIL and \cspm, transpiling SMEIL to \cspm should be possible since the general behaviour can be created in \cspm. The main two things important in the behaviour of an SMEIL program is the communication and the calculations. The communication will be possible to transpile in a fairly simple manner, and since \cspm is based on mixing the CSP algebra with a functional language, the calculations should also be possible to transpile in a reasonable manner.
-For simplicity of the generated code, it would be beneficial to be able to keep the communication and calculations from the same SMEIL process in the same \cspm structure. Another potential challenge is to determine the value of a constant or variable that has not been declared with either range or initial value.
-
-
-
-%% Translating variables directly because we expect errors or other things to have been handled before transpiling the code.
-When translating the process from SMEIL to \cspm we will be able to translate variables and calculations directly without having to translate the meaning of the it, since we are expecting SMEIL to handle behavioural errors.
-
-% TODO: Write something more about FDR not supporting floating point
-When translating from SMEIL to \cspm we will run into a problem with floating point numbers. SMEIL does support floating point numbers, but FDR4 does not, %TODO: add reference. is it only FDR4 or is it build into CSP not to support it?
-and therefore we will have to convert the floating point numbers to integer, or simply not trying to verify programs that rely on floating poing numbers. The reason FDR does not support floating point numbers are... %TODO: write more here
-
-
-
-This is a somewhat recognizable function structure for functional languages.
-
-
+% TODO: Write something about SMEIL supporting strings, but not sure if CSPm really does that?
 
 % %%%% CSPm processes %%%%
-In \cspm{} processes can also be defined with parameters given. .. %TODO: Write more here. Also note that I have to explain parameters in the SMEIL process section above, because otherwise it wont make sense here.
-
-
-In \cspm the structure is commonly consisting of communication which might include some kind of calculations, but the main purpose of \cspm processes are usually to express communication. %TODO: Add reference to FDR example (I took it from FDRs website - test example https://www.cs.ox.ac.uk/projects/fdr/manual/examples/index.html. Dining Philosophers)
-
+As mentioned above, processes in SMEIL can be defined with parameters which represents input and output buses as well as constants. In \cspm{} processes can also be defined with parameters that can be variables, channels or similar. However, processes in \cspm does not have the same functionality as a process in SMEIL. In SMEIL the process behaviour represents a part of the functionality of the network. In \cspm the processs behaviour also represents functionality, but the behaviour is often more focused on communicative behaviour between other processes. A typical process in \cspm could look like the one in Figure \ref{dining_philosopher_cspm} which represents a philosopher process from the problem of the dining philosophers from the example files on the FDR4 website. %TODO: Taken from the FDR4 website - how to represent this? Footnot or citation? ..  https://www.cs.ox.ac.uk/projects/fdr/manual/examples/index.html
+The process behaviour shows a philosophers actions in communicating with other processes. As can be seen, the process also conduct some simple calculations, but the main structure consists of communication, which is the purpose of \cspm, to be able to verify communication between parallel processes.
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 PHIL(i) = thinks.i -> sits!i -> picks!i!i -> picks!i!((i+1)%N) ->
           eats!i -> putsdown!i!((i+1)%N) -> putsdown!i!i -> getsup!i -> PHIL(i)
 
 \end{minted}
-\caption{x}
-\label{x}
+\caption{A dining philosopher process from the FDR4 example file provided at the FDR4 webpage. https://www.cs.ox.ac.uk/projects/fdr/manual/examples/index.html acesses: 06/10/2018}
+\label{dining_philosopher_cspm}
 \end{listing}
 
+The translation of processes from SMEIL to \cspm does have its challenges, but the structure of an SMEIL process is very general, and therefore the task is to find a way to structure the \cspm process int a way that gives the same functionality while still keep the \cspm communication behaviour and the assertion properties.
 
-% TODO: Understand CSPm processes better
+
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+
+%% Translating variables directly because we expect errors or other things to have been handled before transpiling the code.
+When translating the process from SMEIL to \cspm we will be able to translate variables and calculations directly without having to translate the meaning of the it, since we are expecting SMEIL to handle behavioural errors.
 
 
+
+\subsubsection{Generating data}
 %%%%% Generator processes %%%%%
 When writing pure SMEIL programs, there is a need to generate input for the network. If the program was not written as pure SMEIL, the input for the network would be provided by the surrounding code. But in the case of pure SMEIL, the input data must be generated which is done by a generator process.
 %%% Generator processes - clock cycles
@@ -220,6 +218,10 @@ A bus can also be defined with the keyword \texttt{exposed} which indicated that
 % TODO: Maybe add something here about outbus bus/channels and how they are defined and called.
 
 % TODO: Show an example of a SMEIL bus and channels
+
+
+% TODO: On page 26-27 in Truls master there is some interesting things about using a bus channel for either input or output and not both within the same process. Write something about that
+
 
 
 % %%%% SMEIL Channels %%%%%
