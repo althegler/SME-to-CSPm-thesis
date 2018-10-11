@@ -1,23 +1,39 @@
 % Bare beskriv at øvelsen er at lave et synkront netværk og at det skal kunne termineres 'pænt' af en tæller
 % og så porblemerne med at den klager sig over dit og dat en at en løsning er x og y
 
-When trying to model a clocked hardware system in \csp, we want to create a syncronous network where the system can be terminated in a nice manner and where it can be verified that all processes end by behaving like the \texttt{SKIP} process.
+When trying to model a clocked hardware system in \cspm{}, we want to create a synchronous network where the system can be terminated in a nice manner and where it can be verified that all processes end, by behaving like the \texttt{SKIP} process.
 
-In this example we wish to create a two process network called 'Addone'. The network consists of two processes where one process, the 'Add' process, increments a variable by one and sents it to the other process, the 'Id' process, which then sents the value back to the 'Add' process.
-The network is a two process loop and it is therefore essential that there is a way to initialize the loop as well as terminating it.
+In this example, we wish to create a network called 'Addone'. The network consists of two processes where one process, the 'Add' process, increments a variable by one and sents it along to the other process, the 'Id' process, which then sents the value back to the 'Add' process.
+The network is a two process loop and it is therefore essential that there is a way to initialise the loop as well as terminating it properly.\\
 
-We wish to model a \cspm network which reflects the SME model and therefore we have to adhere to the SME model structure. There is three different states for each clock cycle; the read state, the calculation state and then the write state. For these 'Add' and 'Id' processes to comply with these states, they would have to read first, then calculate, where the 'Id' process does nothing, and then in the end they would write the result. The problem is that since they both have to read first, then no one can read because no process have written anything yet.
-To solve this, we implement two buffers which for each communication reads the output from the process write and then writes the value to the process read. This also means that the buffer fase is reverse from the original processes.
-If we then give the buffers an initial value that they can write, then the 'Add' and 'Id' process can comply with the SME model structure by reading from the buffers as the first part of the clock cycle.
-The buffers will be instantiated will a 'dummy' value which is.. 
+We wish to model a \cspm{} network which reflects the SME model and therefore we have to adhere to the SME model structure. There is three different states for each clock cycle; the read state, the calculation statem, and the write state. A process must read before writing in a clock cycle.\\
+For the 'Add' and 'Id' processes to comply with these states, they would have to read first, then the calculate phase, in which the 'Id' process does nothing, and then they would write the result onto a channel. A problem occurs, since they both have to read first, no one can read because no processes have written anything yet. To solve this, we implement two buffers which for each clock cycle reads the output that the process writes and then writes the value to a channel. Thus the buffer structure is the reverse of a 'normal' process since it will write and then read in a clock cycle. \\
+If we give the buffers an initial value, they can begin the clock cycle writing the value which the 'Add' and 'Id' processes can read and thereby they will comply with the SME model structure.
+The buffers will be instantiated will a 'dummy' value which is also how it is typically done in hardware. The dummy value is simply to indicate that the system should ignore the first clock cycle and then continue with the systems actual values. \\
+Each process is also instantiated with a value, which is then used instead of the dummy value from the buffer process. After this initial cycle, the process loop will continue and the communication will hold according to the description of the network explained above.\\\\
 
 
-We model the network by having the two main processes as well as a buffer process for each communication. The buffers
+We have to limit the number of verified clock cycles, otherwise, FDR4 would never stop. Even though the standard SME process also never stops, when simulating the system in SMEIL, it is only simulating a finite number of clock cycles. Therefore we need to implement a way to have all processes of the \cspm{} network terminate in a timely manner. This is done with the \texttt{Clock} process. The clock process is initialised with a value and syncronise on the \texttt{clock} channel, which all other processes does as well. When the specified number of clock cycles has passed, the \texttt{Clock} process stops clocking and instead behaves as \texttt{SKIP}. This means that all other processes won't be able to syncronise on the \texttt{clock} channel anymore and therefore they will then instead behave as \texttt{SKIP} and that way the system terminates as planned.\\
+Since the processes all must read, calculate and then write, the buffer processes, as mentioned before, must behave the opposite way. This means that the last write the processes make before they \texttt{SKIP} will be left in the buffers since there are no processes to read the value from the channels. This means that the buffers must be able to either write a value or \texttt{SKIP}.\\
+The \texttt{clock} channel is used as a two-way clock synchronisation, where the same channel is used for syncronising up as well as down. Thus all processes syncronise before they read and before they write. The \texttt{Clock} process then needs to syncronise twice before incrementing its counter. \\
 
-To model this in \cspm we used a general hardware model where, for each channel, there exists a buffer that receives the value sent and
+When trying to verify that this system terminates as expected in FDR4, we came across an error while FDR4 was compiling the program.
+FDR4 is complaining that a value, the system is trying to send, is not a part of the set of values defined for the channel.
+The channels, used for communicating the value between the processes and the buffers, are defined for a specific range and since the 'Add' process has to read, calculate and write before it can terminate it will always write a value out that have been incremented with one.\\
+For instance, if the channels were defined with the range \{0..5\} and the \texttt{Clock} process would stop after 10 clock cycles. This would mean that on the last clock cycle, before terminating, the 'Add' process would write a 6 onto the channel, which of course is not possible since the channel is defined only for the range \{0..5\}, so FDR4 complains about this.\\
+However, what we experienced was that when the ranges of the channels were set to a larger number than the system would ever reach, within the defined number of clock cycles, FDR4 would still fail with the same reason.
+This caused some problems since we were not able to verify the system and we were not interested in FDR4 trying to verify a communication that would never occur within the network.
+Since we are syncronising the processes on the events in the channels, it seems odd that FDR4 still considers events which should not be possible to reach.  \\\\
+After some time working with the problem and trying to understand the reason for FDR4s error message, we found that if we simply add a guard or an if-then-else statement that tests the value to be written, FDR4 will gladly verify the system and when using Probe on the network, it is clear that FDR4 does not consider the trace with the wrong values. \\
 
-This syncronous network can be created by having a single clock that behaves like both an up and down clock. This ensures that
-y having all processes behaving like the \texttt{SKIP} process and verifying that the network behaves like \texttt{SKIP} when hiding all \texttt{Events}.
-A general \texttt{Clock} process counts the iterations and
+So the suggested solution, or fix, to this problem, is to add an if-then-else before all writes in a program. The statement then tests the value to be written against the max value of the range of the channel and if the value is not within the range, then the process behaves as the \texttt{SKIP} process, otherwise, it continues with write.
+\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+channel c : {0..20}
 
-When trying to model a syncronous network in \cspm w
+|$\vdots$|
+
+    if (i+1) > 20  -- Check the upper limit of the channel
+        then SKIP  -- SKIP if the value is above
+        else (c_r ! (i+1) -> Add(i))) -- Otherwise write and continue
+\end{minted}
+In this case, it is only necessary to add an upper limit test, since the network only increments, but as a general rule, it would be necessary to test for both upper and lower bounds. 
