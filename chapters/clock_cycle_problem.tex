@@ -1,0 +1,23 @@
+% Bare beskriv at øvelsen er at lave et synkront netværk og at det skal kunne termineres 'pænt' af en tæller
+% og så porblemerne med at den klager sig over dit og dat en at en løsning er x og y
+
+When trying to model a clocked hardware system in \csp, we want to create a syncronous network where the system can be terminated in a nice manner and where it can be verified that all processes end by behaving like the \texttt{SKIP} process.
+
+In this example we wish to create a two process network called 'Addone'. The network consists of two processes where one process, the 'Add' process, increments a variable by one and sents it to the other process, the 'Id' process, which then sents the value back to the 'Add' process.
+The network is a two process loop and it is therefore essential that there is a way to initialize the loop as well as terminating it.
+
+We wish to model a \cspm network which reflects the SME model and therefore we have to adhere to the SME model structure. There is three different states for each clock cycle; the read state, the calculation state and then the write state. For these 'Add' and 'Id' processes to comply with these states, they would have to read first, then calculate, where the 'Id' process does nothing, and then in the end they would write the result. The problem is that since they both have to read first, then no one can read because no process have written anything yet.
+To solve this, we implement two buffers which for each communication reads the output from the process write and then writes the value to the process read. This also means that the buffer fase is reverse from the original processes.
+If we then give the buffers an initial value that they can write, then the 'Add' and 'Id' process can comply with the SME model structure by reading from the buffers as the first part of the clock cycle.
+The buffers will be instantiated will a 'dummy' value which is.. 
+
+
+We model the network by having the two main processes as well as a buffer process for each communication. The buffers
+
+To model this in \cspm we used a general hardware model where, for each channel, there exists a buffer that receives the value sent and
+
+This syncronous network can be created by having a single clock that behaves like both an up and down clock. This ensures that
+y having all processes behaving like the \texttt{SKIP} process and verifying that the network behaves like \texttt{SKIP} when hiding all \texttt{Events}.
+A general \texttt{Clock} process counts the iterations and
+
+When trying to model a syncronous network in \cspm w
