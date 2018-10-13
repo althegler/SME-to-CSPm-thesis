@@ -1,9 +1,7 @@
-% Bare beskriv at øvelsen er at lave et synkront netværk og at det skal kunne termineres 'pænt' af en tæller
-% og så porblemerne med at den klager sig over dit og dat en at en løsning er x og y
-
-When trying to model a clocked hardware system in \cspm{}, we want to create a synchronous network where the system can be terminated in a nice manner and where it can be verified that all processes end, by behaving like the \texttt{SKIP} process.
+When trying to model a clocked hardware system in \cspm{}, we want to create a synchronous network where the system has a controlled termination, and where it can be verified that all processes end, by behaving like the \texttt{SKIP} process.
 
 In this example, we wish to create a network called 'Addone'. The network consists of two processes where one process, the 'Add' process, increments a variable by one and sents it along to the other process, the 'Id' process, which then sents the value back to the 'Add' process.
+% TODO: Add a picture of the network, like Truls example.
 The network is a two process loop and it is therefore essential that there is a way to initialise the loop as well as terminating it properly.\\
 
 We wish to model a \cspm{} network which reflects the SME model and therefore we have to adhere to the SME model structure. There is three different states for each clock cycle; the read state, the calculation statem, and the write state. A process must read before writing in a clock cycle.\\
@@ -36,4 +34,19 @@ channel c : {0..20}
         then SKIP  -- SKIP if the value is above
         else (c_r ! (i+1) -> Add(i))) -- Otherwise write and continue
 \end{minted}
-In this case, it is only necessary to add an upper limit test, since the network only increments, but as a general rule, it would be necessary to test for both upper and lower bounds. 
+In this case, it is only necessary to add an upper limit test, since the network only increments, but as a general rule, it would be necessary to test for both upper and lower bounds.
+
+
+% The problem ocurred several times with different versions of the solution. Also, Ohm had the same problem with the Commstime problem. It makes sense why FDR4 wants to check, and maybe it is a way to save verification time: if it checks things in parallel or something.
+% However it is not a good solution that we have to put in a upper/lower bound check that is actually never relevant.
+% Of course it might be good, in any case, since the programmer then do not need to worry. On the other hand it might make the program look like it is terminating properly when it is actually failing because it tries to write a value that is not allowed. This case might happen, and if all other processes do not notice it and then also SKIP according to their specifications, then the verification passes even though it might be wrong.
+% A solution might be to ensure that all processes synchronise before skipping, because then the problem (i think) would not occur, since the failing process would simply skip, then the other processes cannot skip because they have not syncrhonised yet. however, I am not sure this is possible since it might be that they either syncronise or they skip.
+
+% Kenneths version, which I believe is how the SME model works, is having a process or bus in the middle og all steps. By using a dependency graph (Explain more?) it is possible to see which processes communicate to witch processes and, more importantly, in which order. For each communication step (or maybe for each communication) a process/bus will receive all writes. In SME a process can write several times to the same channel but only the last one before the clock signal will be written, the others are just overwritten. Since we have the dependency graph, we also know which processes we need communication from, and when the process have written all it has to write, then it sends a ready signal to the "bus" process, which then waits for all the ready signals (because it knows how many it should get. And if it is one process/bus pr. communication then it only needs one of course.). When all ready signals are in, the bus-process change behaviour and it is not writing instead of reading. It writes all possible values out and the processes that are supposed to receive the values (which we know from the dependency graph) will receive the values. And the processes then need to send a ready signal back to the bus process to let it know that it have read all it needed. When all ready signals are received, the bus process when change behaviour again and can read values once again.
+% All these steps are intermediate steps within one clock cycle. So at the "end" of the dependency graph, the step looks similar to the others, but it is registered as the clock and the next clock cycle begins. In principal, all these steps could be the clock, since the step is the same, but a step is simply chosen to be the clock, based on the dependency graph.
+% By treating the communication like this within a clock cycle, the values can propagate through the network and the internal state of the processes are also kept. The original TAPS version could only verify all input for a system, but if the system was internally affected by values from a previous clock cycle, then the system could not verify it. It is not a problem in the seven segment example, since no values are dependent on previous values. But the Addone network do depend on what happened in the last clock cycle.
+% With this solution it is possible to verify a specific number of clock cycles.
+%
+% It is important to note that SME processes usually do not end, but continue running forever. However, when we simulate with SME, the simulation end after some specific number of clock cycles, and this is what we wish to verify.
+% It might be interesting to use the "running forever" thing to verify stuff on it. But at the moment I cant see what we would verify. Deadlocks would never happen in SME, so it would be possible to use it to check that the translation have been successful, but this is not so relevant for other people.
+% It might be that the stuff we wish to verify is not possible in a limited clock cycle range and that it is necessary to run it "forever". I am not sure.
