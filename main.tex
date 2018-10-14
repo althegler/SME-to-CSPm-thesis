@@ -1,240 +1,6 @@
 \documentclass[a4paper]{report}
-\usepackage[english, science, titlepage]{ku-frontpage}
 
-\usepackage[latin1]{inputenc}
-\usepackage{palatino}
-% \usepackage[usenames]{color}
-
-\usepackage{hyperref}
-
-\usepackage{chngpage}
-\usepackage{graphicx}
-
-\usepackage{booktabs}
-\usepackage{multirow}
-
-\usepackage[]{algorithm2e}
-\usepackage{varwidth}
-
-\usepackage{setspace}
-
-\usepackage{todonotes}
-
-\usepackage[outputdir=.tmp]{minted}
-% \usepackage[cache=false]{minted}
-\setminted{frame=lines,linenos,framesep=2mm,fontsize=\small}
-
-\usepackage{times}
-
-\usepackage{amsmath}
-\usepackage{amssymb}
-\normalfont
-%\usepackage[T1]{fontenc}
-\renewcommand{\ttdefault}{cmtt}
-\usepackage{xcolor}
-\usepackage{booktabs, caption, siunitx}
-
-% NOTE: The margins become wider just by including the geometry package
-\usepackage{geometry}
-
-\usepackage{url}
-\usepackage{pgfplots}
-\usepackage{tikz}
-
-\usepackage[labelsep=period]{caption}
-
-\usetikzlibrary{calc}
-\usetikzlibrary{fit}
-\usetikzlibrary{positioning}
-\usepgfplotslibrary{units}
-\pgfplotsset{compat=newest}
-\usetikzlibrary{decorations.pathmorphing}
-\usetikzlibrary{decorations.markings}
-\usetikzlibrary{arrows}
-\usetikzlibrary{shapes.geometric}
-
-\usepackage{ifthen}
-\pgfkeys{
-  /sevenseg/.is family, /sevenseg,
-  slant/.estore in      = \sevensegSlant,     % vertical slant in degrees
-  size/.estore in       = \sevensegSize,      % length of a segment
-  shrink/.estore in     = \sevensegShrink,    % avoids overlapping of segments
-  line width/.estore in = \sevensegLinewidth, % thickness of the segments
-  line cap/.estore in   = \sevensegLinecap,   % end cap style rect, round, butt
-  oncolor/.estore in    = \sevensegOncolor,   % color of an ON segment
-  offcolor/.estore in   = \sevensegOffcolor,  % color of an OFF segment
-}
-
-\pgfkeys{
-  /sevenseg,
-  default/.style={
-    slant = 0,
-    size = 1em,
-    shrink = 0.2,
-    line width = 0.3em,
-    line cap = butt,
-    oncolor = green!50!black,
-    offcolor = white!75!black
-  }
-}
-\newcommand{\sevenseg}[2][]% options values
-{%
-\pgfkeys{/sevenseg, default, #1}%
-\def\sevensegarray{#2}%
-  \begin{tikzpicture}%
-    % first define the position of the 6 corner points
-    \path (0,0) ++(0,0)                             coordinate (P1);
-    \path (0,0) ++(\sevensegSize,0)                 coordinate (P2);
-    \path (0,0) ++(90-\sevensegSlant:\sevensegSize) coordinate (P3);
-    \path (P2)  ++(90-\sevensegSlant:\sevensegSize) coordinate (P4);
-    \path (P3)  ++(90-\sevensegSlant:\sevensegSize) coordinate (P5);
-    \path (P4)  ++(90-\sevensegSlant:\sevensegSize) coordinate (P6);
-    % then step through the 1/0 values in the segment array
-    \foreach \i in {0,...,6}%
-    {
-      \pgfmathparse{\sevensegarray[\i]}
-      \ifthenelse{\equal{\pgfmathresult}{1}}%
-        {\let\mycolor=\sevensegOncolor}%  segment is on
-        {\let\mycolor=\sevensegOffcolor}% segment is off
-      \tikzstyle{segstyle} = [draw=\mycolor, line width = \sevensegLinewidth,
-                              line cap = \sevensegLinecap]
-      %-----------------------
-      \ifthenelse{\equal{\i}{0}}{\path[segstyle]
-        (${1-\sevensegShrink}*(P5)+\sevensegShrink*(P6)$)
-        -- ($\sevensegShrink*(P5)+{1-\sevensegShrink}*(P6)$);}{} % a
-      \ifthenelse{\equal{\i}{1}}{\path[segstyle]
-        (${1-\sevensegShrink}*(P6)+\sevensegShrink*(P4)$)
-        -- ($\sevensegShrink*(P6)+{1-\sevensegShrink}*(P4)$);}{} % b
-      \ifthenelse{\equal{\i}{2}}{\path[segstyle]
-        (${1-\sevensegShrink}*(P4)+\sevensegShrink*(P2)$)
-        -- ($\sevensegShrink*(P4)+{1-\sevensegShrink}*(P2)$);}{} % c
-      \ifthenelse{\equal{\i}{3}}{\path[segstyle]
-        (${1-\sevensegShrink}*(P1)+\sevensegShrink*(P2)$)
-        -- ($\sevensegShrink*(P1)+{1-\sevensegShrink}*(P2)$);}{} % d
-      \ifthenelse{\equal{\i}{4}}{\path[segstyle]
-        (${1-\sevensegShrink}*(P1)+\sevensegShrink*(P3)$)
-        -- ($\sevensegShrink*(P1)+{1-\sevensegShrink}*(P3)$);}{} % e
-      \ifthenelse{\equal{\i}{5}}{\path[segstyle]
-        (${1-\sevensegShrink}*(P3)+\sevensegShrink*(P5)$)
-        -- ($\sevensegShrink*(P3)+{1-\sevensegShrink}*(P5)$);}{} % f
-      \ifthenelse{\equal{\i}{6}}{\path[segstyle]
-        (${1-\sevensegShrink}*(P3)+\sevensegShrink*(P4)$)
-        -- ($\sevensegShrink*(P3)+{1-\sevensegShrink}*(P4)$);}{} % g
-    }
-  \end{tikzpicture}%
-}
-
-\newcommand{\sevensegnum}[2][]% sample characvters
-{%
-  \ifthenelse{\equal{#2}{0}}{\sevenseg[#1]{{1,1,1,1,1,1,0,}}}{%
-  \ifthenelse{\equal{#2}{1}}{\sevenseg[#1]{{0,1,1,0,0,0,0,}}}{%
-  \ifthenelse{\equal{#2}{2}}{\sevenseg[#1]{{1,1,0,1,1,0,1,}}}{%
-  \ifthenelse{\equal{#2}{3}}{\sevenseg[#1]{{1,1,1,1,0,0,1,}}}{%
-  \ifthenelse{\equal{#2}{4}}{\sevenseg[#1]{{0,1,1,0,0,1,1,}}}{%
-  \ifthenelse{\equal{#2}{5}}{\sevenseg[#1]{{1,0,1,1,0,1,1,}}}{%
-  \ifthenelse{\equal{#2}{6}}{\sevenseg[#1]{{1,0,1,1,1,1,1,}}}{%
-  \ifthenelse{\equal{#2}{7}}{\sevenseg[#1]{{1,1,1,0,0,0,0,}}}{%
-  \ifthenelse{\equal{#2}{8}}{\sevenseg[#1]{{1,1,1,1,1,1,1,}}}{%
-  \ifthenelse{\equal{#2}{9}}{\sevenseg[#1]{{1,1,1,1,0,1,1,}}}{%
-  \ifthenelse{\equal{#2}{A}}{\sevenseg[#1]{{1,1,1,0,1,1,1,}}}{%
-  \ifthenelse{\equal{#2}{B}}{\sevenseg[#1]{{0,0,1,1,1,1,1,}}}{%
-  \ifthenelse{\equal{#2}{C}}{\sevenseg[#1]{{0,0,0,1,1,0,1,}}}{%
-  \ifthenelse{\equal{#2}{D}}{\sevenseg[#1]{{0,1,1,1,1,0,1,}}}{%
-  \ifthenelse{\equal{#2}{E}}{\sevenseg[#1]{{1,0,0,1,1,1,1,}}}{%
-  \ifthenelse{\equal{#2}{F}}{\sevenseg[#1]{{1,0,0,0,1,1,1,}}}{%
-  {\sevenseg[#1]{{0,0,0,0,0,0,0,}}}}}}}}}}}}}}}}}}}%
-}
-
-\tikzset{
-  myarrow/.style={
-    draw=black,
-    thick,
-    ->,
-    shorten <=3pt,
-    shorten >=3pt,
-  },
-  mycircle/.style={
-    draw=black,
-    shape=circle,
-    very thick,
-    inner sep=3pt,
-    inner ysep=5pt,
-    text width=0.75cm,
-    align=center,
-    minimum size=0.75cm,
-    rounded corners,
-  },
-  mytriangle/.style={
-    draw=black,
-    regular polygon,
-    regular polygon sides=3,
-    align=center,
-    rounded corners,
-    very thick,
-    inner sep=3pt,
-  },
-  myrectangle/.style={
-    draw=black,
-    shape=rectangle,
-    very thick,
-    rounded corners,
-    align=center,
-    inner sep=7pt,
-    inner ysep=7pt,
-    text width=2.1cm,
-    minimum size=0.5cm,
-    minimum height=1.5cm,
-    font=\footnotesize
-  },
-  mysquare/.style={
-    draw=black,
-    shape=rectangle,
-    very thick,
-    rounded corners,
-    align=center,
-    inner sep=7pt,
-    inner ysep=7pt,
-    font=\footnotesize
-  }
-}
-
-\pgfplotsset{
-  every axis plot post/.style={/pgf/number format/fixed}
-}
-
-% \newcommand\todo[1]{\textcolor{red}{#1}}
-\newcommand{\cspm}{CSP$_M$}
-
-
-
-\usepackage{fancyhdr}
-\pagestyle{fancy}
-
-% \geometry{vmargin=7.5cm}
-
-
-%%%%%%%%%%%%%%%%%%%%%%
-% Bibliography Setup %
-%%%%%%%%%%%%%%%%%%%%%%
-% \usepackage[backend=biber]{biblatex}
-% \addbibresource{library.bib}
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Header and Footer Setup %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\lhead{Alberte Thegler}
-\chead{Master's Thesis}
-\rhead{August 2018}
-
-\renewcommand{\headrulewidth}{0.4pt} % thickness of line at header
-\renewcommand{\footrulewidth}{0.4pt} % thickness of line at footer
-\setlength{\belowcaptionskip}{-10pt} % space below captions
-
+\input{settings}
 
 %%%%%%%%%%%%%%%%%%%%
 % Front-page Setup %
@@ -256,26 +22,13 @@
 \begin{abstract}
 \begin{doublespace}
 Abstract
-
 \end{doublespace}
 \end{abstract}
 
 
-
 \newpage
 \tableofcontents
-%
-% Abstract
-% acknowledgements
-% Introduction
-% Motivation
-% Background
-% Code generation
-% Evaluation
-% discussion
-% conclusion
-% bibliography
-%
+
 \newpage
 %\listoftodos
 %\newpage
@@ -286,50 +39,47 @@ Abstract
 %%%%%%%%%%%%%%%%%%%
 
 % TODO: Add somewhere some stuff about referencing your own paper and what sectons use stuff from the paper.
-\chapter*{Clock cycle problem}
-\input{chapters/clock_cycle_problem}
 
+\chapter{Introduction}
+\input{chapters/introduction}
 
-% \chapter{Introduction}
-% \input{chapters/introduction}
-%
-% % \chapter{Notations and Abbreviations}
-% % \input{chapters/conventions.tex}
-%
-% \chapter{Related Work}
-% \label{chap:related-work}
-% \input{chapters/related_work}
-%
-% \chapter{Approach}
-% \input{chapters/approach}
-%
-% \chapter{Background technologies}
-% \input{chapters/background}
-%
-% \chapter{Analysis}
-% \input{chapters/analysis}
-%
-% \chapter{Design}
-% \input{chapters/design}
-%
-% \chapter{Implementation}
-% \input{chapters/implementation}
+% \chapter{Notations and Abbreviations}
+% \input{chapters/conventions.tex}
 
-% \chapter{Experiments and results}
-% \label{chap:exp}
-% \input{chapters/experiments_and_results}
-%
-% \chapter{Discussion}
-% \input{chapters/discussion}
-%
-% \chapter{Future work}
-% \input{chapters/future_work}
-%
-% \chapter{Conclusion}
-% \input{chapters/conclusion}
-%
-% \chapter*{Acknowledgements}
-% Thanks to Uwe Zimmermann who made the seven segment example in TikZ on \url{http://www.texample.net/tikz/examples/segment-display/}.
+\chapter{Related Work}
+\label{chap:related-work}
+\input{chapters/related_work}
+
+\chapter{Approach}
+\input{chapters/approach}
+
+\chapter{Background technologies}
+\input{chapters/background}
+
+\chapter{Analysis}
+\input{chapters/analysis}
+
+\chapter{Design}
+\input{chapters/design}
+
+\chapter{Implementation}
+\input{chapters/implementation}
+
+\chapter{Experiments and results}
+\label{chap:exp}
+\input{chapters/experiments_and_results}
+
+\chapter{Discussion}
+\input{chapters/discussion}
+
+\chapter{Future work}
+\input{chapters/future_work}
+
+\chapter{Conclusion}
+\input{chapters/conclusion}
+
+\chapter*{Acknowledgements}
+Thanks to Uwe Zimmermann who made the seven segment example in TikZ on \url{http://www.texample.net/tikz/examples/segment-display/}.
 
 
 \newpage
