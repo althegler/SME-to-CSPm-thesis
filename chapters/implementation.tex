@@ -15,4 +15,22 @@ Currently, only a subset of the SMEIL grammar have been implemented for translat
 
 The ANTRL4 grammar is provided in a filetype called \texttt{.g4} but the structure of the grammar is similar to standard grammar notation.
 After running ANTLR4 and generating a parser and a lexer, one can decide to traverse the parse tree itself or use a listener or visitor that ANTLR4 provides. The main difference between the two is that the methods the listener provides are called by the walker object, which ANTLR4 provides, and the visitor methods must call their children explicitly to walk them.
-For our implementation, we used the ANTLR4 listener along with Python. When generating a parser and lexer for another target language than Java, the programmer only has to specify this in the ANTLR4 command in the command-line.
+For our implementation, we used the ANTLR4 listener along with Python. When generating a parser and lexer for another target language than Java, the programmer only has to specify this in the ANTLR4 command in the command-line.\\
+
+% NOTE: This part below have been added mostly as a brain dump. Should be re-written or something
+
+With this implementation, we have used the visitor method, which is a well known traversal method %TODO: Is that true?
+With the visitor we gain the advantage that we decide which part of the parse tree we traverse, instead of having to traverse the entire parse tree as with the listener method. With the visitor, for each parser we have to explicitly call \texttt{visit()} on the children that we wish to visit, which, in some cases can make a tree traversal more complex, but in our case we wish to seperate concerns and this is done by having three different tree traversals which collect three differet pieces of data for the code generation.
+When restructuring the code for the visitor method, we have to implement the top parsers, \texttt{module} and \texttt{entity}, even though they dont have any real value for the data we need to collect. However, because of the visitor method having to call all children, we need to implement these two parsers, simply so they can call their children.
+This seem a little pointless compared to the listener, where we can ignore the parsers we do not care about, but if we use a listener we would have to use a stack system and that would cause problems, because a terminal node that we only want sometimes might push something on the stack that we did not want to. Because every time that terminal node is entered or exited the code is run. With the visitor we can control when the nodes are run which means that we avoid some messy stack problems.
+A visitor can return a value like other standard functions which means that we have directly access to the result from it or its children. However, if there are more than one child the result will have to be assigned in a list or similar, to access.
+If there are two expressions in one alternative, we can get the two seperate results by calling \texttt{self.visit(ctx.expression(0))} and \texttt{self.visit(ctx.expression(1))}. This simplifies the structure since we do not have to handle loops in this case, because we know that the structure would always be two expressions, not more and no less.\\
+Even though we update the data structure \texttt{data} by reference instead of returning it as a result from the tree traversals, it is still necessary to return values from some of the parsers. Parts of the data structure cannot be created before having specific data, and the top parser with all the information will then gather the results from its children and update the \texttt{data} dictionary with the new data.
+
+
+% TODO: Maybe it is worth mentioning how I remove some sub-"parsers" in the grammer, because it made the parsing more complicated . Such like I removed the processdecl nonterminal because I could then call visit(ctx.busdecl) specificly. Otherwise I could also just do "if ctx.busdecl: ..." but, this gave one less step (however, now I am thinking about it, it might not be a good idea. It gives more complexity and maybe thats not good if other people need to understand the antlr grammar. )
+
+% TODO: Write something about how I should just gather the data and then letting the transformation part do any data transformations. I am, for example, not doing that now since I am adding calculations and communications into two different lists.
+
+% TODO: Write something about how smart it is that I can use labels in the grammar and that I can then much mor easily control how to handle different alternatives.
+
