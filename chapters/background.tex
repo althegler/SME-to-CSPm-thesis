@@ -1,51 +1,36 @@
+%!TEX root = ../main.tex
 In this chapter we briefly introduce SME as well as CSP and in more detail, we introduce SMEIL and \cspm along with the FDR4 tool and its cababilities.
 
 \section{Synchronous Message Exchange}
-Since SMEIL is based on the SME model, we give a brief introduction to SME to create a familiarize the reader with the SME model before being introduced to SMEIL.
+Since SMEIL is based on the SME model, we give a brief introduction to SME to familiarize the reader with the SME model before introducing SMEIL.
 \\
+
+The development of SME was mainly driven by the need to provide a simple framework for programming a Field Programmable Gate
+Array, FPGA, since FPGAs can achieve the same performance as a General Purpose Graphical Processing Units, GPGPU, but with much less energy consumption. GPGPUs have been extensively researched and different environments have been implemented to give programmers the posibility of utilizing the cababilities of it, but FPGAs are a far better choice when it comes to energy sensitive applications. The FPGA has not been the subject of as much research as the GPGPU, and when using FPGAs, the developer need to design an integrated circuit on the gate level, which is difficult and not common knowledge these days.
+Unfortunately designing hardware is often a tedious task but with SME it becomes more accessable to design and implement hardware models.
+
+SMEs main target is to give software developers a tool which provide the opportunity for the developer to program hardware but with a distance from the hardware details, so in a way, the development resembles the structures and semantics that is known from software development.
+Thus the framework is based of a top-down approach rather than a bottom-up approach that is common in the current hardware frameworks.
+% Global synchronicity is fundamental when modeling hardware, but CSP does not support this. Even though CSP does enforce strict synchrony between communicating processes, there is no such semantic beging enforced on a global level. % TODO: Do I want to include this?
+
 SME was first introduced in 2014 and after several iterations~\cite{Vinter2014, Vinter2015, Skovhede} now presents as a programming model, a simulation library, and VHDL code generators~\cite{vhdl}. The original idea was conceived following an attempt to create hardware descriptions from a vector processor model, modeled in PyCSP~\cite{bjorndalen2007pycsp},
 % TODO: Figure out what the correct reference to this is.
-a Communicating Sequential Processes (CSP)~\cite{hoare1978communicating} library for Python.
-
-
-----------------
-
-To model hardware, there is a need for global synchrony, which CSP does not support globally. CSP does enforce strict synchrony between communicating processes, there is no such semantic beging enforced on a global level.
-
-
-The development of SME was mainly driven by the need to provide a simple framework for programming an FPGA, since FPGAs can achieve the same performance as a GPGPU but with much less energy consumption. GPGPUs have been extensively researched and different environments have been implemented to give programmers the posibility of utilizing the cababilities of it, but FPGAs are a far better choice when it comes to energy sensitive applications. FPGAs was not as popular research area and to utilize the advantages of the FPGA, the developer needed to design an integrated circuit on the gate level, which is very difficult and not common knowledge these days.
-
-SME main target are to give software developers a tool which provide the opportunity for the developer to program hardware but with a distance from the hardware details, so in a way, the development resembles the structures and semantics that is known from software development.
-Thus the framework is based of a top-down approach rather than a bottom-up approach that is common in the current hardware frameworks.
-
-
-
-
-
+a Communicating Sequential Processes (CSP)~\cite{hoare1978communicating} library for Python.\\
 
 The work was initially presented in the paper \textit{BPU Simulator}~\cite{Rehr2013}. This paper only introduced a high abstraction level simulation and therefore the subject was explored more in detail in the master thesis project \textit{Generation of FPGA Hardware
-Specifications from PyCSP Networks}~\cite{Skaarup14}. From the results of the master thesis it was clear that PyCSP could be used to model hardware however the need to enforce global synchrony to the circuit resulted in an explosion in the number of channels for controlling the progress and for simulating the clock, and even simple circuits would become overwhelmingly large.
+Specifications from PyCSP Networks}~\cite{Skaarup14}. From the results of the master thesis it was clear that PyCSP could be used to model hardware however the need to enforce global synchrony to the circuit resulted in an explosion in the number of channels for controlling the progress and for simulating the clock, and even simple circuits would become overwhelmingly large.\\
 
-The design approach was to implement a clock process that would drive the circuit. This meant that each process must read the clock signal and in order to avoid race conditions the system had to be implemented with a two-way clock, the so called \textit{tick} and \textit{tock} signals. Since deadlocks can happen in CSP it was important to implement deadlock prevention, which was done by adding channels with a single buffer element. This way, no processes would end up in a deadlock. In figure \ref{fig:sme:clock_latch} shows how a simple CSP network would be modelled in the synchronous PyCSP model. It is clear how trying to use PyCSP for modelling synchronous hardware would result in extremely large networks.
+The design approach was to implement a clock process that would drive the circuit. This meant that each process must read the clock signal and in order to avoid race conditions the system had to be implemented with a two-way clock, the so called \textit{tick} and \textit{tock} signals. Since deadlocks can happen in CSP it was important to implement deadlock prevention, which was done by adding channels with a single buffer element. This way, no processes would end up in a deadlock. Figure \ref{fig:sme:clock_latch} shows how a simple CSP network would be modelled in the synchronous PyCSP model. It is clear how trying to use PyCSP for modelling synchronous hardware would result in extremely large networks.
 \begin{figure}[h!]
 \centering
 \includegraphics[width=10.0cm]{figures/clocked.pdf}
 \caption{To enforce global synchrony on a simple reader-writer network in CSP, the complexity increase to include the clock and latch. Figure from \cite{Vinter2014}}
 \label{fig:sme:clock_latch}
 \end{figure}
+\\\\
+The advantage of using Python for this kind of processor simulation is the flexibility and simplicity of the language. It is easy to experiment with various ideas and versions but with the increased complexity of the added clock process and and clock-signal propagation, the advantages of Python seemed to diminish. Therefore the conclusion from the master thesis was that using PyCSP alone for building synchronous processor simulators was not feasible since the global clock was forced onto the CSP model. It was also concluded that external choice, which is a powerful and essential part of CSP, was not utilized in the globally synchronous approach. They did, however, conclude that several of other CSP concepts was fitting well with the hardware concepts, such as shared-nothing in CSP matches the structure of hardware communication.\\
 
-The advantage of using Python for this kind of processor simulation is the flexibility and simplicity of the language. It is easy to experiment with various ideas and versions but with the increased complexity of the added clock process and and clock-signal propagation, the advantages of Python seemed to diminish. Therefore the conclusion from the master thesis was that using PyCSP alone for building synchronous processor simulators was not feasible since the global clock was forced onto the CSP model. It was also concluded that external choice, which is a powerful and essential part of CSP, was not utilized in the globally synchronous approach. They did, however, conclude that several of other CSP concepts was fitting well with the hardware concepts, such as shared-nothing in CSP matches the structure of hardware communication.
-
-
-All of this resulted in the development of the Synchronous Message Exchange framework.
-
-
-
-
-----------------
-
-
-After this attempt, it became clear that the structure of CSP was poorly suited for modeling clocked systems, and therefore it was decided to create the SME model, based on the CSP algebra. The idea was to only use the subset of the CSP algebra that provided beneficial functionality to hardware modeling which, most importantly, meant that external choice was omitted. However, the shared-nothing property of CSP showed to be very useful, since the network state could only be changed by process communication.
+After this attempt, it became clear that the structure of CSP was poorly suited for modeling clocked systems, and therefore it was decided to create the Synchronous Message Exchange framework, based on the CSP algebra. The idea was to only use the subset of the CSP algebra that provided beneficial functionality to hardware modeling which, most importantly, meant that external choice was omitted. However, the shared-nothing property of CSP showed to be very useful, since the network state could only be changed by process communication.
 \\
 
 In SME, a network is a combination of processes that are connected through buses. The processes communicate through a collection of signals in a bus, instead of CSP's synchronous rendezvous model, but retains the shared-nothing trait of CSP.
@@ -54,8 +39,16 @@ The process communication is handled by a hidden clock which eliminates the comp
 
 An SME clock cycle consists of three phases: it reads, executes, and writes as can be seen in Figure~\ref{fig:sme_process_flow}. The process is activated on the rising clock edge where it reads from the bus and it reads, executes and writes to the bus in one clock cycle. Just before the rising edge of the clock, all signals are propagated on all buses which means, that all communication happens simultaneously. Because of this structure, if a value is written by a process in cycle $i$, it is read by the receiving process in cycle $i+1$.
 
-SME is able to detect read/write conflicts where multiple writes are performed to a single bus within the same clock cycle as well as reads from a signal that has not been written to in the previous clock-cycle.
-\\
+SME is able to detect read/write conflicts where multiple writes are performed to a single bus within the same clock cycle as well as reads from a signal that has not been written to in the previous clock-cycle.\\
+All data, that are written to a bus can be logged for each clock cycle which means that these logs can be saved in CSV format and used for validating the VHDL implementation with a VHDL tool. This would eliminate the need to write seperate VHDL tests which will improve developer productivity immensely.
+
+SME also supports clock-multipliers which means that a clocked network can have components inside the network being clocked at a different rate than its own clock. The rate can be an integer multiplier from its own clock. This means that all components are clocked relative to its parent network and therefore the clock will not need any extra coordination. It does however mean that the inner components can only fun faster than their parents.
+% TODO: Do I really want this included?
+
+Since an SME network is a network that can be represented as a graph, a diagram tool have also been implemented for SME. It utilizes the Graphviz tool to generate a visual graph of the network. This means that the SME networks can be generated and drawn as a graph which can help with debugging.
+%TODO: Also, it this something I really want to include?
+
+
 \begin{figure}[!ht]
   \centering
   \begin{tikzpicture}[auto]
