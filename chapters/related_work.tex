@@ -46,8 +46,42 @@ SPIN, as well as other model checker tools, have been build on the pioneering wo
 
 Because of the state-space explosion problem and the increasing complexity of digital electronic circuits, there was a need to be able to model the timing and data flow of a ciruit with a certain amount of abstraction. This became Hardware Description Languages (HDL) and one of the most popular HDLs today is VHDL (VHSIC Hardware Description Language)~\cite{VHDL}.VHDL was initially ordered by the United States Department of Defence in 1981, to help with the growing problem of hardware life cycles. It is based on the Ada programming language and in 1987 it became an IEEE standard, known as VHDL-87. Several revisions have been released since VHDL-87, current version was released in 2009.\\
 
+% ------------
+% The VHSIC Hardware Description Language (VHDL)
+% As briefly mentioned in the introduction, FPGAs are usually programmed using Hard-
+% ware Description Languages (HDLs) such as VHDL or Verilog. We will focus on VHDL
+% here, since that is the current target of SMEIL code generation.
+% VHDL was originally developed in the ’s as a formal specification language for
+% documenting hardware designs, with the first IEEE standard being released in  [].
+% Initially, it was purely a specification language, not intended to be run by computers.
+% It was only later that simulators for VHDL were developed allowing designs written
+% in the language to be automatically tested. Even later, tools were developed for per-
+% forming syntehsis of VHDL which meant that a VHDL hardware description could be
+% transformed to an actual circuit which could be implemented on hardware.
+% The standard of VHDL which is most widely supported by tools was released in
+% . This is despite the fact that an updated version of the standard was released in
+% . However, even the most recent iteration of the standard is fundamentally un-
+% changed from the initial version. Therefore, VHDL has not benefited from decades of
+% research in programming language productivity. As also written in the introduction,
+% this becomes painfully obvious when VHDL is used for anything other than writing
+% the actual hardware description. Most hardware design workflows today use traditional
+% HDLs both for writing the actual hardware implementation and the corresponding test-
+% bench. Thus, the inadequacy of traditional HDLs for fulfilling the latter purpose creates
+% both a productivity issue and a high barrier of entry for potential hardware designers.
+% Poor hardware design languages are not the only problem causing a high barrier
+% of entry into the world of custom hardware. However, it is the problem that we, as
+% software developers, are best equipped to help solving.
+% Fra Trul's thesis
+% ---------
+
+
+
+
 Another very used HDL is the language Verilog which was published by Gateway Design Automation in 1985 and are, along with VHDL, the two main HDL's used for modelling circuits. Cadence Design Systems received the rights to Verilog-XL which is the HDL simulator that would end up being the de-facto standard Verilog simulator. \\
 VHDL as well as Verilog is used to write executable specifications for hardware, which can then be run in a simulation program in order to test the logic design before building it in hardware. An essential part of HDL design is the ability to simulate the programs. This allows the model to pass design criteria and validate the design functionality and intended purpose. The posibility of simulate the HDL programs also give the opportunity of exploring the possibilities within the language and hardware modelling. The programmer is able to test muliple versions of a solution and compare results before the hardware is produced. Thus, the posibility of simulating the HDL programs is essential for hardware design. \\
+
+
+
 
 
 % However, VHDL and Verilog share many of the same limitations: neither is suitable for analog or mixed-signal circuit simulation; neither possesses language constructs to describe recursively-generated logic structures. Specialized HDLs (such as Confluence) were introduced with the explicit goal of fixing specific limitations of Verilog and VHDL, though none were ever intended to replace them. (From WIKI)

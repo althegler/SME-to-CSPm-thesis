@@ -68,6 +68,10 @@ The assignment of \texttt{= 0} is simply to give an initial value of the variabl
 
 In SMEIL, the types of variable and constants must always be defined and this also applies to bus channel declaration. The types can be of either unlimited size integers, \texttt{int} and \texttt{uint},  or restricted to a specific bit-length. The prefixes \texttt{i} and \texttt{u} refers to signed and unsigned integers which with a number following the prefix, restricts the integer to a bit-length. For instance, \texttt{i4} represents a signed 4-bit integer.
 The unlimited bit size \texttt{int} and \texttt{uint} are not realistic to have in \cspm, since when verifying a program, FDR4 will look at the entire possible statespace, and with unlimited integers, the statespace will be enormous. FDR4 restricts its integer types to signed 32-bit\cite{UniversityofOxford}, but this might still leave the verification taking an unrealistic amount of time to finish. \cspm does not apply types to its variables and constants the same way as SMEIL and therefore the types might be irrelevant in the translation. It might also prove to be a necessary meta information for the verification of the model.
+Because of the type-system of SMEIL the compiler will provide a warning if the values or ranges assigned to a constant or variable are above or below what the type can represent. Such as below where the number 59 cannot be represented by 4 bits.
+\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+var minutes: u4 = 0 range 0 to 59;
+\end{minted}
 \\
 
 In \cspm, constant can be declared as we know it from many other languages;
