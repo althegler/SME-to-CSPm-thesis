@@ -72,6 +72,66 @@ Because of the type-system of SMEIL the compiler will provide a warning if the v
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 var minutes: u4 = 0 range 0 to 59;
 \end{minted}
+
+
+% ....
+%
+% Strings play a very limited role in SMEIL and are
+% therefore unlikely to be supported.
+% .....
+
+
+
+The number of clock cycles, that the simulation is run for, is specified by the programmer via the command line tool. If the simulation is not passing through enough clock cycles, the verification might be inadequate. Since the verification builds on the observed values, the simulation needs to be long enough such that the whole possible range of input values is exhausted. %TODO: Where should I add this? Removed it from the background sectionZ
+
+
+
+ % The
+% naming scheme for types is simple and follows a predictable pattern (the full grammar
+% is shown in Figure .). For integer types, the prefixes i and u refers to signed and
+% unsigned integers respectively. A prefix is followed by a number determining the bit-
+% length of the type. For example, i13 is a -bit signed integer. Unlimited-size integers
+% are also supported (more on those in Section .) and are denoted simply as int and
+% uint . Finally, bool , f32 and f64 denotes booleans and single- and double-precision
+% integers respectively. Array types are created by prefixing a type with a number of ele-
+% ments. For example, [10]i4 denotes an array of  -bit signed integers.
+% The type checker of libsme determines the validity of types in a SMEIL program
+% through a number of simple type unification rules (Table .). For all non-integer
+% types, the rules are simple: only truly identical types unify. For integer types with a
+% constrained bit-length, the following rules apply: Two integer types with different bit-
+% lengths are unified to the largest. Two types of different signedness are unified to a signed integer with a size taking the sign-bit into account. The reasoning behind this
+% is the following: when unifying a signed and an unsigned number, the resulting type
+% should be able to hold the largest number representable by either of the two types. For
+% example, if we unify the types u8 and i8 , the result is i9 instead of i8 . Otherwise,
+% if the unsigned number was larger than 2 7 the type conversion itself would cause an
+% overflow. Also, as seen from the table, the lengths of arrays are not taken into account
+% as this would be overly restrictive. For instance, the expression a[3] + b[2] would
+% be invalid if a and b were arrays of different lengths.
+% Types are enforced on assignment meaning that the following declarations are in-
+% valid:
+% const foo: i32 = 3;
+% var bar: u16 = foo;
+% since they assign foo , a -bit signed integer constant, to bar a -bit signed integer
+% variable. However, the following declarations
+% const foo: i32 = 3;
+% var bar: uint = foo;
+% are valid since i32 and uint unifies to i32 .
+% We realize that this model has several limitations. In particular, unifying two dif-
+% ferently sized types to the largest does not ensure that the result of a binary operation
+% on two values will not overflow the destination type. On the other hand, unifying types
+% to sizes large enough that the result can not overflow often leads to a significant over-
+% estimation of required bit-widths. Likewise, binary operators which may produce a
+% result smaller than either of its operands are not taken into account. The currently im-
+% plemented type checker also does not consider the constness of values, which cause it
+% to make wrong assumptions in some circumstances. However, if used correctly, our
+% model for observationally derived types (see Section .) will provide some assurance
+% that an overflow will not happen. The justification of the type system its current form
+% is that it is an improvement compared to the languages that SMEIL replace, such as
+% VHDL and in use, it has detected bugs."
+
+
+
+
 \\
 
 In \cspm, constant can be declared as we know it from many other languages;
