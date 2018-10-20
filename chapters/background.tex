@@ -219,8 +219,36 @@ In Figure~\ref{fig:smeil_transpiler} the SMEIL transpiler structure can be seen.
 
 \newpage
 \section{CSP}
+Communicating Sequential Processes (CSP) \todo{reference} is a process algebra that provides a way to express interaction between processes of concurrent systems.
+CSP had a lot of influence in the design of the programming language Occam as well as the Go programming languages and several other. As described in Chapter \ref{chap:related-work}, it was first itroduced in 1976 by C.A.R Hoare but only later on did it develop into a process algebra. CSP is still the subject of research and due to the tools available today, it is increasingly becomming a more accessable tool for the interested user.
 
-Today, Communicating Sequential Processes (CSP) \todo{reference} is a process algebra that provides a way to express concurrent systems. By using message passing between processes the language avoids certain problems that arise with the use of e.g shared variables. An essential part of CSP is message passing and the syntax for input is \texttt{X?c}. This represents an input from channel\texttt{X} and an assignment of the input value to the variable \texttt{c}. The output syntax is \texttt{X!c} where the value of the variable \texttt{c} is sent over the output channel \texttt{X}. At first Hoare had defined the message syntax to use the process names, but later on when CSP was developed into a proper process algebra, the syntax changed into using channels in order to be able to have several processes connected via the same channels. % TODO: do not write too much here. just short explain csp
+CSP provides the posibility of describing systems in terms of message passing communication between independently operating processes. The \textit{sequential} part of the CSP name is not exactly applicable anymore, since the current version of CSP allows not only sequential processes, but also processes consisting of parallel compositions of other primitive processes.
+By using message passing between processes the language avoids certain problems that arise with the use of e.g shared variables.
+With the use of the process algebra of CSP, it is possible to describe complex parallel structures with a few simple elements of the algebra.
+
+The two fundamental parts of CSP are \textit{Events} and \textit{Primitive processes}. \textit{Events} are the communication between processes. They are instantanious and can be simple names, like \textit{clock} or compositioned names, like \textit{add.kill} or it could be input/output events, like \textit{add ? x} or \textit{hours ! y}. %TODO: This section is a bit too much like the wikipedia version, this should be rewritten
+The \textit{pimitive processes} are consisting of processes which have basic behaviour such as \textit{STOP} or \textit{SKIP}. The \textit{STOP} process is a process that simply does nothing, not even terminate, and it is also called deadlock. The \textit{SKIP} process is the process that terminates successfully.
+
+
+% ------
+%TODO: Figure out if this should be here or somewhere else in the report
+CSPs different algebraic operators are used to define the different relationships between processes in CSP.
+\begin{itemize}
+    \item \textbf{Prefix:} The prefix operator link an event and a process.
+    $a \rightarrow P$ defines a process which will communicate $a$ and then behaves like the proces $P$. The process will wait indefinitely until communicating $a$.
+    \item \textbf{Deterministic choice:} Also called external choice is the operator which offers the environment the choice between two different processes. $(a \rightarrow P) \square (b \rightarrow Q)$ in this example the environment choose to either perform event $a$ and then behave as the process $P$ or perform event $b$ and then behave as the process $Q$.
+    \item \textbf{Nondeterministic choice:} Also called internal choice, defines the choice between two processes but is not affected by the envionment to make the decision.
+    $(a \rightarrow P) \sqcap (b \rightarrow Q)$ can perform event $a$ or $b$ and then behave as the corresponding process, but it does not have to accept either. It is only required to accept one if the environment offers both of them.
+    \item \textbf{Interleaving:} This operator represents concurrent activity between two independent processes. $ P  |||  Q$ defines a process behaving like $P$ and $Q$ simultaneously.
+     \item \textbf{Generalised parallel:} This operator represents two processes concurrent activity but where the processes are required to syncronise on the set of events, defined in the operator. $ P  |[\{ a \}]|  Q$ defines the process where $P$ and $Q$ must syncronise on event $a$ before the event can occur. All events not defined within the synchronisation can happen at any given time.
+     \item \textbf{Hide:} This operator represents a process which performs any event from the set defined, but the event is hidden and becomming an internal event, a \textit{tau}.
+\end{itemize}
+
+% -----
+% TODO: Written a lot like the wikipedia page. This require a rewrite!
+There are three denotanional semantics models in CSP, which are the \textit{traces} model, the \textit{failures} model, and the \textit{failures divergences} model. The \textit{trace} model define a process expression as a set of sequential events, traces, that the process can perform. $traces(STOP) = {<>}$ means that the trace of the process \textit{STOP} is the empty set, since the process performs no events. $traces(a \rightarrow b \rightarrow STOP = \{<>, <a>, <a,b>\})$ means that the trace of the process defined above can either be no events performed, the event $a$ performed or both event $a$ and then event $b$.\\
+The failures model is similar to the trace model, but consists of a set of refusals, which are the set of events that a process can refuse to perform. A failure consists of both a trace and a set of refusals, which identifies the events that the process can refuse when it has executed the trace. $failures((a \rightarrow STOP) \square (b \rightarrow Q) = \{(<>, \emptyset), (<a>, \{a,b\}), (<b>, \{a.b\})\})$\\
+The last model, the \textit{failures divergences} is en extension of the failures model. The model is defined as a pair... %TODO: Explain better, the wikipedia site is weird and I dont really understand it. I should understand what I write!
 
 \subsection{\cspm{}}
 %CSPm was devised by Bryan Scattergood as a machine-readable dialect of CSP  - se the paper \textit{The Semantics and Implementation of Machine-Readable CSP}\\\\
