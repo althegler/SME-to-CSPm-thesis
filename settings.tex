@@ -16,6 +16,8 @@
 \usepackage[]{algorithm2e}
 \usepackage{varwidth}
 
+\usepackage{subcaption}
+
 \usepackage{setspace}
 
 \usepackage{todonotes}
@@ -201,6 +203,18 @@
 \pgfplotsset{
   every axis plot post/.style={/pgf/number format/fixed}
 }
+
+\newcommand{\codemargins}[0]{\paperwidth-2cm}
+
+\newenvironment{widefigure}[1][]{
+  \begin{figure}[#1]
+  \centering
+  \begin{minipage}[t]{\codemargins}
+  }{\end{minipage}
+   \end{figure}
+}
+
+
 
 % \newcommand\todo[1]{\textcolor{red}{#1}}
 \newcommand{\cspm}{CSP$_M$}
