@@ -219,42 +219,69 @@ In Figure~\ref{fig:smeil_transpiler} the SMEIL transpiler structure can be seen.
 
 \newpage
 \section{CSP}
-Communicating Sequential Processes (CSP) \todo{reference} is a process algebra that provides a way to express interaction between processes of concurrent systems.
+Communicating Sequential Processes (CSP)~\cite{Hoare1978} is a process algebra that provides a way to express interaction between processes of concurrent systems.
 CSP had a lot of influence in the design of the programming language Occam as well as the Go programming languages and several other. As described in Chapter \ref{chap:related-work}, it was first itroduced in 1976 by C.A.R Hoare but only later on did it develop into a process algebra. CSP is still the subject of research and due to the tools available today, it is increasingly becomming a more accessable tool for the interested user.
 
 CSP provides the posibility of describing systems in terms of message passing communication between independently operating processes. The \textit{sequential} part of the CSP name is not exactly applicable anymore, since the current version of CSP allows not only sequential processes, but also processes consisting of parallel compositions of other primitive processes.
 By using message passing between processes the language avoids certain problems that arise with the use of e.g shared variables.
-With the use of the process algebra of CSP, it is possible to describe complex parallel structures with a few simple elements of the algebra.
+With the use of the process algebra of CSP, it is possible to describe complex
+parallel structures with a few simple elements of the algebra.
 
-The two fundamental parts of CSP are \textit{Events} and \textit{Primitive processes}. \textit{Events} are the communication between processes. They are instantanious and can be simple names, like \textit{clock} or compositioned names, like \textit{add.kill} or it could be input/output events, like \textit{add ? x} or \textit{hours ! y}. %TODO: This section is a bit too much like the wikipedia version, this should be rewritten
-The \textit{pimitive processes} are consisting of processes which have basic behaviour such as \textit{STOP} or \textit{SKIP}. The \textit{STOP} process is a process that simply does nothing, not even terminate, and it is also called deadlock. The \textit{SKIP} process is the process that terminates successfully.
-
+In CSP, a process is described by the way it can communicate with its external environment. An essential part of this communication is the \textit{alphabet} of possible communication events. This is the set of events that the proces, and related processes, can use for communication. Events in CSP are instantanious and they can only occur when both the process and the envionment allow.
 
 % ------
 %TODO: Figure out if this should be here or somewhere else in the report
-CSPs different algebraic operators are used to define the different relationships between processes in CSP.
+Here we give a brief introduction to the essential parts of CSP and structures that we are using in TAPS, in order to give the reader a basic understanding to build on with \cspm and FDR. If the reader wish to learn more in dept about CSP we refer to the book \textit{The Theory and Practice of Concurrency}~\cite{Roscoe1997} or \textit{Understanding Concurrent Systems}~\cite{Roscoe2010} by A. W. Roscoe.
 \begin{itemize}
-    \item \textbf{Prefix:} The prefix operator link an event and a process.
-    $a \rightarrow P$ defines a process which will communicate $a$ and then behaves like the proces $P$. The process will wait indefinitely until communicating $a$.
-    \item \textbf{Deterministic choice:} Also called external choice is the operator which offers the environment the choice between two different processes. $(a \rightarrow P) \square (b \rightarrow Q)$ in this example the environment choose to either perform event $a$ and then behave as the process $P$ or perform event $b$ and then behave as the process $Q$.
-    \item \textbf{Nondeterministic choice:} Also called internal choice, defines the choice between two processes but is not affected by the envionment to make the decision.
+    \item \textbf{Prefix:} Given an event $a$ in the alphabet $\Sigma$, and a process $P$, $a \rightarrow P$ is the process which will communicate $a$ and then behaves like the proces $P$. The process will wait indefinitely to communicate $a$. This is known as prefixing.\\
+    The simplest CSP process possible are the \textit{STOP} process. It never does anything and never communicates. The process $left \rightarrow right \rightarrow left \rightarrow right \rightarrow STOP$ is the proces which communicates a cycle of left and right two times before stopping.
+    \item \textbf{Recursion:} The process described above ends with \textit{STOP}, but if we wish to have a process that performs the communication indefinitely, then we use recursion.
+    $P_1 = left \rightarrow right \rightarrow left \rightarrow right \rightarrow P_1$ will simply loop forever.
+    \item \textbf{Guarded Alternative:} The guarded alternative provides a choice to the environment of different actions. A simple choice statement could be $a \rightarrow P | b \rightarrow Q$ which gives the environment the posibility of choosing either to communicate $a$ and then behave as $P$ or communicate $b$ and then behave as $Q$.
+    \item \textbf{Events:} As described above, the only possible communication between processes are events within the defined alphabet. If $A \in \Sigma$ then the process $?x : A \rightarrow P(x)$ is the process which accepts a alement $x$ of the set $A$ and then behaves like the process $P(x)$.
+    It is often valuable to have a "channel" to communicate values on between channels. Therefore if $c$ is the channel, then $c?x : A \rightarrow P(x)$ is the process which receives an element $x$ on the channel $c$. This can also be written simply as $c?x \rightarrow P(x)$ where $A$ is the type of $c$. The "outputs" can be written in two ways; $c.x$ and $c!x$ are equivalent. An example of a simple process receiving an element and outputting it will be; $P = c?x \rightarrow c!x \rightarrow P$.
+    \item \textbf{Deterministic Choice:} Also called external choice is the operator which offers the environment the choice between two different processes. $(a \rightarrow P) \square (b \rightarrow Q)$ in this example the environment choose to either perform event $a$ and then behave as the process $P$ or perform event $b$ and then behave as the process $Q$. This is completely the same as the guarded alternative example given above, and usually it is equivalent, however some advanced uses of external choice might be hard to express simply with guarded alternative.
+    \item \textbf{Nondeterministic Choice:} Also called internal choice, defines the choice between two processes but is not affected by the envionment to make the decision.
     $(a \rightarrow P) \sqcap (b \rightarrow Q)$ can perform event $a$ or $b$ and then behave as the corresponding process, but it does not have to accept either. It is only required to accept one if the environment offers both of them.
+    \item \textbf{Conditional Choice:} Conditional choices are also possible in CSP. Conditionals can be represented in different ways, which we will explain more about in the \cspm{} section below. Hoares syntax for conditionals are $a$ %TODO: Find out how to write this symbols in latex
+    So $ P symbol(b) Q$ which is the same as $if b then P else Q$.
     \item \textbf{Interleaving:} This operator represents concurrent activity between two independent processes. $ P  |||  Q$ defines a process behaving like $P$ and $Q$ simultaneously.
-     \item \textbf{Generalised parallel:} This operator represents two processes concurrent activity but where the processes are required to syncronise on the set of events, defined in the operator. $ P  |[\{ a \}]|  Q$ defines the process where $P$ and $Q$ must syncronise on event $a$ before the event can occur. All events not defined within the synchronisation can happen at any given time.
+     \item \textbf{Generalised Parallel:} This operator represents two processes concurrent activity but where the processes are required to syncronise on the set of events, defined in the operator. $ P  |[\{ a \}]|  Q$ defines the process where $P$ and $Q$ must syncronise on event $a$ before the event can occur. All events not defined within the synchronisation can happen at any given time.
      \item \textbf{Hide:} This operator represents a process which performs any event from the set defined, but the event is hidden and becomming an internal event, a \textit{tau}.
 \end{itemize}
 
+A \textit{trace} in CSP is the sequence of communications between the process and the environment. Each element in the trace is the record of a single communication with the process and a trace can be used to specify correctness of a CSP process. If $traces(P)$ denote the finite set of communication events of the process $P$, then we can write $$ P \sqsubseteq_T Q \text{ if and only if } traces(P) \supseteq traces(Q)$$
+This means that every trace of $Q$ is a trace of $P$ and is called \textit{trace-refine}.
+
 % -----
+% TODO: This below is not good. Write something about traces, failures ect. here when I have learned more.
 % TODO: Written a lot like the wikipedia page. This require a rewrite!
-There are three denotanional semantics models in CSP, which are the \textit{traces} model, the \textit{failures} model, and the \textit{failures divergences} model. The \textit{trace} model define a process expression as a set of sequential events, traces, that the process can perform. $traces(STOP) = {<>}$ means that the trace of the process \textit{STOP} is the empty set, since the process performs no events. $traces(a \rightarrow b \rightarrow STOP = \{<>, <a>, <a,b>\})$ means that the trace of the process defined above can either be no events performed, the event $a$ performed or both event $a$ and then event $b$.\\
-The failures model is similar to the trace model, but consists of a set of refusals, which are the set of events that a process can refuse to perform. A failure consists of both a trace and a set of refusals, which identifies the events that the process can refuse when it has executed the trace. $failures((a \rightarrow STOP) \square (b \rightarrow Q) = \{(<>, \emptyset), (<a>, \{a,b\}), (<b>, \{a.b\})\})$\\
-The last model, the \textit{failures divergences} is en extension of the failures model. The model is defined as a pair... %TODO: Explain better, the wikipedia site is weird and I dont really understand it. I should understand what I write!
+% There are three denotanional semantics models in CSP, which are the \textit{traces} model, the \textit{failures} model, and the \textit{failures divergences} model. The \textit{trace} model define a process expression as a set of sequential events, traces, that the process can perform. $traces(STOP) = {<>}$ means that the trace of the process \textit{STOP} is the empty set, since the process performs no events. $traces(a \rightarrow b \rightarrow STOP = \{<>, <a>, <a,b>\})$ means that the trace of the process defined above can either be no events performed, the event $a$ performed or both event $a$ and then event $b$.\\
+% The failures model is similar to the trace model, but consists of a set of refusals, which are the set of events that a process can refuse to perform. A failure consists of both a trace and a set of refusals, which identifies the events that the process can refuse when it has executed the trace. $failures((a \rightarrow STOP) \square (b \rightarrow Q) = \{(<>, \emptyset), (<a>, \{a,b\}), (<b>, \{a.b\})\})$\\
+% The last model, the \textit{failures divergences} is en extension of the failures model. The model is defined as a pair... %TODO: Explain better, the wikipedia site is weird and I dont really understand it. I should understand what I write!
 
 \subsection{\cspm{}}
-%CSPm was devised by Bryan Scattergood as a machine-readable dialect of CSP  - se the paper \textit{The Semantics and Implementation of Machine-Readable CSP}\\\\
-\cspm{} is a formal language that combines CSP with a functional programming language in order to make it easier for the programmer to model the systems and then use the code on tools that can animate, verify or similar.
+In 1998 Bryan Scattergood introduced the machine-readable CSP, called \cspm. This language is an adaption and extension of the process algebra~\cite{Brookes1984} that Brookes, Hoare and Roscoe introduced.  The process algebra notation is extended with a functional programming language to be able to express CSP in a functional way, providing a language which can be used with tools and therefore provide a broader usability to CSP.
+\cspm use the existing theory of CSP and the language, in spite of being combined with a functional programming language, retains the idioms of CSP.
+The main purpose of creating \cspm was not so it could be executed, like the reason for most programming languages are. The main reason was to provide an approach to describe parallel systems in a structure which can be automatically manipolated. This can be done for instance, with tools like FDR4. This also means that a program written in \cspm cannot be executed and simulated like a network can be simulated in SMEIL. \\
 
+\subsubsection{Essentials of \cspm}
+The basics of a \cspm script is to define the processes, its functionality and the communication. \cspm supports sequences, sets, booleans, tuples, user-defined types, local definitions, pattern matching and lambda terms.
+\cspm does not enforce restrictions on the use of upper/lower-case letters in identifiers, although some standard convensions can be followed if suitable. It is common to define processes either all in capital letters or with an initial capital letter. Channels and function naming are typically all in lowercase lettering.\\
 
+\cspm also supports integer arithmetics like addition, subtraction, product, quotient, remainder/modulus and unary minus. Integer arithmetics are supported within a signed or twos-complement 32-bit representation.
+Floating point numbers are currently not supporten in \cspm. \\
+
+\cspm provide several different build-in function, like \texttt{concat(s)} or \texttt{elem(x,s)}, which both takes sequences as parameters, or \texttt{card(a)} or \texttt{union(a, b)} which are set functions. All of these are very common in functional programming languages. \cspm support boolean \texttt{and}, \texttt{or}, \texttt{not}, equality operations as well as ordering operations and conditional expressions. In \cspm, all types except functions and processes can be compared with the equality operators. Ordering are not defined on booleans or user-defined types. \\
+
+Local definitions can be defined by wrapping them inside a \texttt{let within} statement. For example \texttt{P(n) = let (x,y) = n within x + y }\\ Channel and datatype definitions can only be defined at top-level and therefore not in a \texttt{let within} statement. \\
+\cspm provides support for lambda terms which have the syntax: $\ x_1,...,x_n @ x$, an example could be \texttt{f = \ x, y @ x \% y}. \\
+It is simple and ideal to use pattern matching in a lot of cases in \cspm, similar to most functional programming languages. Case statements can be defined via pattern matching as well as in comprehensions, communicatins ect. however there are several rules that belongs to pattern matching within \cspm which we will not introduce here but merely reference the \cspm Reference Manual~\cite{Scattergood2011} for more information. \\
+
+% TODO: Figure out if I need to explain named types and data types in cspm
+In \cspm a channel is defined with the keyword \texttt{channel} and an identifier as tag. Channels can be simple structures like \texttt{channel clock} or more complex like \texttt{channel c : \{0..10\}} which represents that the channel can communicate integers in the range of 0 to 10. A channel becomes an event when all necessary values have been provided. With channel \textt{c}, \texttt{c.5} is a value of type Event. All events are members of the build-in data type \texttt{Events}. 
+
+      % Echo(c) = c?x -> c!x -> Echo(c).
 \subsection{FDR4}
 %" FDR2 is often described as a model checker, but is technically a refinement checker, in that it converts two CSP process expressions into Labelled Transition Systems (LTSs), and then determines whether one of the processes is a refinement of the other within some specified semantic model (traces, failures, or failures/divergence)" (from Wikipedia - se paper \textit{Model-checking CSP - af Roscoe} \\\\
 FDR (Failures Divergence Refinement) tool is a refinement checker for
@@ -271,3 +298,4 @@ In hardware, we would typically want to verify that the communication on a bus d
 
 CSP was not initially developed for hardware modeling, and therefore it is not evident how to handle the clock cycle, which is an essential part of hardware modeling. When we transpile the SME network into \cspm{} the SMEIL simulation have provided the ranges of all values from the simulation and therefore all clock cycles. This means that when FDR4 asserts a property it asserts on all possible communication combinations for all the simulated clock cycles. Therefore, even though we are transpiling from an SME model, where the clock is crucial, we can simply translate ``one-to-one" from the SMEIL program and still get an accurate assertion on the properties.
 
+Integer division is defined to round down and the modulus operation always provides a positive result.
