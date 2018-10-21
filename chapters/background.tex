@@ -219,6 +219,7 @@ In Figure~\ref{fig:smeil_transpiler} the SMEIL transpiler structure can be seen.
 
 \newpage
 \section{CSP}
+\label{sec:csp_background}
 Communicating Sequential Processes (CSP)~\cite{Hoare1978} is a process algebra that provides a way to express interaction between processes of concurrent systems.
 CSP had a lot of influence in the design of the programming language Occam as well as the Go programming languages and several other. As described in Chapter \ref{chap:related-work}, it was first itroduced in 1976 by C.A.R Hoare but only later on did it develop into a process algebra. CSP is still the subject of research and due to the tools available today, it is increasingly becomming a more accessable tool for the interested user.
 
@@ -234,7 +235,7 @@ In CSP, a process is described by the way it can communicate with its external e
 Here we give a brief introduction to the essential parts of CSP and structures that we are using in TAPS, in order to give the reader a basic understanding to build on with \cspm and FDR. If the reader wish to learn more in dept about CSP we refer to the book \textit{The Theory and Practice of Concurrency}~\cite{Roscoe1997} or \textit{Understanding Concurrent Systems}~\cite{Roscoe2010} by A. W. Roscoe.
 \begin{itemize}
     \item \textbf{Prefix:} Given an event $a$ in the alphabet $\Sigma$, and a process $P$, $a \rightarrow P$ is the process which will communicate $a$ and then behaves like the proces $P$. The process will wait indefinitely to communicate $a$. This is known as prefixing.\\
-    The simplest CSP process possible are the \textit{STOP} process. It never does anything and never communicates. The process $left \rightarrow right \rightarrow left \rightarrow right \rightarrow STOP$ is the proces which communicates a cycle of left and right two times before stopping.
+    The simplest CSP process possible are the \textit{STOP} process. It never does anything and never communicates. The process $left \rightarrow right \rightarrow left \rightarrow right \rightarrow STOP$ is the proces which communicates a cycle of left and right two times before stopping. Another very often used process are the \textit{SKIP} process which the process which terminates successfully.
     \item \textbf{Recursion:} The process described above ends with \textit{STOP}, but if we wish to have a process that performs the communication indefinitely, then we use recursion.
     $P_1 = left \rightarrow right \rightarrow left \rightarrow right \rightarrow P_1$ will simply loop forever.
     \item \textbf{Guarded Alternative:} The guarded alternative provides a choice to the environment of different actions. A simple choice statement could be $a \rightarrow P | b \rightarrow Q$ which gives the environment the posibility of choosing either to communicate $a$ and then behave as $P$ or communicate $b$ and then behave as $Q$.
@@ -279,14 +280,22 @@ Local definitions can be defined by wrapping them inside a \texttt{let within} s
 It is simple and ideal to use pattern matching in a lot of cases in \cspm, similar to most functional programming languages. Case statements can be defined via pattern matching as well as in comprehensions, communicatins ect. however there are several rules that belongs to pattern matching within \cspm which we will not introduce here but merely reference the \cspm Reference Manual~\cite{Scattergood2011} for more information. \\
 
 % TODO: Figure out if I need to explain named types and data types in cspm
-In \cspm a channel is defined with the keyword \texttt{channel} and an identifier as tag. Channels can be simple structures like \texttt{channel clock} or more complex like \texttt{channel c : \{0..10\}} which represents that the channel can communicate integers in the range of 0 to 10. A channel becomes an event when all necessary values have been provided. With channel \textt{c}, \texttt{c.5} is a value of type Event. All events are members of the build-in data type \texttt{Events}. 
+In \cspm a channel is defined with the keyword \texttt{channel} and an identifier as tag. Channels can be simple structures like \texttt{channel clock} or more complex like \texttt{channel c : \{0..10\}} which represents that the channel can communicate integers in the range of 0 to 10. A channel becomes an event when all necessary values have been provided. With channel \texttt{c}, \texttt{c.5} is a value of type Event. All events are members of the build-in data type \texttt{Events}. It is possible to define channels to be infinite, but when using \cspm in FDR4, it is not common use. \\
 
-      % Echo(c) = c?x -> c!x -> Echo(c).
+\subsubsection{\cspm Processes}
+In \cspm processes are defined much like described in section \ref{sec:csp_background}, above. We are still defining the \texttt{SKIP} and the\texttt{STOP} processes as well as prefixing, external choice, internal choice and interleaving. Communication are done with the\texttt{?} and\texttt{!} operator, for example\texttt{Proc(c) = c?x -> c!x -> Proc(c).} are the process which receives an element on the channel\texttt{c} and outputs it on the same channel agian. \\
+Sequential composition are defined with semicolon, for example\texttt{P;Q} are first behaving like\texttt{P} and when\texttt{P} have terminated, it behaves like\texttt{Q}. \\
+External choice are defined with\texttt{P [] Q} and internal choice with\texttt{P |~| Q}. A boolean guard,\texttt{b \& P} is the same as\texttt{if b then P else STOP}.
+Generalised parallel are defined by\texttt{P [| A |] Q}, similar to how it is defined in the section above. It is worth noting that \texttt{P [| {} |] Q} is the same as using the interleave operator. \\
+It is also possible to define alphabetised parallel, \texttt{P [A || B] Q}, which means that the set of events, \texttt{A}, are events that\texttt{P} is allowed to perform and the set of events,\texttt{B} are the events allowed by\texttt{Q}.\\
+In \cspm when we wish to assert that some property hold for some process within the \cspm scripts. A basic assertion could be \texttt{assert 4 < 9}, but could also be used to express refinement checks, which is how FDR4 use assertions, which we explain further in the section below.\\
+
 \subsection{FDR4}
 %" FDR2 is often described as a model checker, but is technically a refinement checker, in that it converts two CSP process expressions into Labelled Transition Systems (LTSs), and then determines whether one of the processes is a refinement of the other within some specified semantic model (traces, failures, or failures/divergence)" (from Wikipedia - se paper \textit{Model-checking CSP - af Roscoe} \\\\
 FDR (Failures Divergence Refinement) tool is a refinement checker for
 
 In the paper \textit{A primer on model checking}\cite{Ben-ari2010} Mordechai Ben-Ari explains a concurrent problem that he had used for many years, to teach his students about concurrency. ... % TODO: write this when I have read the article again
+
 
 
 We not only want to transpile SMEIL to \cspm{}, we also want to be able to verify different properties in \cspm{} in order to prove correctness. Today, there exists several tools for formal verification, both in academia and in the industry. One of the currently most favored tools is the Failures-Divergences Refinement tool (FDR4). This tool is a CSP refinement checker that can analyze programs written in the machine-readable version of CSP; \cspm{}.
