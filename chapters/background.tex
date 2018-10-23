@@ -68,7 +68,6 @@ Since an SME network is a network that can be represented as a graph, a diagram 
 Since SME is based on CSP, all SME models have a
 corresponding CSP model, and because of this property, we are able to create a transpiler translating SME models to \cspm{}.
 The SME model is currently implemented as libraries for the general-purpose languages C\#~\cite{Skovhede}, C++~\cite{asheim2015}, and Python~\cite{asheim2016vhdl} and the language SMEIL which we will introduce further below. The Python and C\# libraries both have code generators for VHDL as well.
-\newpage
 \subsection{SMEIL}
 \label{SMEIL-section}
 With the different SME implementations, a need arose for a common intermediate language. SME Implementation Language (SMEIL) was developed as a Domain Specific Language (DSL) for SME, usable both as an Intermediate Language, IL, and as an independent implementation language. It is accompanied by the implementation, \texttt{LIBSME}. %TODO: Find the reference in truls paper.
@@ -213,11 +212,6 @@ In Figure~\ref{fig:smeil_transpiler} the SMEIL transpiler structure can be seen.
   \caption{SMEIL transpiler structure.}
   \label{fig:smeil_transpiler}
 \end{figure}
-
-
-
-
-\newpage
 \section{CSP}
 \label{sec:csp_background}
 Communicating Sequential Processes (CSP)~\cite{Hoare1978} is a process algebra that provides a way to express interaction between processes of concurrent systems.
@@ -291,70 +285,68 @@ It is also possible to define alphabetised parallel, \texttt{P [A || B] Q}, whic
 In \cspm{} when we wish to assert that some property hold for some process within the \cspm{} scripts. A basic assertion could be \texttt{assert 4 < 9}, but could also be used to express refinement checks, which is how FDR4 use assertions, which we explain further in the section below.\\
 
 \subsection{FDR4}
+\textit{Note that the information mentioned in this section is based on the information published, which unfortunately does not include a lot of information about the internal works of FDR4. We have assumed that a lot of the internal workings of FDR4 are similar to that of FDR3, which have been defined in ~\cite{fdr}.}\\
+
 Today, there exists several tools for formal verification, both in academia and in the industry. One of the currently most favored tools is the Failures-Divergences Refinement tool (FDR4). This tool is a CSP refinement checker that can analyze programs written in the machine-readable version of CSP; \cspm{}.
-Using the denotational models of CSP; traces, failures and failures-divergences, CSP are able to check if the processes refine eachother. FDR4 also have the functionality of checking more properties than the original denotational models of CSP, like deadlock or livelock freedom.
+Using the denotational models of CSP; traces, failures and failures-divergences, CSP are able to check if an implemented process refines a specification process. FDR4 also have the functionality of checking more properties than these models, like deadlock freedom or livelock freedom.
 
-FDR was first released in 1991 and have since then been used both in academia and in the industry. The current version of FDR is the FDR4, which have gone through a complete rewrite since the first version.
-The FDR4 tool incorporates features like a \cspm{} type checker, a debugger and a build-in version of ProBE, the CSP process animator mentioned in Chapter \ref{chap:related_work}.
+FDR was first released in 1991 and have since then been used both in academia and in the industry. The current version of FDR is the FDR4, which is a completely different system than the first version.
+The FDR4 tool incorporates features like a \cspm{} type checker, a debugger and a build-in version of ProBE, the CSP process animator mentioned in Chapter \ref{chap:related_work}. FDR4 provides a parallel refinement-checking engine that can scale up linearly with the number of cores. This means that it can handle processes with a very large number of states in a reasonable time, which along with compression, provides the posibility of refinement checking even larger problems. FDR4 also provide a cluster version, also providing verification of larger problems.\\
 
-FDR4 is a refinement checker and therefore the way it verifies properties like deadlock-freedom is by refinement. FDR4 converts a syntactic process to an Labelled Transition Systems, LTS. A transition system consists of states and transitions between states which gives the opportunity of exploring the state space of the process. In an LTS, the transitions can be labeled which provides further posibilities. An LTS is not the same as a finite state automata in that the set of transitions and states are not necessarily finite or countable and there are no start or stop states. A LTS can be represented as a directed graph.
+An assertion in FDR4 contains a specification process as well as an implemented process which we want to verify. For instance, \texttt{assert P [T= Q} means that we wish to assert if \texttt{Q} refines \texttt{P} according to the trace model.
+FDR4 converts the two processes to an Labelled Transition Systems, LTS. A transition system consists of states and transitions between states which gives the opportunity of exploring the state space of the process. In an LTS, the transitions can be labeled, which provides further posibilities.
 
-FDR4 specialise the LTS further by using Generalised LST, GLTSs. An LTS can have individual states being labeled with different properties, depending on the semantic model used for the refinement. For instance if the trace model was used, then the states would be labeled with the traces in a GLTS.
-When specifying a refinement in \cspm, the assertion have a specification process and a process to verify. FDR4 transform both of these into GLTSs which can then be checked for refinement. In order to be able to perform the verification, the specification GLTS are normalised, which have been extensively introduced in ~\cite{Roscoe1997} but in short, the GLTS are tranformed into a deterministic GLTS without any internal transitions or $\tau$ transitions. This can be an extensive operation, but since specification processes often are quite simple, this has proven to be the best approach.
-After this, FDR4 is ready to check if the implemented process, transformed to a GLTS, refines the normalised specification GLTS, which is further introduced in \ref{sec:refinement}.
-All FDR versions, except the first version from 1991, supports different compressions which can reduce the state space without chaning the overall structure. This helps improve the runtime of the refinement checks. The reduction in state space is a crucial element of FDR4, since the state space quickly become overwhelmingly large, making the refinement check unfeasible. The compression algorithms provide the posibility of verifying otherwise absurdly large problems.
-These compression algorithms will not be further introduced in this thesis, but more information on these can be found in ~\cite{Roscoe2010}
-FDR4 also support refinement of Timed CSP~\cite{REED1988249}~\cite{Armstrong2011} which are used within time-critical systems. This, however is not within the scope of this thesis. \\
+% An LTS is not the same as a finite state automata in that the set of transitions and states are not necessarily finite or countable and there are no start or stop states. A LTS can be represented as a directed graph.
 
-It is a great advantage to be able to verify programs in parallel and FDR4 provides a parallel refinement-checking engine that can scale up linearly with the number of cores. This means that it can handle processes with a very large number of states in a reasonable time, which along with compression, provides the posibility of refinement checking even larger problems. FDR4 also provide a cluster version, also providing verification of larger problems.
+FDR4 specifies the LTS further by using Generalised LST, GLTSs. A GLTS can have individual states being labeled with different properties, depending on the semantic model used for the refinement. For instance if the trace model was used, then the states would be labeled with the traces in a GLTS.
+FDR4 transform both the specification process as well as the implementation process into GLTSs which can then be checked for refinement. In order to be able to perform the verification, the specification GLTS are normalised, which have been extensively introduced in ~\cite{Roscoe1997} but in short, the GLTS are tranformed into a deterministic GLTS without any internal transitions or $\tau$ transitions. This can be an extensive operation, but since specification processes often are quite simple, this has proven to be the best approach.
+After this, FDR4 is ready to check if the implemented process, transformed to a GLTS, refines the normalised specification GLTS, which is further introduced in section \ref{sec:refinement}. Since it is only necessary to normalise the specification process, the automatic refinement check becomes much more feasible than if it was necessary to normalise both. \\
 
+FDR4 supports other compression functionalities besides normalisation, which can reduce the state space without chaning the overall semantic of the process. This helps improve the runtime of the refinement checks. The reduction in state space is a crucial element of FDR4, since the state space quickly become overwhelmingly large, making the refinement check unfeasible. The compression algorithms provide the posibility of verifying otherwise absurdly large problems.
+These compression algorithms will not be further introduced in this thesis, but more information on these can be found in \cite{Roscoe2010}.
 
-
+FDR4 also support refinement of Timed CSP~\cite{REED1988249}~\cite{Armstrong2011} which are used within time-critical systems. \\
 
 \subsubsection{Refinement}
 \label{sec:refinement}
-Refinement checking consists of searching through each of the GLTS, checking that all reachable states within the verification GLTS is compatible with every state within the normalised specification GLTS. It performs a breadth-first search, which has the advantage that when an error is found, the counter example provided, is the smallest possible.
+Refinement checking consists of searching through each of the GLTS, checking that all reachable states within the verification GLTS is compatible with every state within the normalised specification GLTS. It performs a breadth-first search, which has the advantage that when an error is found, the counter example provided, is the smallest possible. In each state, properties are checked according to the semantic model used. The refinement algorithm stores a set of states in order to keep count on what have been checked, what is currently being checked and what is left to be checked. FDR4 uses B-Trees to store data during refinement, and since version 3 of FDR, FDR3, the refinement can also be performed in parallel.
+We now introduce the three basic semantic models of CSP.
+\paragraph{Traces model and refinement}
+A trace is the set of possible communications between the process and the environment. Traces refinement is way to specify correctness of a process in CSP. In the CSP algebra, refinement is written with the symbol $\refinedby$, and usually with a specific semantic model defined as well. We specify trace-refinement by: \\
+$$P \trefinedby Q \text{ if and only if } traces(P) \supseteq traces(Q)$$
+This means that \textit{Q trace-refines P}, or in other words, that every finite trace of \textit{Q} is a trace of \textit{P}. \\
+Some example are:\\
+$traces(\STOP) = \{\emptyseq\}$\\
+$traces(a \then \STOP) = \{\emptyseq, \seq{a}\}$\\
+$traces((a \then \STOP)\extchoice (b \then \STOP)) = \{\emptyseq, \seq{a}, \seq{b}\}$.
+% TODO: Maybe add an example with SKIP?
+\paragraph{Failures model and refinement}
+Traces are great at telling what the processes do, but it does have its limitations. For example $a \then P \intchoice \STOP$ and $a \then P$ have the exact same trace, even though one have the posibility of \textit{STOP} and the other does not. This is why we, in some cases, need to look at not only what the process can do, but also what it can refuse to do. A refusal is a set of all the events that a process can fail to accept, no matter how long it is offered. A failure is a pair $(s,X)$ where $s$ is a trace and X is the set of events that the process can refuse after the trace $s$.
 
-% continue with page 194 in FDR3 - a modern refinement checker for csp.
+\textit{failure(P)} is the set of all failures within the process \textit{P}. What happens is that it goes through the GLTS and collect all routes through the graph while ignoring $\tau$ actions. This results in a trace and if the node at the end of each trace is stable, which means that there are no $\tau$ actions going out of it, this will give a failure since the node must refuse all actions that does not lead out of it. However if the node have a $\tau$ action leading out from it, also called an unstable node, then it does not give a failure, since the internal events will eventually happen, and therefore at some point, we will leave the node without refusals.
 
-% Then introduce traces, failures and failures-divergence from page 116 in understanding concurrent systems
-
-
-
-
-% FDR4 can handle several different types of assertions, deadlocks being the most used. However, due to the structure of SMEIL, we use FDR4 in a different way than is typical. Since the SME model cannot have cyclic-wait we have no need to verify the system in this manner.
-
-
-
-%" FDR2 is often described as a model checker, but is technically a refinement checker, in that it converts two CSP process expressions into Labelled Transition Systems (LTSs), and then determines whether one of the processes is a refinement of the other within some specified semantic model (traces, failures, or failures/divergence)" (from Wikipedia - se paper \textit{Model-checking CSP - af Roscoe} \\\\
-
-In the paper \textit{A primer on model checking}\cite{Ben-ari2010} Mordechai Ben-Ari explains a concurrent problem that he had used for many years, to teach his students about concurrency. ... % TODO: write this when I have read the article again
-
-
-
-We not only want to transpile SMEIL to \cspm{}, we also want to be able to verify different properties in \cspm{} in order to prove correctness.
-
-
-
-
-% In the calculus of communicating sequential processes, divergence is a drastic situation where a process performs an endless series of hidden actions. For example, consider the following process, defined by CSP notation:
-%
-% {\displaystyle Clock=tick\rightarrow Clock} Clock=tick\rightarrow Clock
-% The traces of this process are defined as:
-%
-% {\displaystyle \operatorname {traces} (Clock)=\{\langle \rangle ,\langle tick\rangle ,\langle tick,tick\rangle ,\cdots \}=\{tick\}^{*}} \operatorname {traces} (Clock)=\{\langle \rangle ,\langle tick\rangle ,\langle tick,tick\rangle ,\cdots \}=\{tick\}^{*}
-% Now, consider the following process, which conceals the tick event of the Clock process:
-%
-% {\displaystyle P=Clock\backslash tick} P=Clock\backslash tick
-% By definition, P is called a divergent process.
-% - From wiki (https://en.wikipedia.org/wiki/Divergence_(computer_science))
+An example of four different graphs can be seen in Figure \ref{fig:failures_graph}. Here we assume that the alphabet is \textit{\{a, b, c\}} and as we can see, all stable notes have a subset of the alphabet next to is. These are the set of possible refusals for that node. \\
+\begin{itemize}
+    \item $P_1$ is a deterministic process, since is contains no $\tau$ events. A subset of the failures for this process are ($\emptyseq$, $\emptyset$), ($\emptyseq$, $\{c\}$), ($\seq{a}$, $\{a,c\}$) and ($\seq{a,b}$, $\{a,b,c\}$).
+    \item $P_2$, $P_3$ and $P_4$ are nondeterministic due to the internal actions.
+\end{itemize}
+We know that $$P \frefinedby Q \text{ if and only if } traces(P) \supseteq traces(Q) \text{ and } failures(P) \supseteq failures(Q)$$
+When we look at Figure \ref{fig:failures_graph} we can see that both $P_2$ and $P_3$ trace refines $P_1$, and they also have equivalent traces. In this example, only $P_2$ failure-refines $P_3$.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/failures_graph.jpg}
+\caption{Four different transition graphs and their refusal sets. Figure from ~\cite{Roscoe2010}.}
+\label{fig:failures_graph}
+\end{figure}
+\paragraph{Failure-Divergences model and refinement}
+Traces and failures are some very powerful models, however they do not account for divergence, which is why the failure-divergence model was created. Divergence is a situation where a process performs an endless series of $\tau$ events. If a stable node in a transition graph, like the one in Figure \ref{fig:failures_graph}, went on to do endless internal actions, we would have a process that diverges. In the failure-divergences model a process is represented by $(failures\bot(P), divergences(P))$. $divergences(P)$ represents the set of traces where $P$ can actually diverge afterwards. $failures\bot(P)$ represents the set of failures of $P$ extended by all the failures from the traces in $divergences(P)$, that is; $failures(P) \cup \{(s,X) | s \in divergences(P), X \subseteq \Sigma\}$.
+In a transition graph, divergences occur where a process can reach itself with a number of $\tau$ events, i.e a $\tau$-loop.
+% There are different ways to model divergence, and usually it is easier if divergence is assumed to be stict. Once a process has reached a point or trace where it might diverge, even though we do not actually know that it will go on forwver, there is no need to look at what else it could do. The assumption is that the process can do anything at all after that point, which is divergence strictness. It is possible to build models that does contain processes that diverge, but that are not divergence-strict. % TODO: I wrote this, but not sure if I think it is needed here.
 
 
 
-For our current implementation of the transpiler, we can assert the ranges of the channel inputs, for example, we can automatically assert that the observed ranges, provided by the SMEIL simulation, and the possible input on the \cspm{} channels are not conflicting.
-In hardware, we would typically want to verify that the communication on a bus does not exceed a certain range or that the sum of multiple signals does not exceed a specific value. A bus might be able to carry other data than needed, and being able to model a circuit that can assert that the bus never carries other data than expected, is of great value.
-\\
+% TODO: This does not belong here. Find out where it should go.
+% For our current implementation of the transpiler, we can assert the ranges of the channel inputs, for example, we can automatically assert that the observed ranges, provided by the SMEIL simulation, and the possible input on the \cspm{} channels are not conflicting.
+% In hardware, we would typically want to verify that the communication on a bus does not exceed a certain range or that the sum of multiple signals does not exceed a specific value. A bus might be able to carry other data than needed, and being able to model a circuit that can assert that the bus never carries other data than expected, is of great value.
 
-CSP was not initially developed for hardware modeling, and therefore it is not evident how to handle the clock cycle, which is an essential part of hardware modeling. When we transpile the SME network into \cspm{} the SMEIL simulation have provided the ranges of all values from the simulation and therefore all clock cycles. This means that when FDR4 asserts a property it asserts on all possible communication combinations for all the simulated clock cycles. Therefore, even though we are transpiling from an SME model, where the clock is crucial, we can simply translate ``one-to-one" from the SMEIL program and still get an accurate assertion on the properties.
-
-Integer division is defined to round down and the modulus operation always provides a positive result.
+% CSP was not initially developed for hardware modeling, and therefore it is not evident how to handle the clock cycle, which is an essential part of hardware modeling. When we transpile the SME network into \cspm{} the SMEIL simulation have provided the ranges of all values from the simulation and therefore all clock cycles. This means that when FDR4 asserts a property it asserts on all possible communication combinations for all the simulated clock cycles. Therefore, even though we are transpiling from an SME model, where the clock is crucial, we can simply translate ``one-to-one" from the SMEIL program and still get an accurate assertion on the properties.
