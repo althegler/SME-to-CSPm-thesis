@@ -83,7 +83,7 @@ The different methods of using SMEIL are:\\
 \end{itemize}
 An SMEIL module consists of the actual SMEIL program as well as import statements. SMEIL programs can be separated into modules which can then be imported into other SMEIL programs, creating a library-like structure and reusable components.\\
 
-The two fundamental components of an SMEIL program is \texttt{process} and \texttt{network}. The process consists of variable and bus definitions, as well as the statements that are evaluated once for each clock cycle. The purpose of the \texttt{network} declaration is to define the relations between each entity in the program. A small example of the process and network syntax can be seen in Listing~\ref{lst:smeil_small_syntax_example} and a further introduction to the language can be found in Section \ref{chap:analysis}.\\
+The two fundamental components of an SMEIL program is \texttt{process} and \texttt{network}. The process consists of variable and bus definitions, as well as the statements that are evaluated once for each clock cycle. The purpose of the \texttt{network} declaration is to define the relations between each entity in the program. A small example of the process and network syntax can be seen in Listing~\ref{lst:smeil_small_syntax_example} and a further introduction to the language can be found in Chapter \ref{chap:analysis}.\\
 
 The SME model supports both synchronous and asynchronous processes. A synchronous process is run during every clock cycle and an asynchronous process are only run when receiving a signal on the input bus, but unfortunately, SMEIL does not currently support asynchronous processes. %TODO: Ask truls if it is implemented in other sme implementations.
 \begin{listing}
@@ -216,7 +216,7 @@ In Figure~\ref{fig:smeil_transpiler} the SMEIL transpiler structure can be seen.
 \section{CSP}
 \label{sec:csp_background}
 Communicating Sequential Processes (CSP)~\cite{Hoare1978} is a process algebra that provides a way to express interaction between processes of concurrent systems.
-CSP had a lot of influence in the design of the programming language Occam as well as the Go programming languages and several others. As described in Chapter \ref{chap:related-work}, it was first introduced in 1976 by C.A.R Hoare but, not until 1984, did it develop into a process algebra. CSP is still a large research subject, and due to the tools available today, it is becoming increasingly more accessible for the general users.
+CSP had a lot of influence in the design of the programming language Occam as well as the Go programming languages and several others. As described in Chapter \ref{chap:related_work}, it was first introduced in 1976 by C.A.R Hoare but, not until 1984, did it develop into a process algebra. CSP is still a large research subject, and due to the tools available today, it is becoming increasingly more accessible for the general users.
 
 CSP provides the possibility of describing systems in terms of message passing communication between independently operating processes. The \textit{sequential} part of the CSP name is not exactly applicable anymore, since the current version of CSP allows not only sequential processes, but also processes consisting of parallel compositions of other processes.
 By using message passing between processes the language avoids certain problems that arise with the use of e.g shared variables.

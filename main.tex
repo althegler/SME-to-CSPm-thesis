@@ -1,5 +1,8 @@
 \documentclass[a4paper]{report}
 
+% Number of "levels" the label can reference. Default is 2.
+\setcounter{secnumdepth}{3}
+
 \input{settings}
 
 %%%%%%%%%%%%%%%%%%%%
@@ -46,14 +49,14 @@ Abstract
 % % \chapter{Notations and Abbreviations}
 % % \input{chapters/conventions.tex}
 %
-% \chapter{Related Work}
-% \label{chap:related-work}
-% \input{chapters/related_work}
+\chapter{Related Work}
+\label{chap:related_work}
+\input{chapters/related_work}
 %
 % \chapter{Approach}
 % \input{chapters/approach}
 %
-\chapter{Background technologies}
+\chapter{Background Technologies}
 \input{chapters/background}
 %
 % \chapter{Analysis}
@@ -83,8 +86,8 @@ Abstract
 % Thanks to Uwe Zimmermann who made the seven segment example in TikZ on \url{http://www.texample.net/tikz/examples/segment-display/}.
 
 
-\newpage
-citation for citations\cite{Bengtsson1995}
+% \newpage
+% citation for citations\cite{Bengtsson1995}
 
 
 %%%%%%%%%%%%%%%%
@@ -102,7 +105,7 @@ citation for citations\cite{Bengtsson1995}
 %%%%%%%%%%%%%%%%%%%%
 % Include Appendix %
 %%%%%%%%%%%%%%%%%%%%
-\appendix
-\input{chapters/appendix}
+% \appendix
+% \input{chapters/appendix}
 
 \end{document}
