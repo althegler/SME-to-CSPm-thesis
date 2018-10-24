@@ -6,11 +6,11 @@
 % Three components: Behavioral, structural, meta data
 
 % Jeg skal ikke fortælle hvordan jeg har gjort det men analyse af problemet og ikke af løsningen. Jeg skal blot beskrive problemstillingerne.
-In this section we analyse the differences between the SMEIL model and the functionality of \cspm. We also introduce important parts of the SMEIL structure and grammar in order to give reference points.
+In this section we analyse the differences between the SMEIL model and the functionality of \cspm. We also introduce important parts of the SMEIL structure and grammar in order to give an understanding of the different challenges.
 
 \section{Transpiling SMEIL to \cspm{}} \label{sec:transpiling}
-When transpiling from source to source the difficult part is to understand the structure of each language and to understand how to translate structures from one language to the other without losing functionality but still maintaining the structure of each language.\\
-When transpiling from SMEIL to \cspm{} the goal is to find a method for transpiling, that can be generalized to most problems. We have worked on separation of concerns in order to simplify, but also to have a greater chance of being able to match more SMEIL programs.
+% When transpiling from source code to source code, it is difficult to understand how to translate structures from one language to the other without losing functionality while still maintaining the structure of each language.\\
+Since we are translating code from SMEIL to \cspm{}, the challenge it to find corresponding \cspm{} structures for the SMEIL strucutres. The ultimate goal is to find methods for transpiling, that can be generalized to most problems.
 
 From the introduction to both SMEIL and \cspm it is clear that the main intention of each language is different and therefore the transpiling of a process in SMEIL to a \cspm process might not be completely trivial. All data from the SMEIL process will need to be translated into data and structures within the \cspm model, calculations and communications alike.
 
@@ -35,16 +35,26 @@ When analysing the general structure of SMEIL programs, there are three structur
 
 \subsection{Behavioral}
 %% - Behavioral description - hvad den enkelte funktion gør. det oversættes ret nemt. Jeg bekymre mig ikke om variable og sådan nogle ting. Det er allerede gjort før det gøres til SMEIL, og dem kan jeg genbruge i min code generation.  Funktionel indhold af processer/ opførsel af den enkelte process - det er rimelig nemt oversat direkte til CSPm. Her kan man beskrive hvis der er nogle sproglige udfordringer, fx hvis CSPm ikke har loops eller lign.
-The behaviour of the single process and functions in the SMEIL program is what give the SMEIL program its functionality. Each process have a single function but together they build the functionality of the program. By analysing the different structures and ways to build functions and processes in SMEIL, we can get a sense of how it should be created in \cspm.
-% TODO: is it even possible to have functions in SMEIL?
-
+The behaviour of the single process in the SMEIL program is the base of the functionality of the SMEIL program. By analysing the different structures of processes in SMEIL, we can get a sense of how it should be created in \cspm.
 \subsubsection{Processes}
 % TODO: Maybe I only need to introduce SMEIL stuff that TAPS support?
 
 % %%%% SMEIL processes %%%%
-A SMEIL process is defined by the \texttt{proc} keyword and consists of an identifier, process parameters, bus and variable declarations as well as the process statements which consists of sequential statements such as communications and calculations that are to be evaluated once for each clock cycle.
-It is not possible to declare variables in the process statements and therefore all variable and communications are declared in the declarative part of the process. This attribute should simplify the translation to \cspm, since TAPS will only have to search the declarative part of the process to find all variable and bus definitions.
+An SMEIL process is defined by the \texttt{proc} keyword and consists of an identifier, process parameters, bus and variable declarations. The body of the process, or the process statements, consists of sequential statements such as communications and calculations that are to be evaluated once for each clock cycle. A small example can be seen in Figure \ref{fig:small_proc_example_smeil}
+It is not possible to declare variables inside the process statements and therefore all variable and communications must be declared in the declarative part of the process. This attribute should simplify the translation to \cspm, since TAPS will only have to search the declarative part of the process to find all variable and bus definitions.
 A process can be instantiated with a set of parameters. These parameters can be a mix of input and output buses and constants. A process is initiated in the network of a SMEIL program which will be explained later.
+\begin{figure}
+    \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+    proc A (in i)
+        bus a_bus {chan : int}
+        {
+            a_bus.chan = i.chan + 1
+        }
+    \end{minted}
+    \caption{An example of the structure of an SMEIL process. The process receives the input, adds it with 1 and sends it out on the output bus.}
+    \label{fig:small_proc_example_smeil}
+\end{figure}
+
 
 In the SMEIL grammar, it is possible to declare if the process is \texttt{sync} or \texttt{async}. A \texttt{sync} process are run during each clock cycle, and a \texttt{async} process are only run when they receive a signal on the input bus. The current implementation of SMEIL does not support \texttt{async} processes, which means that the translation to \cspm should be able to handle at least \texttt{sync} processes, but preferably both cases. Since \cspm does not support clock cycles, it is important to figure out how to simulate the same results in \cspm without having a designated clock.
 % TODO: Should I write more here, or am I introducing the clock problem somewhere else?
