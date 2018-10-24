@@ -70,7 +70,7 @@ Since SME is based on CSP, all SME models have a
 corresponding CSP model, and because of this property, we are able to create a transpiler translating SME models to \cspm{}.
 The SME model is currently implemented as libraries for the general-purpose languages C\#~\cite{Skovhede}, C++~\cite{asheim2015}, and Python~\cite{asheim2016vhdl} and the language SMEIL which we will introduce further below. The Python and C\# libraries both have code generators for VHDL as well.
 \subsection{SMEIL}
-\label{SMEIL-section}
+\label{sec:background_smeil}
 With the different SME implementations, a need arose for a common intermediate language. SME Implementation Language (SMEIL) was developed as a Domain Specific Language (DSL) for SME, usable both as an Intermediate Language, IL, and as an independent implementation language. It is accompanied by the implementation, \texttt{LIBSME}. %TODO: Find the reference in truls paper.
 SMEIL has a C-like syntax with a specialized type system that makes hardware modeling simple. In spite of its simplicity, SMEIL still provides hardware-specific functionality that is more difficult to create with general-purpose languages.
 
@@ -111,7 +111,7 @@ network net() {
 The SMEIL language is strongly, statically typed and has a simple type system that is checked at compile-time. The purpose of SMEIL is to be able to model hardware, and since hardware is static, it was important to create a type system that was capable of enforcing as many static invariants as possible.
 Because of this, the only type coercion possible in SMEIL is between signed and unsigned integers. It is also the reason that only booleans can be used in conditionals.
 
-The SMEIL type system differs from standard general-purpose languages mainly on the support for bit-precise types. General-purpose languages are typically targeted a CPU which consists of fixed-width registers which usually means that it can not work with data smaller than a byte. It is, however, an important part of modeling hardware to be able to define the exact widths of the wires, in order to optimise the hardware implementation. SMEIL supports unlimited-size integers as well as integers constrained to a specific bit-length. SMEIL also supports booleans, double and single precision floating point numbers as well as strings. Currently, floating-point numbers are only supported in the SMEIL simulator and not in the VHDL code generator. \\
+The SMEIL type system differs from standard general-purpose languages mainly on the support for bit-precise types. General-purpose languages are typically targeted a CPU which consists of fixed-width registers which usually means that it can not work with data smaller than a byte. It is, however, an important part of modeling hardware to be able to define the exact widths of the wires, in order to optimise the hardware implementation. SMEIL supports unlimited-size integers as well as integers constrained to a specific bit-length. SMEIL also supports booleans, double and single precision floating point numbers as well as strings. Currently, floating-point numbers are supported in the SMEIL simulator but have not been extensively testes. The VHDL code generator does not support floating point numbers. \\
 % Fixed length arrays of the types, mentioned above, are also supported.\\
 
 In SMEIL buses are represented as channel names and their types, and since processes or networks can accept buses passed as parameters it is important to ensure that no process or network is instantiated with a bus that does not contain the expected channels.
@@ -278,6 +278,7 @@ It is also possible to define alphabetised parallel, \texttt{P [A || B] Q}, whic
 % In \cspm{} when we wish to assert that some property hold for some process within the \cspm{} scripts. A basic assertion could be \texttt{assert 4 < 9}, but could also be used to express refinement checks, which is how FDR4 use assertions, which we explain further in the section below.\\
 
 \subsection{FDR4}
+\label{sec:background_fdr}
 \textit{Note that the information mentioned in this section is based on the information published, which unfortunately does not include a lot of information about the internal workings of FDR4. We have assumed that a lot of the internal workings of FDR4 are similar to that of FDR3, which have been defined in ~\cite{fdr}.}\\
 
 Today, there exists several tools for formal verification, both in academia and in the industry. One of the currently most favored tools is the Failures-Divergences Refinement tool (FDR4). This tool is a CSP refinement checker that can analyze programs written in the machine-readable version of CSP, \cspm{}. Using the denotational models of CSP, \textit{traces}, \textit{failures}, and \textit{failures-divergences}, FDR4 is able to check if an implemented process refines a specification process. FDR4 also have the functionality of checking more properties than these models, like deadlock freedom or livelock freedom.
