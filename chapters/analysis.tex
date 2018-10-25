@@ -41,20 +41,22 @@ The behaviour of the single process in the SMEIL program is the base of the func
 % TODO: Maybe I only need to introduce SMEIL stuff that TAPS support?
 
 % %%%% SMEIL processes %%%%
-An SMEIL process is defined by the \texttt{proc} keyword and consists of an identifier, process parameters, bus and variable declarations. The body of the process, or the process statements, consists of sequential statements such as communications and calculations that are to be evaluated once for each clock cycle. A small example can be seen in Figure \ref{fig:small_proc_example_smeil}
+An SMEIL process is defined by the \texttt{proc} keyword and consists of an identifier, process parameters, bus and variable declarations. The body of the process, or the process statements, consists of sequential statements such as communications and calculations that are to be evaluated once for each clock cycle. A small example can be seen in Listing \ref{fig:small_proc_example_smeil}
 It is not possible to declare variables inside the process statements and therefore all variable and communications must be declared in the declarative part of the process. This attribute should simplify the translation to \cspm, since TAPS will only have to search the declarative part of the process to find all variable and bus definitions.
 A process can be instantiated with a set of parameters. These parameters can be a mix of input and output buses and constants. A process is initiated in the network of a SMEIL program which will be explained later.
-\begin{figure}
-    \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-    proc A (in i)
-        bus a_bus {chan : int}
-        {
-            a_bus.chan = i.chan + 1
-        }
-    \end{minted}
-    \caption{An example of the structure of an SMEIL process. The process receives the input, add the input with 1 and sends it out on the output bus.}
-    \label{fig:small_proc_example_smeil}
-\end{figure}
+
+\begin{listing}
+\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+proc A (in i)
+    bus a_bus {chan : int}
+    {
+        a_bus.chan = i.chan + 1
+    }
+\end{minted}
+\caption{An example of the structure of an SMEIL process. The process receives the input, add the input with 1 and sends it out on the output bus.}
+\label{fig:small_proc_example_smeil}
+\end{listing}
+
 In the SMEIL grammar, it is possible to declare if the process is \texttt{sync} or \texttt{async}. A \texttt{sync} process are run during each clock cycle, and a \texttt{async} process are only run when they receive a signal on the input bus. The current implementation of SMEIL does not support \texttt{async} processes, which means that all SMEIL process are in sync and behaves like decribed in Chapter \ref{chap:background}, where they read and write once in each clock cycle.
 The syncronicity of the processes are an essential part of the SMEIL network and therefore it is crucial that the generated code is able to model this correctly. In \cspm{} a process does not communicate until it receives an input, which match the async process of SMEIL. However, since it is only the  synchronous processes that are supported in SMEIL, it is necessary to introduce
 a structure to the \cspm network, that simulates the synchronous structure of the SMEIL proceses.
@@ -177,25 +179,81 @@ The translation of processes from SMEIL to \cspm does have its challenges and ca
 
 \subsubsection{Generating data}
 %%%%% Generator processes %%%%%
-When writing pure SMEIL programs, there will always be a need to generate input for the network. If the program was not written as pure SMEIL, the input for the network would be provided by the surrounding code. But in the case of pure SMEIL, the input data must be generated which can be done in a few ways.
-One way of initialising the network is by instantiating the processes with constants or hard code internal values, which then acts as the starting point of the network. Another way of initialising data in the SMEIL network, is to have a seperate process creating data for the network. We call this a data generator process. In Listing \ref{lst:addone_data_generation_example} we see a SMEIL network with two processes. The \texttt{Add} process receives an input value, increments 1 to it and writes it out on the outbus bus. The \texttt{Id} process receives an input and writes it to its output bus imediately.
--------------------
-24-10-18
-------------------
-% ...Write something more here.. I am just too tired to do that now.
-% TODO: Here I can introduce the addone problem as well as some other problem where there are a data generator process.
+When writing pure SMEIL programs, there will always be a need to generate input for the network. If the program was not written as pure SMEIL, the input for the network would be provided by the surrounding code. But in the case of pure SMEIL, the input data must be generated, which can be done in a few ways.
+One way of initialising the network is by instantiating the processes with constants given as a parameter or hard code internal values into the process. These values will then act as the starting point of the network. Another way of initialising data in the SMEIL network, is to have a seperate process creating data for the network. We call this a data generator process.
 
-%%% Generator processes - clock cycles
-TAPS must be able to handle all these different ways of generating data in different process structures and must ensure that the data used in the generated program are representing all possible values from the SMEIL program.
+An example of a process being instantiated with a constant can be seen in Listing \ref{lst:addone_data_generation_example}. Here we see the \texttt{Addone} network, which is a simply SMEIL network with two processes. The \texttt{add} process receives an input value, add the constant value to the input and writes it out on the outbus bus. The \texttt{id} process receives an input and writes it to its output bus imediately. Network structures have not been introduced yet, but it is simply just defining the input bus of the \texttt{add} process to be the output bus of the \texttt{id} process, as well as defining that the constant value in the \texttt{add} process is 1.
 
-% In \cspm it is not trivial to simulate clock cycles and if...
-% TODO: Fix the stuff about clock cycles here.
-% \cspm is not able to simulate clock cycles and therefore all data communicated in the \cspm program will represent the clock cycles from the SMEIL representation.
-%TODO: Remember to introduce the simulation of SMEIL somewhere and introduce ranges etc. so the clock cycle thing makes sense.
-%TODO: Is this section too much design and not really analysis?
-%TODO: Not sure if the clock cycle thing should be here or somewhere else.
+\begin{listing}
+    \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+    proc addone (in input, const constant)
+        bus output {
+            val: uint;
+        };
+    {
+        output.val = input.val + constant;
+    }
+
+    pric id (in input)
+        bus output {
+            val: uint;
+        }
+        var from_add : uint;
+    {
+        from_add = input.val;
+        output.val = from_add;
+    }
+    network net() {
+        instance add of addone(id.output, val: 1);
+        instance id of id(add.output)
+    }
+    \end{minted}
+    \caption{The SMEIL network \texttt{Addone} with two processes. The \texttt{add} process is instantiated with a value \texttt{constant} which is constant and used once for each clock cycle. The example is similar to the Addone example in \cite{smeil}.}
+    \label{lst:addone_data_generation_example}
+\end{listing}
+
+In Listing \ref{lst:clock_data_generation_example} we see another way to instantiate the SMEIL network. Here the process \texttt{clock} is a data generator process. It does not have any input bus so it cannot receive data, but are simply generating data for the network. This example is simply to show the data generator process concept, so the \texttt{minutes} process are simple and are just calculating how many minutes have passed since the simulation started.
+\begin{listing}
+    \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+    proc clock()
+        bus output {
+            val: uint;
+        };
+        var i: uint = 0;
+    {
+        i = i + 1;
+        output.val = i;
+    }
+
+    proc minutes (in input)
+        bus output {
+            val: uint;
+        };
+        from_clock : uint;
+    {
+        from_clock = input.val;
+        output.val = from_clock / 60
+    }
 
 
+    network net() {
+        instance c of clock();
+        instance s of minutes(c.output)
+    }
+    \end{minted}
+    \caption{The SMEIL network \texttt{Minutes}, with a data generator process and a calculation process.}
+    \label{lst:clock_data_generation_example}
+\end{listing}
+
+The data generator process is not defined specifically in SMEIL, however it is clear that processes that do not have an input bus, cannot do anything but write data to the network.
+
+In \cspm it is of course necessary to define the space of data that FDR4 search through. It is possible to create a process in \cspm with the same functionality as the SMEIL data generator process. However, in that case, it would be necessary to syncronise the data process with the processes receiving data, otherwise FDR4 would simply evaluate all values within the defined range of the channels, making the data process obsolete. This syncronisation might over complicate the system and it might also increase the runtime of the verification, since the network would include more states.
+In Figure \ref{fig:csp_data_generator_process} it can be seen that the channel between the \texttt{data} process and the \texttt{calc} process is defined to range of \texttt{\{0..100\}}. If the processes are not syncronised on this channel, the two processes do not have to agree on communication, and therefore the state space includes all the values from 0 through 100, which would mean that we get the same result by just having the channel as input for the \texttt{calc} process, without the \texttt{data} process.
+However, if the processes are syncronised, FDR4 will still allocate all 100 posibilities, but it only continues the search on the values actually communicated on the channel. In this case, the data generator process would be able to define specific data to send and that might prove to be an advantage when interested in more complex data.
+
+So one possibiliy is to define the data in \cspm by a single channel or by a process which generates the data for the network, just like in SMEIL.
+
+Of course if the SMEIL network does not have a data generator process, the \cspm processes would have to be instantiated with the values, just like the SMEIL processes are.
 
 ------------------------------------------------------------------------------\\
 ------------------------------------------------------------------------------\\
@@ -203,8 +261,6 @@ TAPS must be able to handle all these different ways of generating data in diffe
 ------------------------------------------------------------------------------\\
 
 
-%%% Generator processes - no input bus process.
-A generator process in SMEIL can be constructed in several diffent ways, which can be seen in Figure %TODO: Add reference to figure of the different generator processs.
 In some cases the process have no input bus, since it is instantiated with a value within the process, as in Figure %TODO: reference to specific figure part.
 We can assume that all SMEIL processes with no input bus will be a data generator process of some kind, and therefore must have some outwards communication. %TODO: Can we really assume this? think about it once again.
 
