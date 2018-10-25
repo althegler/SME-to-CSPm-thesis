@@ -253,7 +253,18 @@ However, if the processes are syncronised, FDR4 will still allocate all 100 posi
 
 So one possibiliy is to define the data in \cspm by a single channel or by a process which generates the data for the network, just like in SMEIL.
 
-Of course if the SMEIL network does not have a data generator process, the \cspm processes would have to be instantiated with the values, just like the SMEIL processes are.
+Of course if the SMEIL network does not have a data generator process, the \cspm processes would have to be instantiated with the values, just like the SMEIL processes are.\\\\
+ \begin{tikzpicture}
+    \node[main node] (1) {\small \texttt{data}};
+    \node[main node] (2) [right = 4cm of 1] {calc};
+    \draw[fill] (0.7,0) circle [radius=0.07];
+
+    \path[draw,thick, ->]
+    (1) edge node {} (2);
+
+    \node[align=center, below, text width=1.7cm] at (3.4,1){\footnotesize\texttt{channel c : \{0..100\}}};
+    \node[align=center, below, text width=1.7cm] at (1.4,0){\footnotesize\texttt{output o : \{0..10\}}};
+\end{tikzpicture}
 
 ------------------------------------------------------------------------------\\
 ------------------------------------------------------------------------------\\
