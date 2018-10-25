@@ -128,62 +128,62 @@ After the simulation, these minimum and maximum values are then converted into S
 The new SMEIL program with the updated types and observed ranges are then passed through the type checker, in order to ensure that all constraints from the original program are still respected.
 % An example of this can be seen in Figure \ref{fig:smeil_restricted_types_and_ranges} where a unlimited size integer is re-typed to an integer of fixed size after the simulation. In Figure \ref{fig:invalid} an example of a violation can be seen. Here the value c is contrained to \texttt{i10} but if the channel \texttt{b.chan} observe values that are 16-bit long then the restrictions on the c variable are violated.
 
-% \begin{figure}
-%   \centering
-%   \begin{subfigure}[t]{0.25\linewidth}
-%       \begin{listing}
-%       \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-%           proc A ()
-%            bus b {
-%             chan: ?{\bfseries\underline{int}}?;
-%            };
-%            var c: i10;
-%           {
-%            c = b.chan;
-%           }
-%       \end{minted}
-%       \end{listing}
-%     \caption{Unconstrained types.}
-%     \label{fig:oktype}
-%   \end{subfigure}
-%   \begin{subfigure}[t]{0.35\linewidth}
-%   \begin{listing}
-%   \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-%       proc A ()
-%           bus b {
-%               chan: ?{\bfseries\underline{i6 range 0 to 29}}?;
-%           };
-%           var c: i10;
-%       {
-%        c = b.chan;
-%       }
-%   \end{minted}
-%   \end{listing}
-%     \caption{Valid.}
-%     \label{fig:non-violated}
-%   \end{subfigure}
-%   \begin{subfigure}[t]{0.35\linewidth}
-%   \begin{listing}
-%   \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+% \begin{minipage}[t]{.98\linewidth}
+%     % \centering
+%   \begin{minipage}[t]{0.30\linewidth}
+%     \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 % proc A ()
-% bus b {
-% chan: ?{\bfseries\underline{i16 range 0 to 30717}}?;
-% };
-% var c: i10;
+%  bus b {
+%   chan: int;
+%  };
+%  var c: i10;
 % {
-% c = b.chan;
+%   c = b.chan;
 % }
-%   \end{minted}
-%   \end{listing}
-%     \caption{Invalid.}
+%     \end{minted}
+%     \captionof{listing}{Unconstrained types.}
+%     \label{fig:oktype}
+%   \end{minipage}
+%   \hspace{0.5cm}
+%   \begin{minipage}[t]{0.30\linewidth}
+%     \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+% proc A ()
+%  bus b {
+%   chan: i6 range 0 to 29;
+%  };
+%  var c: i10;
+% {
+%  c = b.chan;
+% }
+%     \end{minted}
+%     \captionof{listing}{Valid.}
+%     \label{fig:non-violated}
+%   \end{minipage}
+%   \hspace{0.5cm}
+%   \begin{minipage}[t]{0.30\linewidth}
+%    \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+% proc A ()
+%  bus b {
+%   chan: i16 range 0 to 30717;
+%  };
+%  var c: i10;
+% {
+%  c = b.chan;
+% }
+%    \end{minted}
+%     \captionof{listing}{Invalid.}
 %     \label{fig:violated}
-%   \end{subfigure}
-%   \caption{Shows a process entering the simulator with an unconstrained type (a)
-%     and examples of two possible resulting programs (b, c). The type changing
-%     between the examples is underlined.}
-%   \label{fig:simtyping}
-% \end{figure}
-% NOTE: THis figure does not compile. It is taken from Truls article and I should change the captions and also mention where I got it from.
+%   \end{minipage}
+%    \captionof{listing}{Shows a process entering the simulator with an unconstrained type (a)
+%      and examples of two possible resulting programs (b, c). The type changing
+%      between the examples is underlined.}
+%    \label{fig:simtyping}
+%    \vspace{1cm}
+% \end{minipage}
+
+
+% It is taken from Truls article and I should change the captions and also mention where I got it from.
+% Maybe it is not necessary to have the invalid version in this example? It is necessary for Truls, but maybe not for me. 
 
 % In Figure \ref{fig:smeil_restricted_types_and_ranges} the two last programs, showed in Figure x and y, will be the result of the re-typing of the program after simulation. That is, the programs resulting from the simulation of the program in Figure z.
 

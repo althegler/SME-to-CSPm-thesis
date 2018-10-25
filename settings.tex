@@ -20,9 +20,16 @@
 
 \usepackage{setspace}
 
+
 \usepackage{todonotes}
 
 \usepackage[outputdir=.tmp]{minted}
+
+% \newenvironment{code}{\captionsetup{type=listing}}{}
+% \SetupFloatingEnvironment{listing}{name=Source Code}
+
+
+
 % \usepackage[cache=false]{minted}
 \setminted{frame=lines,linenos,framesep=2mm,fontsize=\small}
 
@@ -35,6 +42,9 @@
 \renewcommand{\ttdefault}{cmtt}
 \usepackage{xcolor}
 \usepackage{booktabs, caption, siunitx}
+
+\usepackage{listings}
+\usepackage{parcolumns}
 
 % NOTE: The margins become wider just by including the geometry package
 \usepackage{geometry}
