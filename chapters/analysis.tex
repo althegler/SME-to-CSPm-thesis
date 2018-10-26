@@ -9,7 +9,105 @@
 In this section we analyse the differences between the SMEIL model and the functionality of \cspm. We also introduce important parts of the SMEIL structure and grammar in order to give an understanding of the different challenges.
 
 \section{Verification}
-% What are we verifying?
+The reason for translating SMEIL to \cspm{} is to use the refinement checking property of the CSP language. By loading the \cspm{} programs into FDR4 we can verify different properties within the SMEIL program.
+Before we can design the transpiler and generate the \cspm{} code, it is essential to figure out what kind of properties would be beneficial to verify in hardware, and what kind of properties are possible to verify with FDR4.
+As mentioned in Chapter \ref{chap:background}, FDR4 provides refinement checking with different models. FDR4 is often used for deadlock checking, but since the SME model guarantee deadlock freedom, it will not be necessary to use this property within FDR4\footnote{It might be interesting to do the deadlock checking simply to verify that the translation was done correctly. The generated \cspm{} code should also be deadlock free}.\\
+
+In hardware, we would typically want to verify that the communication on a bus does not exceed a certain range or that the sum of multiple signals does not exceed a specific value. A bus might be able to carry other data than needed, and being able to model a circuit that can assert that the bus never carries other data than expected, is of great value.
+Therefore it would be interesting to verify that certain values are never communicated on a specific channel, or that they are the only values communicated on the channel.
+When designing hardware it is always designed as a single unit but typically it will be connected with other units, creating a bigger structure. It is difficult to know exactly what input the network will have to handle and therefore it is interesting to be able to assert exactly what values can be communicated on the channels but also how the network react when unforseen values are input.
+
+% TODO: Write something more here? Is this well enough explained?
+
+To provide an understanding of the problem, this kind of verification would be able to solve, we here introduce an example that will be used several times throughout the thesis.
+
+% (from paper)
+% For our current implementation of the transpiler, we can assert the ranges of the channel inputs, for example, we can automatically assert that the observed ranges, provided by the SMEIL simulation, and the possible input on the \cspm{} channels are not conflicting.
+%
+% ...
+% Even though SME buses can contain a series of channels, every single channel is translated into a \cspm{} channel. The properties we will assert with FDR4, are the width of the \cspm{} channels. That is, we want to prove that certain values will never be communicated on certain channels.
+% It is easy to imagine that 4 bits can be communicated between the \texttt{time} processes and the seven segment displays. But 4 bits can represent the numbers 0 through 15, and our seven segment displays can only display the numbers 0 through 9. Therefore we wish to assert that even though the channels can carry 4 bits, the actual communication on the six output channels does not exceed 9. In general, the displays will be able to display 0 through 9, but since the example is a clock showing a 24-hour interval, the displays will of course not be able to show minutes and seconds above 59 and hours above 23.
+
+
+\subsection{Seven Segment example}
+\label{sec:example-seven_segment_intro}
+A seven segment display is an electronic display device which is used in displays such as digital clocks or other types of devices that display numerals. An example of a typical digital clock display can be seen in Figure~\ref{fig:6_displays}. When a digit has been determined for a seven segment display, it is encoded to a bitstream that represents the digit in the correctly activated display segments.
+\begin{figure}[!ht]
+  \begin{center}
+    \tikz{
+      \node[inner sep=5pt, outer sep=2pt, draw=blue] {
+        \sevensegnum[size=2em, shrink=0.1]{1}
+        \sevensegnum[size=2em, shrink=0.1]{2}
+      }
+    }
+    \tikz{
+      \node[inner sep=5pt, outer sep=2pt, draw=blue] {
+        \sevensegnum[size=2em, shrink=0.1]{3}
+        \sevensegnum[size=2em, shrink=0.1]{4}
+      }
+    }
+    \tikz{
+      \node[inner sep=5pt, outer sep=2pt, draw=blue] {
+        \sevensegnum[size=2em, shrink=0.1]{5}
+        \sevensegnum[size=2em, shrink=0.1]{6}
+      }
+    }
+  \end{center}
+  \caption{Digital clock with six seven segment displays, displaying 12:34:56.}
+  \label{fig:6_displays}
+\end{figure}
+In this example, we wish to model a typical digital clock that is able to calculate and display the current time in hours, minutes, and seconds. Listing~\ref{lst:python} shows this example written in Python.
+When creating this model in SMEIL some input must be added to the network, just like \texttt{time\_since\_midnight} in Listing~\ref{lst:python}. The input value represents seconds since midnight, and in order to calculate hours, minutes, and seconds we model three different processes, called the \texttt{time} processes in this example.
+
+When writing hardware models in pure SMEIL, the only way to generate input for the network is to create a data generator process. This process, called the \texttt{clock} process in our example, is instantiated with the start time and is incremented by 1 for each simulation cycle, representing a one second increase. The result is communicated on the process output bus, where the three \texttt{time} processes are listening. These \texttt{time} processes receive the number and by the use of simple integer arithmetic, calculate the hours, minutes, and seconds since midnight respectively. It is obvious that at some point in time, each \texttt{time} process will calculate a two-digit result, for example at 12 hours or 42 seconds. However, a single seven segment display can only show one digit between 0 and 9. Therefore we need two seven segment displays for each \texttt{time} process in order to show the correct time in a 24-hour interval. Each \texttt{time} process has an output bus with two individual channels that represent the communication to each different display. The number representing either hours, minutes, or seconds are separated into first and second digit, by $\lfloor \frac{x}{10} \rfloor$ and $(x \text{ mod } 10)$. These six different results are then communicated onto the six different channels which represent the six different seven segment displays.
+The outline of this network can be seen in Figure~\ref{fig:smeil_network}.
+\begin{listing}
+\begin{minted}[escapeinside=||, mathescape=true]{python}
+from math import floor
+
+def time(time_since_midnight):
+    hours   = floor(time_since_midnight / 3600)
+    minutes = floor((time_since_midnight - hours * 3600) / 60)
+    seconds = time_since_midnight - hours * 3600 - minutes * 60
+    return [hours, minutes, seconds]
+
+print(time( 57100)) # =>  15:51:40
+print(time(  3601)) # =>  01:00:01
+print(time( 66666)) # =>  18:31:06
+\end{minted}
+\caption{A Python implementation of the seven segment display example.}
+\label{lst:python}
+\end{listing}
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}
+    \node [mycircle] (I) at (0,0) {$I$};
+
+    \node [mycircle] (H) at (2.5,  1.50) {$H$};
+    \node [mycircle] (M) at (2.5,  0.00) {$M$};
+    \node [mycircle] (S) at (2.5, -1.50) {$S$};
+
+    \draw [myarrow] (I) -- (M);
+
+    \draw [myarrow, smooth] (I) to[out=0, in=180] (H);
+    \draw [myarrow, smooth] (I) to[out=0, in=180] (S);
+
+    % Output arrows without processes
+    \draw [myarrow] (3.125,  1.625) -- (4.000,  1.750);
+    \draw [myarrow] (3.125,  1.375) -- (4.000,  1.250);
+    \draw [myarrow] (3.125,  0.125) -- (4.000,  0.250);
+    \draw [myarrow] (3.125, -0.125) -- (4.000, -0.250);
+    \draw [myarrow] (3.125, -1.375) -- (4.000, -1.250);
+    \draw [myarrow] (3.125, -1.625) -- (4.000, -1.750);
+  \end{tikzpicture}
+  \caption{SMEIL network for a seven segment display clock. Each SMEIL process is represented by a cicle with a letter corresponding to the processes Input, Hours, Minutes and Seconds respectively.}
+  \label{fig:smeil_network}
+\end{figure}
+
+In Figure~\ref{fig:smeil_network} the network consists of four processes, the data generator process, \textit{I}, which creates the input that is broadcasted out on the network. The three \texttt{time} processes, hours (\textit{H}), minutes (\textit{M}), and seconds (\textit{S}) are the processes described above, which calculate each part of the current time. The outputs are communicated on the six outgoing channels.
+
+The full SMEIL code for this example can be seen in Listing~\ref{lst:smeil} in  the appendix.
+
 
 \section{Transpiling SMEIL to \cspm{}}
 \label{sec:transpiling}
@@ -283,7 +381,7 @@ TAPS will of course have to recognise these different approaches in SMEIL and di
 \label{sec:analysis_structural}
 % - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
 % TODO: Write something here!
-The communication between processes are the back bone of an SMEIL network. By analysing the different ways to define the communication and how it resembles communication in \cspm{} we will get a better understanding of how to design the code generation. 
+The communication between processes are the back bone of an SMEIL network. By analysing the different ways to define the communication and how it resembles communication in \cspm{} we will get a better understanding of how to design the code generation.
 \subsubsection{Network}
 The network in SMEIL is the crucial part which ties all the processes together with communication.
 
