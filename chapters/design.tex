@@ -43,6 +43,9 @@ If the processes are not simple data generator processes, then the transpiler wi
 
 % TODO: Write about how one process can be defined in SMEIL several times and how it does not matter, since the process will be defined the same in CSPm but that the network will simply be generated twice with two different names and inputs or similar. (Does that also work if it is different output?)
 
+% (moved from analysis: )
+%  % None of these two posssible usecases are currently implemented in TAPS, and thus the keyword \texttt{exposed} will cause an error in the transpiler. %TODO: Will it cause an error? And should I add more info to this?
+
 % %%%% Generating the network
 We can standardize the network generation by creating a two-step communication part. Instead of having the actual processes receive the incoming data, they receive the data by their process parameter. The process parameter is then set by the network process which receives the communication from the channels and provides the process with the communicated value.
 This ensures that we can generate the processes easily without having to traverse the network in the SMEIL program beforehand to find out which channel provides input for which process. An example of this is shown in Listing~\ref{lst:cspm} in the appendix on lines 61 to 66.

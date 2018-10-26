@@ -246,7 +246,7 @@ In Listing \ref{lst:clock_data_generation_example} we see another way to instant
     \label{lst:clock_data_generation_example}
 \end{listing}
 
-The data generator process is not defined as a seperate process type in SMEIL, however it is clear that processes that do not have an input bus cannot do anything but write data to the network.
+The data generator process is not defined as a seperate process type in SMEIL and it is therefore up to TAPS to recognise these types of processes. A process that takes no input is obviously a data generation process, however, in SMEIL it is possible to use buses directly in the process body without defining them as input parameters. The challenge lies in recognising if the process takes input either by an input parameter or by using the bus directly in the process body.
 % We also assume that if a process does not have an input bus it must have an output bus, since the process would then %TODO: In principal I guess people can create a single process network where they want to verify some calculations. However, since we are "right now" only verifying communication, it does not make sense within out system.
 
 In \cspm it is necessary to define the space of data that FDR4 search through. It is a possibility to create a process in \cspm with the same functionality as the SMEIL data generator process. However, in that case, it would be necessary to syncronise the data process with the processes receiving the data, otherwise FDR4 would simply evaluate all values within the defined range of the channels, making the data process obsolete. This extra syncronisation will increase the complexity of the system and it might also increase the runtime of the verification, since the \cspm{} network would include more states.
@@ -275,6 +275,7 @@ So when generating data in \cspm{}, the two possibilities are either to define t
 If an SMEIL network consists of more than one data generator process, or a network consists of a data generator process but also contains processes that are instantiated with values, it should not cause problems to the \cspm{} code generation. As long as TAPS translate the network from SMEIL to \cspm{} correctly, it will not matter how many data generator processes there are. They will simply be included in the network as all other processes.
 
 TAPS will of course have to recognise these different approaches in SMEIL and differentiate them to generate correct \cspm{} code.
+
 \subsection{Structural}
 \label{sec:analysis_structural}
 % - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
@@ -295,17 +296,79 @@ bus day {
 
 In SMEIL, a bus can also be defined with the keyword \texttt{exposed} which indicated that the bus is used to external interactions for example through co-simulation as described in Chapter \ref{chap:background}.
 
+\paragraph{SMEIL input bus}
+The input bus for each SMEIL process can be defined in different ways. The input bus can be defined as a process parameter which can be seen in the example below. Here the process reads the data from the bus \texttt{input} and writes the date out on the \texttt{output} bus.
+\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+    proc A (in input)
+        bus output {
+            val: int;
+        }
+    {
+        output.val = input.val;
+    }
+\end{minted}
+It is also possible to use the formal identifier of the bus in the process body, thereby not accessing it through the input parameter. An example of theis can be seen below. Here the proces \texttt{A} reads the input by asccessing the hierarchical name of the output bus of \texttt{B}.
+\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+    proc A ()
+        bus output {
+            val: int;
+        }
+    {
+        output.val = B.output.val;
+    }
+
+    proc B ()
+        bus output {
+            val: int;
+        }
+    {
+        |$\vdots$|
+    }
+\end{minted}
+
+In \cspm{} the processes can use buses both through process parameters and by using the global names. Therefore it should be possible to translate both of these situations in TAPS. It is of course important that TAPS can recognise the two different situations, since it might affect how the process is translated.
+An example of a \cspm{} process, communicating both via its process parameter channel and via a global name can be seen below. The process \texttt{P} reads a value from the \texttt{input} parameter, which is the channel \texttt{d}. The process when writes the value on the \texttt{c} channel and terminates.
+\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+channel c : {0..10}
+channel d : {0..10}
+
+P(input) = input ? x -> c ! x -> SKIP
+
+Network = P(d) -> SKIP
+\end{minted}
+
+\paragraph{SMEIL output bus}
+
+
 
 ------------------------------------------------------------------------------\\
 ------------------------------------------------------------------------------\\
 ------------------------------------------------------------------------------\\
 ------------------------------------------------------------------------------\\
+The output bus can also be given in the process parameters, but in that instance it will also have to be declared somewhere else in the program
+%TODO: Make sure this is correct - ask Truls
+Another way to declare the output bus, is by not having it in the process parameters, but declare it in the process declarations.
+A full declaration of a bus consist, as mentioned above, of an identifier, the channels and their types and values.
 
+A process receives input communication by accessing a specific channel of the input bus. The process can then make calculations based on the input and then communicate the result out of the process by assigning the result to a specific channel of the output bus.
+%TODO: Add example of an input bus and getting information?
+
+
+%% I cannot assume that the output bus is defined in a busdeclaration in the process
+In an SMEIL, each process can have any number and combinations of input buses, output buses and constant parameters and since SMEIL have been created so that the creation of a circuit gives the most flexibility, we have to handle several different ways of defining these in \cspm.
+Process input buses can be defined in the parameter when defining the process or the communication can be created by directly using the buses through their hierarchical names %TODO: reference truls master page 20
+
+Process output buses can be defined the same as input buses; as a parameter in the process or by using the hierarchical names of the buses. It is also possible not to have the output bus defined in the parameters but to have a bus declaration inside the process description.
+% TODO: Might need to go in structure section
+
+
+
+Constants can also be defined as a parameter and as a constant declaration within the process description. %TODO: Find out more about constants. are we interested in them, then I need to write more, otherwise I can close this part early.
+When transpiling to \cspm there is a need for the transpiler to be able to recognise all different ways of defining buses and constants within the SMEIL program.
 
 
 % TODO: Maybe add something here about outbus bus/channels and how they are defined and called.
 
-% TODO: Show an example of a SMEIL bus and channels
 
 
 % TODO: On page 26-27 in Truls master there is some interesting things about using a bus channel for either input or output and not both within the same process. Write something about that
@@ -342,16 +405,6 @@ In SMEIL each bus can consist of several different channels. When accessing the 
 
 
 
-% %%%% SMEIL processes communication %%%%
-In the SMEIL process parameters, the input bus will be declared as well as any constants that the process will be initialised with. The output bus can also be given in the process parameters, but in that instance it will also have to be declared somewhere else in the program
-%TODO: Make sure this is correct - ask Truls
-Another way to declare the output bus, is by not having it in the process parameters, but declare it in the process declarations.
-A full declaration of a bus consist, as mentioned above, of an identifier, the channels and their types and values.
-
-A process receives input communication by accessing a specific channel of the input bus. The process can then make calculations based on the input and then communicate the result out of the process by assigning the result to a specific channel of the output bus.
-%TODO: Add example of an input bus and getting information?
-
-
 
 
 
@@ -377,17 +430,7 @@ In SMEIL the networks of the system are constructed by a series of entities and 
 
 
 
-%% I cannot assume that the output bus is defined in a busdeclaration in the process
-In an SMEIL, each process can have any number and combinations of input buses, output buses and constant parameters and since SMEIL have been created so that the creation of a circuit gives the most flexibility, we have to handle several different ways of defining these in \cspm.
-Process input buses can be defined in the parameter when defining the process or the communication can be created by directly using the buses through their hierarchical names %TODO: reference truls master page 20
 
-Process output buses can be defined the same as input buses; as a parameter in the process or by using the hierarchical names of the buses. It is also possible not to have the output bus defined in the parameters but to have a bus declaration inside the process description.
-% TODO: Might need to go in structure section
-
-
-
-Constants can also be defined as a parameter and as a constant declaration within the process description. %TODO: Find out more about constants. are we interested in them, then I need to write more, otherwise I can close this part early.
-When transpiling to \cspm there is a need for the transpiler to be able to recognise all different ways of defining buses and constants within the SMEIL program.
 
 \subsection{Meta}
 % - Opserverede værdier - "known limits". Meta information i SMEIL, og det skal oversættes til faktiske processer med faktiske semantic i FDR der også er en del af topologien. (Det er essensen for mig).
