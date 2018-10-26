@@ -6,7 +6,7 @@ Since SMEIL is based on the SME model, we give an introduction to SME to familia
 \\
 
 The development of SME was mainly driven by the need to provide a simple framework for programming a Field Programmable Gate
-Array, FPGA. A lot of today's research focuses on General Purpose Graphical Processing Units, GPGPUs. GPGPUs have been extensively researched and different environments and tools have been implemented to give programmers the possibility of utilizing all of its capabilities. However, FPGAs are a far better choice when it comes to energy sensitive applications since FPGAs can achieve the same performance as a GPGPU but with much less energy consumption.
+Array, FPGA. A lot of today's research focuses on General Purpose Graphical Processing Units, GPGPUs. GPGPUs have been extensively researched and different environments and tools have been implemented to give programmers the possibility of utilizing all of its capabilities. However, FPGAs are a far better choice when it comes to energy sensitive applications since FPGAs can achieve the same performance as a GPGPU but with lower energy consumption for some problems.
 
 The FPGA has not been the subject of as much research as the GPGPU, and therefore when using FPGAs, the developer needs to design an integrated circuit on the gate level, which can be difficult and not common knowledge amongst programmers these days.
 Unfortunately designing hardware is often a tedious task but with SME it becomes more accessible to design and implement hardware models.\\
@@ -15,7 +15,7 @@ SMEs main target is to give software developers a tool which provides the opport
 Thus the framework is based on a top-down approach rather than a bottom-up approach that is common in current hardware frameworks.
 % Global synchronicity is fundamental when modeling hardware, but CSP does not support this. Even though CSP does enforce strict synchrony between communicating processes, there is no such semantic beging enforced on a global level. % TODO: Do I want to include this?
 
-SME was first introduced in 2014 and after several iterations~\cite{Vinter2014, Vinter2015, Skovhede} now presents as a programming model, a simulation library, and VHDL code generators. The original idea was conceived following an attempt to create hardware descriptions from a vector processor model, modeled in PyCSP~\cite{bjorndalen2007pycsp, vinter2009pycsp},
+SME was first introduced in 2014 and after several iterations~\cite{Vinter2014, Vinter2015, Skovhede} now presents as a programming model, a simulation library, and VHDL code generators. The original idea was conceived following an attempt to create a hardware implementation of a vector processor, modeled in PyCSP~\cite{bjorndalen2007pycsp, vinter2009pycsp},
 a Communicating Sequential Processes (CSP)~\cite{Hoare1978} library for Python.\\
 
 The work was initially presented in the paper \textit{BPU Simulator}~\cite{Rehr2013}. This paper only introduced a high abstraction level simulation. Therefore the subject was explored more in detail in the master thesis project \textit{Generation of FPGA Hardware
@@ -29,7 +29,7 @@ The design approach within that project was to implement a clock process that wo
 \label{fig:sme:clock_latch}
 \end{figure}
 \\\\
-The advantage of using Python for processor simulation is the flexibility and simplicity of the language. It is easy to experiment with various ideas and structures, but with the increased complexity of the added clock process and clock-signal propagation, the advantages of Python seemed to diminish. Therefore the conclusion from the master thesis project was, that using PyCSP alone for building synchronous processor simulators was not ideal since the global clock was forced onto the CSP model. It was also concluded that external choice, which is a powerful and essential part of CSP, was not utilized in the globally synchronous approach. They did, however, conclude that several other CSP concepts werw fitting well with the hardware concepts, such as shared-nothing in CSP matches the structure of hardware communication.
+The advantage of using Python for processor simulation is the flexibility and simplicity of the language. It is easy to experiment with various ideas and structures, but with the increased complexity of the added clock process and clock-signal propagation, the advantages of Python seemed to diminish. Therefore the conclusion from the master thesis project was, that using PyCSP alone for building synchronous processor simulators was not ideal since the global clock was forced onto the CSP model. It was also concluded that external choice, which is a powerful and essential part of CSP, was not utilized in the globally synchronous approach. They did, however, conclude that several other CSP concepts were fitting well with the hardware concepts, such as shared-nothing in CSP matches the structure of hardware communication.
 
 After this attempt, it became clear that the structure of CSP was poorly suited for modeling clocked systems, and therefore it was decided to create the Synchronous Message Exchange framework, based on the CSP algebra. The idea was to only use the subset of the CSP algebra that provided beneficial functionality to hardware modeling which, most importantly, meant that external choice was omitted. However, the shared-nothing property of CSP showed to be very useful, since the network state could only be changed by process communication.
 \\
@@ -183,7 +183,7 @@ The new SMEIL program with the updated types and observed ranges are then passed
 
 
 % It is taken from Truls article and I should change the captions and also mention where I got it from.
-% Maybe it is not necessary to have the invalid version in this example? It is necessary for Truls, but maybe not for me. 
+% Maybe it is not necessary to have the invalid version in this example? It is necessary for Truls, but maybe not for me.
 
 % In Figure \ref{fig:smeil_restricted_types_and_ranges} the two last programs, showed in Figure x and y, will be the result of the re-typing of the program after simulation. That is, the programs resulting from the simulation of the program in Figure z.
 
@@ -224,7 +224,7 @@ It is possible to describe complex parallel structures with a few simple element
 
 In CSP, a process is mainly defined by the way it can communicate with its external environment. An essential part of this communication is the \textit{alphabet} of possible communication events. This is the set of events that the process, and related processes, can use for communication. Events in CSP can only occur when both the process and the environment allow, but then they are instantaneous.
 
-Here we give a brief introduction to the essential parts of CSP and structures that we are using in TAPS, in order to give the reader a basic understanding to build on with \cspm{} and FDR. If the reader wishes to learn more in-depth about CSP we refer to the books \textit{The Theory and Practice of Concurrency}~\cite{Roscoe1997} or \textit{Understanding Concurrent Systems}~\cite{Roscoe2010} by A. W. Roscoe.
+Here we give a brief introduction to the essential parts of CSP and structures that we are using in TAPS, in order to give the reader a basic understanding to built on with \cspm{} and FDR. If the reader wishes to learn more in-depth about CSP we refer to the books \textit{The Theory and Practice of Concurrency}~\cite{Roscoe1997} or \textit{Understanding Concurrent Systems}~\cite{Roscoe2010} by A. W. Roscoe.
 \begin{itemize}
     \item \textbf{Prefix:} Given an event $a$ in the alphabet $\Sigma$, and a process $P$, $a \then P$ is the process which will communicate $a$ and then behaves like the process $P$. The process will wait indefinitely to communicate $a$. This is known as prefixing.
     The simplest CSP process possible is the \textit{STOP} process. It never does anything and never communicates. The process $left \then right \then STOP$ is the process which communicates a cycle of left and right before stopping. Another essential process is the \textit{SKIP} process which is the process that terminates successfully.
