@@ -15,6 +15,36 @@ Proc(x) = c ? x -> d ! x-> SKIP
 \end{minted}
 This is the simplest \cspm{} process that match the SME model, however with this structure it is not possible to include all the possible calculations that SMEIL support. It turned out that the tricky part of translating a general SMEIL process to \cspm{} was to be able to include the calculations properly.
 
+By using the \texttt{let within} structure in \cspm{} we are able to keep the communication together with the arithmetics in one \cspm{} process while keeping a simple structure. The \cspm{} process reads first and then all arithmetics are put inside the \texttt{let} clause while the writing will be put in the \texttt{within} part.
+
+% NOTE: This is where i stopped. The part below is just copied in. I have to figure out if I want to keep the parameter for the process or not, and that depends on if I talk about both the first and the second version or if I only talk about the second version. But it would be great to keep the seven segment example as a reference point. This same process is shown in the analysis part, so the reader just saw it. 
+
+
+% TODO: Figure out if I should ignore my first version, and only talk about the firnal one or if I should divide into two sections.
+
+
+\begin{listing}
+\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+channel seconds_out_first_digit : {0..7}
+channel seconds_out_second_digit : {0..15}
+
+    |$\vdots$|
+
+Seconds(seconds_in) =
+let
+    seconds = seconds_in % 60
+    seconds_first_temp = seconds / 10
+    seconds_second_temp = seconds % 10
+within
+    seconds_out_first_digit ! seconds_first_temp ->
+    seconds_out_second_digit ! seconds_second_temp ->
+    SKIP
+\end{minted}
+\caption{Example of the \texttt{Seconds} process from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
+\label{lst:channel_range_cspm}
+\end{listing}
+
+
 
 ------------------------------------------------------------------------------\\
 ------------------------------------------------------------------------------\\
