@@ -1,12 +1,25 @@
 %!TEX root = ../main.tex
 % Description of the actual solutions
-\section{Designing SMEIL to \cspm{}}
-% TODO: Write something here!
-
-
-
+% TODO: Write something here
+The goal of automatic translation is to be able to create a general solution which can fit different types of problems and therefore it is necessary to generalise the different aspects of the translation and find a solution that fits all.
+\section{Designing TAPS}
+In this section we describe all the design decisions included in creating TAPS so that it addresses all the challenges of the translation between SMEIL and \cspm{}. The section is divided in a similar way as Chapter \ref{chap:analysis}, and we will go through all the challenges described there.
 \subsection{Behavioral}
 %% - Behavioral description - hvad den enkelte funktion gør. det oversættes ret nemt. Jeg bekymre mig ikke om variable og sådan nogle ting. Det er allerede gjort før det gøres til SMEIL, og dem kan jeg genbruge i min code generation.  Funktionel indhold af processer/ opførsel af den enkelte process - det er rimelig nemt oversat direkte til CSPm. Her kan man beskrive hvis der er nogle sproglige udfordringer, fx hvis CSPm ikke har loops eller lign.
+\subsubsection{Processes}
+In order to translate the SMEIL process to a \cspm{} process we had to create a general process structure in \cspm{}. We know that the SME model enforce that each process reads, calculates and writes, in that order, for each clock cycle, so we needed to create a \cspm{} structure that could support this. First of all we wished to have one \cspm{} process per SMEIL process, since it would simplify the translation and a simpler solution typically results in a less errornous solution.
+
+What first comes to mind in \cspm{} when we want to read and then write, is a very simple process structure using prefix and communication operators.
+\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+Proc(x) = c ? x -> d ! x-> SKIP
+\end{minted}
+This is the simplest \cspm{} process that match the SME model, however with this structure it is not possible to include all the possible calculations that SMEIL support. It turned out that the tricky part of translating a general SMEIL process to \cspm{} was to be able to include the calculations properly.
+
+
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
 
 
 % Let within statement
@@ -85,7 +98,7 @@ Channels within an SMEIL bus can be translated directly to \cspm{} channels. Sin
 the translation will have to recognize the different types and generate the \cspm channels no matter how they where defined.
 
 
-\subsection{Meta}
+\subsection{Meta and verification}
 % - Opserverede værdier - "known limits". Meta information i SMEIL, og det skal oversættes til faktiske processer med faktiske semantic i FDR der også er en del af topologien. (Det er essensen for mig).
 
 % %%%% Monitor processes %%%%%
