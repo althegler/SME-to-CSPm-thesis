@@ -8,7 +8,7 @@ In this section we describe all the design decisions included in creating TAPS s
 %% - Behavioral description - hvad den enkelte funktion gør. det oversættes ret nemt. Jeg bekymre mig ikke om variable og sådan nogle ting. Det er allerede gjort før det gøres til SMEIL, og dem kan jeg genbruge i min code generation.  Funktionel indhold af processer/ opførsel af den enkelte process - det er rimelig nemt oversat direkte til CSPm. Her kan man beskrive hvis der er nogle sproglige udfordringer, fx hvis CSPm ikke har loops eller lign.
 
 % NOTE: This version of the design chapter is only for the non-clocked version. I have to start somewhere and it seems silly not to talk about this solution at all. This way I will also be able to dicuss the differences i guess. However, it will require more writing and thereby lenghten the overall thesis. But I think I should be able to reuse most of the non-cloked version and then add some sections about the clocked structure and maybe add a bit about how the processes are changed.
-\subsubsection{Processes}
+\subsubsection{Translating Processes}
 In order to translate the SMEIL process to a \cspm{} process we had to create a general process structure in \cspm{}. We know that the SME model enforce that each process reads, calculates and writes, in that order, for each clock cycle, so we needed to create a \cspm{} structure that could support this. First of all we wished to have one \cspm{} process per SMEIL process, since it would simplify the translation and a simpler solution typically results in a less errornous solution.
 
 What first comes to mind in \cspm{} when we want to read and then write, is a very simple process structure using prefix and communication operators.
@@ -64,7 +64,7 @@ Most expressions of SMEIL can be directly translated, like \texttt{+}, \texttt{-
 
 % TODO: Write more when I have more implemented for the processes (like arrays and stuff)
 
-\subsubsection{Generating data}
+\subsubsection{Translating Data Generation}
 %%% Generator processes
 It is important to make sure that TAPS can handle the different kind of data generation possible in SMEIL. A data generator process in SMEIL does not read any input value, no matter if it is through a process parameter or by using the channels hierarchical name. \\
 
@@ -132,18 +132,46 @@ If there are several data generation processes in the SMEIL program, TAPS will n
 \subsection{Structural}
 % - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
 
-% TODO: Write about two networks and how it will be translated to a network and therefore we should be able to have them seperated easily and the communication is what combines them, and that is the same in cspm. TODO: But ask Truls if this would even make sense. To have to networks.
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NOTE: The problem is that in the unclocked version there are two ways of defining the read. Either the network reads and the process gets the value as a parameter or the process reads itself.
+% The advantage of the network reading is that I avoid having to transform the data a lot. I can simply use the name from the parameter. However, since I am already transforming the data, I should be able to find the data that gives what channel name that is. The disadvantage of the network reading is that in other problems it might not work well in that way. Maybe the network suddenly have to read a bunch of times because all different processes have to read different channels. It works for the seven segment example but not necessarily for others.
+% The advantage of the process reading itself, it that we get a cleaner structure and seperation of concerns. The reading does not really belong with the network but within the process. However, as mentioned above, the problem is that I have to transform the data more. But in the clocked version, I would have to do that no matter what.
+
+% It would be possible to introduce both solutions and then discuss why I chose the other one. Or if I decide to only write about the new version of the system I can write something about why the reading was done differently in the paper than in the report.
+
+% The second problem is if I should even write about the "first" version at all. Even though I havent implemented it yet, a lot of the things can be reused in the code and even more so, in the report. A lot of the stuff that I have written about the "first version" is also applicable for this new version and I would be able to reuse this text. It will also cut down the length of the report if I dont have to write a lot about it. And I would be able to write a lot before I start implementing, because the design process is not necessarily implementation, so I can design it and then implement it.
+% On the other hand it seems weird to have written a paper about it, and then do something completely different in the report. However, it is not all of it that is changed, and it is all a process. I would be able to write in the report that I have published a paper which represents an early version of the system (and the advantage of that version is that i did not have to transform the data a lot) and that I since then have updated it to be able to do clock cycles and therefore I am writing about this, but that a lot of the basics in the paper are the same as in this version. It would also shorten the length of the report emensely.
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 % TODO: Write about how one process can be defined in SMEIL several times and how it does not matter, since the process will be defined the same in CSPm but that the network will simply be generated twice with two different names and inputs or similar. (Does that also work if it is different output?)
 
 % (moved from analysis: )
 %  % None of these two posssible usecases are currently implemented in TAPS, and thus the keyword \texttt{exposed} will cause an error in the transpiler. %TODO: Will it cause an error? And should I add more info to this?
 %
-% % Buses
-% As explained above, the input for the process is recieved as a process parameter in \cspm{} and therefore TAPS will have to recognise the input parameter. Since the bus parameters for a SMEIL process is the bus name, the process itself must reference the specific channel within the bus. This is applied whether it is reads or writes.
-% This means that TAPS can recognise communication simply by the structure of the assignment. If one of the elements in an assignment, right or left, contains a dot, then we can assume that this is communication.
 
 
+
+\subsubsection{Translating Network}
+As mentioned in the Analysis chapter we synchronise processes together to create a network in \cspm{} similar to the network defined in SMEIL.
+
+An example of a simple network in \cspm{} can be seen below where the process \texttt{A} are synchronised with the process \texttt{B} over the channel \texttt{c}.
+\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+channel c : {0..10}
+
+A = c ! 42 -> SKIP
+B = c ? x -> SKIP
+
+Network = A [| {| c |} |] B
+\end{minted}
+
+Since we can only synchronise two processes at a time, the network quickly become very complex, but this is not a problem since we are auto generating it. It is, however, a challenge to ensure that all processes connect with the other processes on the correct channels.
+
+% NOTE: here I start talking about how it was when I wrote the paper. Maybe I should just accept that some of the stuff in the paper is not relevant anymore or I realised that it could be changed for the better. That is okay
+In the first version of TAPs, the network read from the input bus so the process itself receives the input value as parameter. The reason for this design decision was that we wished to avoid using a..
+
+% NOTE: Here I stopped. I realised that I need to figure out how to structure this and what I actually should write, before I continye. Because it is a waste of time to write stuff that I am not going to use anyway..
 
 
 
@@ -159,6 +187,14 @@ In a SMEIL program it is possible to have several networks in one program. There
 % %%%% Instances with the same process twice
 % TODO: Add an example showing one process added twice and hwo it translates.
 When defining instances in the SMEIL network, it is possible to define the same process several times and have it receive different input or send different output or constants. When translating this to a \cspm network, the process itself will be generated as all other processes, but simply the network will be two seperate network, as if it was two SMEIL instances calling two different SMEIL processes. The only difference between the two networks are that the input channel will be different, if that is the difference between the two SMEIL instances.
+
+
+\subsubsection{Translating Buses and Channels}
+
+
+% % Buses
+% As explained above, the input for the process is recieved as a process parameter in \cspm{} and therefore TAPS will have to recognise the input parameter. Since the bus parameters for a SMEIL process is the bus name, the process itself must reference the specific channel within the bus. This is applied whether it is reads or writes.
+% This means that TAPS can recognise communication simply by the structure of the assignment. If one of the elements in an assignment, right or left, contains a dot, then we can assume that this is communication.
 
 
 
@@ -190,7 +226,7 @@ the translation will have to recognize the different types and generate the \csp
 % - Opserverede værdier - "known limits". Meta information i SMEIL, og det skal oversættes til faktiske processer med faktiske semantic i FDR der også er en del af topologien. (Det er essensen for mig).
 
 % %%%% Monitor processes %%%%%
-When creating the assertions, we decided to create separate assert functions to keep the code structure clean. We know that for each \cspm{} channel there must be an assertion, except for the input channel.
+When creating the assertions, we decided to create separate assert functions to keep the code structure clean. We know that for each \cspm{} channel there must be an assertion, except for the input channel. There might be a case where we are not interested in verifying all channels, but we add asserions
 % TODO: Only in the case where we assert channel ranges.. maybe add something about that.
 Consequently, we create a \textit{monitor} process for each channel and its only job is to listen in on the channel communication and assert the values communicated there. The monitor process is a process that we add specifically for asserting legal communication values in FDR4 and it does not affect the original SME network.
 In Figure~\ref{fig:assertion_process} the outline of this kind of structure can be seen and we expect that this structure can be used for several different types of problems and thereby ensure a cleaner code structure.

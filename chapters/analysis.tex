@@ -384,15 +384,15 @@ An example of an SMEIL network can be seen below, with two processes being insta
 It is also possible to define buses within the network in SMEIL, which is done exactly the same as a bus declaration inside a process. Examples will be shown later in this section.\\
 
 There is no network structure in \cspm{}, however the functionality of the network in SMEIL is to connect processes using buses, which is possible in \cspm{}. Creating a similar "network" in \cspm{} is simply to synchronise the processes on the channels they are communicating on. However, in \cspm{} there is no difference between the input and output of a bus but if the communication is translated properly, this should not be a problem since SMEIL does differentiate between the two.
-An example of a simple network in \cspm{} can be seen below where the process \texttt{A} are synchronised with the process \texttt{B} over the channel \texttt{c}.
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-channel c : {0..10}
-
-A = c ! 42 -> SKIP
-B = c ? x -> SKIP
-
-Network = A [| {| c |} |] B
-\end{minted}
+% An example of a simple network in \cspm{} can be seen below where the process \texttt{A} are synchronised with the process \texttt{B} over the channel \texttt{c}.
+% \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+% channel c : {0..10}
+%
+% A = c ! 42 -> SKIP
+% B = c ? x -> SKIP
+%
+% Network = A [| {| c |} |] B
+% \end{minted}
 
 As mentioned above, it is possible to instantiate one SMEIL process several times within the SMEIL network. The translation of these duplicate processes should not prove to be a problem. Since we are creating the network in \cspm{} by synchronising processes with each other via channels, then we should be able to synchronise the same process several times with different channels or parameters, creating the same functionality as the instances in SMEIL.
 
