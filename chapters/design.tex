@@ -63,10 +63,6 @@ Most expressions of SMEIL can be directly translated, like \texttt{+}, \texttt{-
 
 
 % TODO: Write more when I have more implemented for the processes (like arrays and stuff)
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
 
 \subsubsection{Generating data}
 %%% Generator processes
@@ -97,7 +93,7 @@ When adding a data generator process as well as syncronisation, the data generat
 So when generating data in \cspm{} from a SMEIL data generator process, the two possibilities are either to define the data in \cspm by a single channel or by a data generator process and syncronisation, just like in SMEIL.
 Currently TAPS only support one of the two options, which are to generate an input channel from the SMEIL network.
 % NOTE: Only one type of data generator process are supported right now.
-Listing \ref{lst:clock_data_generation_example_cspm} is the translated version of the SMEIL network from Listing \ref{lst:clock_data_generation_example_smeil}. How TAPS translate the values of the channels are described later in this section. 
+Listing \ref{lst:clock_data_generation_example_cspm} is the translated version of the SMEIL network from Listing \ref{lst:clock_data_generation_example_smeil}. How TAPS translate the values of the channels are described later in this section.
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 channel clock : ...
@@ -115,31 +111,22 @@ within
 \end{listing}
 
 
-In the case where the SMEIL network does not have a data generator process but are instantiated with constants or internal values, the \cspm processes would also have to be instantiated with values as their parameters.
+In the case where the SMEIL network does not have a data generator process but are instantiated with constants or internal values, the \cspm processes would also have to be instantiated with values as their parameters or internally. This means that the the \cspm{} network does not contain an input channel, but that the processes that are instantiated with a constant or internal value, must be translated to contain this information as well. It the parameters of the SMEIL process contains a value, then the translated \cspm{} process will have the same value as its parameter which can then be used in the process in the same way as in the SMEIL process.
+% TODO: Maybe add a short two column example of the parameter variables here
+If the SMEIL process are defined with an internal value, the \cspm{} process must also be defined with this initial value. This is a bit more tricky since we usually ignore the value declarations, but since the value are defined with a specific value, we have to include this in the process.
+% TODO: Figure out what happens when a value is instantiated within the SMEIL process. and then continue writing this.
 
 
-%%% Generator processes - input bus with const declared
-If there is an input bus in all processes, the job of locating the data or generator process becomes more difficult. In Figure %TODO: Create a figure with an example of a process like AddOne, where there is an input bus an a const. Also add how it should be translated in a subfigure next to it.
-an example of a process with an input bus, but where the process also works as the data instantiation point. In this case the constant that are communicated to the process from the network instance declaration indicates what value the network should start with and the process then communicates it on its output bus and then acts as an integral part of the communication of the network for the rest of the clock cycles. This means that the process has a task to perform after the instatiation of the data and therefore the transpiler cannot simply translate it into a \cspm channel, because that would mean that the task the process performs after the data initialization, will not be possible afterwards. One way of solving this problem would be for the programmer to avoid these "two-task" processes, however that is also not a neat solution and it will be a hindrance for the programmer to structure the network in a certain way in order to verify the code later on. However, in the case of the \texttt{AddOne} example, the easy solution would simply be for the programmer to create an extra process which initialized the data and then communicated it once to the process which then would loop for each clock cycle.
-%TODO: Figure out how I can handle this in a better way than simply ask the programmer not to create processes like this, and write about it.
+% TODO: The Addone example does not make much sense to show here, since it does not work for the non-clocked system. I could talk about how a programmer might just add a data generation process. But this does not really make sense since i have a solution (clocked version) which I will explain later in the report.
+
 
 %% Generator processes - More than one process
-If there are several processes in the SMEIL program that acts as a data generator process, the transpiler will not handle the processes different than if there were one data generator process. If the processes consists only of generating data, then the processes will be translated into a \cspm channel for each process, and the comunication to the rest of the network will still be kept intact since all the communicated are specified by the SMEIL network structure.
-%TODO: Find an example with more than one data generation process.
-If the processes are not simple data generator processes, then the transpiler will have to handle it differently %TODO: Figure out how I can handle this in a better way than simply ask the programmer not to create processes like this, and write about it. - Same as with one process but if it becomes more complicated with more than one, then write it here!
+If there are several data generation processes in the SMEIL program, TAPS will not handle the processes different than if there were one data generator process. The processes will be translated into one \cspm channels for each data generator process, and the comunication to the rest of the network will still be kept intact since all the communication are specified by the SMEIL network structure.
 
-
-
-
-
-
-% Buses
-As explained above, the input for the process is recieved as a process parameter in \cspm{} and therefore TAPS will have to recognise the input parameter. Since the bus parameters for a SMEIL process is the bus name, the process itself must reference the specific channel within the bus. This is applied whether it is reads or writes.
-This means that TAPS can recognise communication simply by the structure of the assignment. If one of the elements in an assignment, right or left, contains a dot, then we can assume that this is communication.
-
-
-
-
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
 
 
 \subsection{Structural}
@@ -151,6 +138,12 @@ This means that TAPS can recognise communication simply by the structure of the 
 
 % (moved from analysis: )
 %  % None of these two posssible usecases are currently implemented in TAPS, and thus the keyword \texttt{exposed} will cause an error in the transpiler. %TODO: Will it cause an error? And should I add more info to this?
+%
+% % Buses
+% As explained above, the input for the process is recieved as a process parameter in \cspm{} and therefore TAPS will have to recognise the input parameter. Since the bus parameters for a SMEIL process is the bus name, the process itself must reference the specific channel within the bus. This is applied whether it is reads or writes.
+% This means that TAPS can recognise communication simply by the structure of the assignment. If one of the elements in an assignment, right or left, contains a dot, then we can assume that this is communication.
+
+
 
 
 
