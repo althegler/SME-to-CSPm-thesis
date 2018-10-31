@@ -3,13 +3,12 @@
 % TODO: Write something here
 The goal of automatic translation is to be able to create a general solution which can fit different types of problems and therefore it is necessary to generalise the different aspects of the translation and find a solution that fits all.
 \section{Designing TAPS}
-In this section we describe all the design decisions included in creating TAPS so that it addresses all the challenges of the translation between SMEIL and \cspm{}. The section is divided in a similar way as Chapter \ref{chap:analysis}, and we will go through all the challenges described there.
+In this section we describe all the design decisions included in creating TAPS and address all the challenges of the translation between SMEIL and \cspm{}. The section is divided in a similar way as Chapter \ref{chap:analysis}.
 \subsection{Behavioral}
 %% - Behavioral description - hvad den enkelte funktion gør. det oversættes ret nemt. Jeg bekymre mig ikke om variable og sådan nogle ting. Det er allerede gjort før det gøres til SMEIL, og dem kan jeg genbruge i min code generation.  Funktionel indhold af processer/ opførsel af den enkelte process - det er rimelig nemt oversat direkte til CSPm. Her kan man beskrive hvis der er nogle sproglige udfordringer, fx hvis CSPm ikke har loops eller lign.
 
-% NOTE: This version of the design chapter is only for the non-clocked version. I have to start somewhere and it seems silly not to talk about this solution at all. This way I will also be able to dicuss the differences i guess. However, it will require more writing and thereby lenghten the overall thesis. But I think I should be able to reuse most of the non-cloked version and then add some sections about the clocked structure and maybe add a bit about how the processes are changed.
 \subsubsection{Translating Processes}
-In order to translate the SMEIL process to a \cspm{} process we had to create a general process structure in \cspm{}. We know that the SME model enforce that each process reads, calculates and writes, in that order, for each clock cycle, so we needed to create a \cspm{} structure that could support this. First of all we wished to have one \cspm{} process per SMEIL process, since it would simplify the translation and a simpler solution typically results in a less errornous solution.
+In order to translate the SMEIL process to a \cspm{} process we had to create a general process structure in \cspm{}. We know that the SME model enforce that each process reads, computes and writes, in that order, for each clock cycle, so we needed to create a \cspm{} structure that could support this. First of all we wished to have one \cspm{} process per SMEIL process, since it would simplify the translation and a simpler solution typically results in a less errornous solution.
 
 What first comes to mind in \cspm{} when we want to read and then write, is a very simple process structure using prefix and communication operators.
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
@@ -17,58 +16,53 @@ Proc(x) = c ? x -> d ! x-> SKIP
 \end{minted}
 This is the simplest \cspm{} process that match the SME model, however with this structure it is not possible to include all the possible calculations that SMEIL support. It turned out that the tricky part of translating a general SMEIL process to \cspm{} was to be able to include the calculations properly.
 
-By using the \texttt{let within} structure in \cspm{} we are able to keep the communication together with the arithmetics in one \cspm{} process while keeping a simple structure. The \cspm{} process does not do the actual read, but instead received the value as a parameter, then all arithmetics are performed inside the \texttt{let} clause while the writing will be put in the \texttt{within} part.
-In Listing~\ref{lst:channel_range_cspm}, an example of the \texttt{let within} statement can be seen. This structure will work as a general translation structure from SMEIL processes to \cspm{} processes. Since we know that all reads and calculations must be done before writing this structure should always work for a well-structured SMEIL process.
+By using the \texttt{let within} structure in \cspm{} we are able to keep the communication together with the arithmetics in one \cspm{} process while keeping a simple structure. The \cspm{} process does not do the actual read, but instead received the value as a parameter, then all arithmetics are performed inside the \texttt{let} clause while the writing will be put in the \texttt{within} clause.
+In Listing~\ref{lst:cspm_let_within_example}, an example of the \texttt{let within} structure can be seen. This structure will work as a general translation structure from SMEIL processes to \cspm{} processes. Since we know that all reads and calculations must be done before writing, this structure should always work for a well-structured SMEIL process.
 
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-channel seconds_out_first_digit : {0..7}
-channel seconds_out_second_digit : {0..15}
+channel c : {0..100}
 
-    |$\vdots$|
-
-Seconds(seconds_in) =
+P(input) =
 let
-    seconds = seconds_in % 60
-    seconds_first_temp = seconds / 10
-    seconds_second_temp = seconds % 10
+    x = input * 5
+    y = input * 10
 within
-    seconds_out_first_digit ! seconds_first_temp ->
-    seconds_out_second_digit ! seconds_second_temp ->
-    SKIP
+    c ! x -> c ! y -> SKIP
 \end{minted}
-\caption{Example of the \texttt{Seconds} process from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
-\label{lst:channel_range_cspm}
+\caption{Example of the \texttt{let within} structure used to create the proper structure within the \cspm{} processes.}
+\label{lst:cspm_let_within_example}
 \end{listing}
-% TODO: Maybe this example should be shortened a bit (we simply want to show the let within statements). Also change the label to match what it is
 
-Since \cspm{} does not need us to declare variables beforehand, we can ignore the variable declarations in the SMEIL process and simply translate all the arithmetic statements, with the variables, directly. The input bus from the SMEIL process is transformed to a variable containing a value instead but this does not change the structure of the arithmetic statements.
+Since \cspm{} does not need to declare variables beforehand, we can ignore the variable declarations in the SMEIL process and translate all the arithmetic statements, with the variables, directly.
+
 % Constants are simply defined in the \cspm program, seperate from the process. Since the SMEIL programs must be well-formed, we know that only the processes that define the constant will use it, and therefore it is not a problem that
 % NOTE Constants are currently not implemented in TAPS
 % TODO: How to handle variables with predefined values
 
-The types and ranges of variables and constants are not translated, and unless we need the information for verification, it is completely ignored. We can do this because we know the SMEIL program is well-formed and since the variables are not used for verification, it does not matter what types and values the SMEIL program expects of these.
+The types and ranges of variables are not translated, and unless we need the information for verification, it is completely ignored. We can only do this because we know the SMEIL program must be well-formed and since the variables are not used for verification, it does not matter what types and values the SMEIL program expects of these.
 
-All assignments that are not communication are simply translated directly into \cspm{} without much change, however if the assignment is to or from a bus, then TAPS have to differentiate and handle these assignments differently, which will be explained later in this section.
-If-satements are translated into the \cspm{} version of an if statement, however since \cspm{} does not support \texttt{elif}, the if statements are nested to form these expressions. This quickly becomes very complex and hard to read, but since it is auto generated, it is not a problem to create.
+All assignments are translated directly into \cspm{} without much change, however if the assignment is to or from a bus, TAPS have to differentiate and handle these assignments differently, which will be explained later in this section.
+
+If-satements are translated into the \cspm{} version of an if-statement, which is very similar to the SMEIL version. However, since \cspm{} does not support \texttt{elif}, the \cspm{} if-statements can be nested to form these expressions. This quickly becomes very complex and hard to read, but since it is auto generated, it is not a problem to create.
 % NOTE: If-statements are currently not implemented in TAPS
 
-Traces and assertions are, as explained in Chapter \ref{chap:analysis} not useful in the \cspm{} program and therefore we either throw them away or keep them as comments for the sake of the overview of the code. Currently TAPS throw them away, but it would be a simple task to change this and add them as comments.
+
+Traces and assertions are, as explained in Chapter \ref{chap:analysis} not useful in the \cspm{} program and therefore we either throw them away or keep them as comments for the sake of understanding the generated code. Currently TAPS throw them away, but it would be a simple task to change this and add them as comments in the generated \cspm{} code.
 % NOTE: Assertions are not curently implemented in TAPS. Trace is.
 
-Most expressions of SMEIL can be directly translated, like \texttt{+}, \texttt{-}, \texttt{/} and \texttt{\%} etc. however there are a few differences in the presendence
-% TODO: Be exactly sure about this and write more.
-
-% TODO: Write about the expressions not possible in \cspm{}
-
-
+Most expressions of SMEIL can be directly translated, like \texttt{+}, \texttt{-}, \texttt{/} and \texttt{\%} etc. however there are a few differences in the presendence. The unary \texttt{not} operator does not have the same presedence in the SMEIL as in \cspm{}. This means that the programmer needs to be aware of this, and include parentheses when using the operator to ensure the correct translation. The programmar also needs to be aware of the fact that in \cspm{} the equality comparison operators and comparison operators have the same presedence, but they are seperated in the SMEIL grammar.
+Bitwise operations does not exist in \cspm{}, so these would have to be transformed to standard arithmetics. % TODO: This is currently not implemented.
+% TODO: Write more about how this could be done.
 % TODO: Write more when I have more implemented for the processes (like arrays and stuff)
 
 \subsubsection{Translating Data Generation}
 %%% Generator processes
-It is important to make sure that TAPS can handle the different kind of data generation possible in SMEIL. A data generator process in SMEIL does not read any input value, no matter if it is through a process parameter or by using the channels hierarchical name. \\
+It is important to make sure that TAPS can translate all the different ways of data generation. The first problem is to recognise the data generator process in SMEIL. We know that a data generator process in SMEIL does not read any input value, no matter if it is through a process parameter or by using the channels hierarchical name. Therefore TAPS can look through the process body and if the process does not contain input communication, then it will assume that the process it a data generator process. \\
 
-In \cspm it is necessary to define the space of data that FDR4 search through. It is a possibility to create a process in \cspm with the same functionality as the SMEIL data generator process. However, in that case, it would be necessary to syncronise the data process with the processes receiving the data, otherwise FDR4 would simply evaluate all values within the defined range of the channels, making the data generator process obsolete. This extra syncronisation will increase the complexity of the system and it might also increase the runtime of the verification, since the \cspm{} network would include more states.
+In \cspm it is necessary to define the space of data that FDR4 search through when running the refinement checking. It this space becomes unecessarily large, the runtime of the verification will also become unecessarily long, and therefore it is important to be carefull when defining the space of input values for the generated system.
+
+It is possible to create a process in \cspm with the same functionality as the SMEIL data generator process. However, in that case, it would be necessary to syncronise the data process with all the processes receiving the data. Otherwise FDR4 would evaluate all values within the defined range of the channel instead of what was actually communicated on the channel, making the data generator process obsolete. This extra syncronisation will increase the complexity of the \cspm{} network, and it might also increase the runtime of the verification since the \cspm{} network would include more states.
 
 \begin{figure}
     \centering
@@ -86,14 +80,15 @@ In \cspm it is necessary to define the space of data that FDR4 search through. I
     \caption{A \cspm{} network with two processes. The output \texttt{o} of the process \texttt{data} is within the range 0 through 10, and the channel \texttt{c} is defined for the range 0 through 100.}
     \label{fig:csp_data_generator_process}
 \end{figure}
-An figure of this can be seen in Figure \ref{fig:csp_data_generator_process}. Here, the channel \texttt{c} between the \texttt{data} process and the \texttt{calc} process is defined for range of \texttt{\{0..100\}}. If the two processes are not syncronised on this channel, the two processes do not have to agree on communication and therefore the search space for FDR4 includes all the values from 0 through 100. This means that if we just have the channel \texttt{c} as an input channel for the process \texttt{calc}, then we get the same result, since the processes are not syncronised on the channel.
+A figure of this concept can be seen in Figure \ref{fig:csp_data_generator_process}. Here, the channel \texttt{c} between the \texttt{data} process and the \texttt{calc} process is defined for range of \texttt{\{0..100\}}. If the two processes are not syncronised on this channel, the two processes do not have to agree on communication and therefore the search space for FDR4 includes all the values from 0 through 100. This means that if we just have the channel \texttt{c} as an input channel for the process \texttt{calc}, without a process writing to the channel, we get the same result because the processes are not syncronised on the channel.
 However, if the processes are syncronised, FDR4 will still allocate all 100 posibilities, but it only continues the search on the values actually communicated on the channel. In this case, the only values FDR4 would actually continue searching will be from 0 through 10.
-When adding a data generator process as well as syncronisation, the data generator process would be able to define specific data for the search space and that might prove to be an advantage when interested in more complex data.
+When adding a data generator process as well as syncronisation, the data generator process would be able to define specific data for the search space and that might prove to be an advantage when interested in more complex data. However, we are interested in verifying that the hardware circuits also can handle data outside of the expected range of input. Therefore, for this kind of verification, it is an advantage that FDR4 will search a larger space. However, it is important to find a balance between verifying input values outside of the expected range space, and verification runtime.
 
-So when generating data in \cspm{} from a SMEIL data generator process, the two possibilities are either to define the data in \cspm by a single channel or by a data generator process and syncronisation, just like in SMEIL.
-Currently TAPS only support one of the two options, which are to generate an input channel from the SMEIL network.
-% NOTE: Only one type of data generator process are supported right now.
-Listing \ref{lst:clock_data_generation_example_cspm} is the translated version of the SMEIL network from Listing \ref{lst:clock_data_generation_example_smeil}. How TAPS translate the values of the channels are described later in this section.
+To summarise, when generating data in \cspm{} from a SMEIL data generator process, the two possibilities are either to define the data in \cspm by a single channel or by a data generator process and syncronisation, just like in SMEIL.
+Currently TAPS only support generating an input channel from the SMEIL network.
+% NOTE: Only one type of data generator process are supported right now - having the input as a input parameter
+Listing \ref{lst:clock_data_generation_example_cspm} is the translated version of the SMEIL network from Listing \ref{lst:clock_data_generation_example_smeil}. Here it can be seen that the \texttt{clock} process from the SMEIL network, is translated into a channel in \cspm{}
+The translation of the range values defined for each channel are described later in this section.
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 channel clock : ...
@@ -105,13 +100,14 @@ let
 within
     output_val ! from_clock ->
     SKIP
+
 \end{minted}
-\caption{Example of the translated \texttt{Minutes} process defined in Listing \ref{lst:clock_data_generation_example_smeil}.}
+\caption{Example of the translated \texttt{Minutes} process defined in Listing \ref{lst:clock_data_generation_example_cspm}.}
 \label{lst:channel_range_cspm}
 \end{listing}
+% TODO: Not sure if this example makes sense here, since we have not introduced the network generation yet and therefore there is no connection between the channel \texttt{clock} and the input in the process.
 
-
-In the case where the SMEIL network does not have a data generator process but are instantiated with constants or internal values, the \cspm processes would also have to be instantiated with values as their parameters or internally. This means that the the \cspm{} network does not contain an input channel, but that the processes that are instantiated with a constant or internal value, must be translated to contain this information as well. It the parameters of the SMEIL process contains a value, then the translated \cspm{} process will have the same value as its parameter which can then be used in the process in the same way as in the SMEIL process.
+In the case where the SMEIL network does not have a data generator process but are instantiated with constants or internal values, the \cspm processes would also have to be instantiated with the values as parameters. This means that the the \cspm{} network would not contain an input channel, but that the processes that are instantiated with a constant or internal value, must be translated to contain this information as well.
 % TODO: Maybe add a short two column example of the parameter variables here
 If the SMEIL process are defined with an internal value, the \cspm{} process must also be defined with this initial value. This is a bit more tricky since we usually ignore the value declarations, but since the value are defined with a specific value, we have to include this in the process.
 % TODO: Figure out what happens when a value is instantiated within the SMEIL process. and then continue writing this.
@@ -190,6 +186,13 @@ When defining instances in the SMEIL network, it is possible to define the same 
 
 
 \subsubsection{Translating Buses and Channels}
+
+
+% ---------------------------
+% TODO: Show the grammar and how it can be difficult to see if the expression is a input communication or if it is a arithmetic statement.
+The input bus from the SMEIL process is transformed to a variable containing a value instead but this does not change the structure of the arithmetic statements.
+
+% --------------------------------------------
 
 
 % % Buses
