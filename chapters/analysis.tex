@@ -383,21 +383,9 @@ An example of an SMEIL network can be seen below, with two processes being insta
 \end{minted}
 It is also possible to define buses within the network in SMEIL, which is done exactly the same as a bus declaration inside a process. Examples will be shown later in this section.\\
 
-There is no network structure in \cspm{}, however the functionality of the network in SMEIL is to connect processes using buses, which is possible in \cspm{}. Creating a similar "network" in \cspm{} is simply to synchronise the processes on the channels they are communicating on. However, in \cspm{} there is no difference between the input and output of a bus but if the communication is translated properly, this should not be a problem since SMEIL does differentiate between the two.
-% An example of a simple network in \cspm{} can be seen below where the process \texttt{A} are synchronised with the process \texttt{B} over the channel \texttt{c}.
-% \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-% channel c : {0..10}
-%
-% A = c ! 42 -> SKIP
-% B = c ? x -> SKIP
-%
-% Network = A [| {| c |} |] B
-% \end{minted}
+There is no network structure in \cspm{}, but as SMEIL use the \texttt{instance} declaration to define communication as well as instantiate the processes. In \cspm{} communication between processes are enforced by parallel operators, some of which are described in Chapter \ref{chap:background}. Is should be possible to create equivalent communication structure by using these operators, but it would quickly become very complex since the operators only syncronise two processes at the time. It is necessary to find a general structure within these syncronisations so that automatic translation is possible.
 
-As mentioned above, it is possible to instantiate one SMEIL process several times within the SMEIL network. The translation of these duplicate processes should not prove to be a problem. Since we are creating the network in \cspm{} by synchronising processes with each other via channels, then we should be able to synchronise the same process several times with different channels or parameters, creating the same functionality as the instances in SMEIL.
-
-Generating the synchronisations in \cspm{} will, however, be a challenge since it is only possible to synchronising two processes at once. These two processes synchronised becomes one process which can then be synchronised with another process. This will continue for every process in the system and very quickly the network becomes overwhelming. It is an advantage that the \cspm{} networks are generated, since it probably will become too large for easy hand translation, even for smaller examples.
-This translation step will require carefully planning in order to get all the information for each part, in the correct position of one another.
+This translation step is a great challenge and will require carefully planning in order to get all the information from each part in the correct position of one another.
 
 \subsubsection{Buses and Channels}
 % TODO: Check that I say that the type (or range) of a SMEIL channel can be translated to the range of an \cspm channel.
