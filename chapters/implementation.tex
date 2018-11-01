@@ -1,4 +1,52 @@
 
+
+
+
+
+
+
+
+
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}
+    \node [mysquare] (SME) at (0, 2.5) {$SME$};
+    \node [mysquare] (SMEIL) at (0, 0) {$SMEIL$};
+    \node [draw, black, thick, rounded corners, dotted, inner sep=0.2cm] (Q) at (2.5, 1.3){$Questions$};
+    \draw [myarrow, smooth] (SME) to[out=270, in=90] (SMEIL);
+    \draw [myarrow, dotted] (Q) to[out=180, in=90] (SMEIL);
+
+
+    \node [mysquare] (Parser) at (3, -1) {$Parser$};
+    \node [mysquare] (Codegen) at (5.5, -1) {$Code Gen$};
+    \node [draw, red, thick, dotted, fit=(Parser)(Codegen), inner sep=0.5cm] (TAPS) {};
+    \node [red] at (4.4,0.1) {$TAPS$};
+    \draw [myarrow, smooth] (SMEIL) to[out=270, in=180] (TAPS);
+    \draw [myarrow, smooth] (Parser) to[out=0, in=180] (Codegen);
+
+    \node [mysquare] (cspm) at (8.5, 0) {$CSP_M$};
+    \draw [myarrow, smooth] (TAPS) to[out=0, in=270] (cspm);
+    \node [mysquare] (FDR) at (8.5, 2.5) {$FDR4$};
+    \node [draw, black, thick, rounded corners, dotted, inner sep=0.2cm] (A) at (5.5, 2.5){$Answers$};
+    \draw [myarrow, smooth] (cspm) to[out=90, in=270] (FDR);
+    \draw [myarrow, dotted] (FDR) to[out=180, in=0] (A);
+
+  \end{tikzpicture}
+  \caption{System structure.}
+  \label{fig:TAPS_network}
+\end{figure}
+
+
+
+
+\section{Transpiling Channels}
+
+\section{Transpiling Networks}
+
+\section{Generating Monitor Processes}
+
+\section{Technologies}
+
 Usually when doing any form of translation either by a compiler or interpreter, the use of a symbol table is often needed in order to keep information about variable names, function names, classes, communication ect. Usually the translation, when reaching a symbol in the translation, use the symbol table to look up a symbol and retrieve its context if it has any information about said symbol. This can be to check that a variable have been declared or for type checking ect.. The symbol table is usually generated in the analysis section and are used for look ups througout the compilation or interpretation.
 ....
 
