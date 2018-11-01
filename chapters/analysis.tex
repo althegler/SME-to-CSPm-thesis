@@ -141,15 +141,17 @@ The behaviour of the single process in the SMEIL program is the base of the func
 % TODO: Maybe I only need to introduce SMEIL stuff that TAPS support?
 
 % %%%% SMEIL processes %%%%
-An SMEIL process is defined by the \texttt{proc} keyword and consists of an identifier, process parameters, bus and variable declarations. The body of the process, or the process statements, consists of sequential statements such as communications and calculations that are to be evaluated once for each clock cycle. A small example of a SMEIL process can be seen below. The process \texttt{A} takes an input bus, \texttt{i}, and writes on its own output bus \texttt{a\_bus}.
+An SMEIL process is defined by the \texttt{proc} keyword and consists of an identifier, process parameters, bus and variable declarations. The body of the process, or the process statements, consists of sequential statements such as communications and calculations that are to be evaluated once for each clock cycle. A small example of a SMEIL process can be seen below. The process \texttt{a} takes an input bus, \texttt{input}, and writes on its own output bus \texttt{abus}.
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-proc A (in i)
-    bus a_bus {chan : int}
+    proc a (in input)
+        bus abus {
+            val: uint;
+        }
     {
-        a_bus.chan = i.chan + 1
+        abus.val = input.val + 1;
     }
 \end{minted}
-
+% TODO: This example is the same as listing lst:smeil_input_parameter in implementation
 It is not possible to declare variables inside the process statements and therefore all variable and communications must be declared in the declarative part of the process. This attribute should simplify the translation to \cspm, since TAPS will only have to search the declarative part of the process to find all variable and bus definitions.
 A process can be instantiated with a set of parameters. These parameters can be a mix of input and output buses and constants. A process is initiated in the network of a SMEIL program which will be explained later.\\
 
