@@ -355,33 +355,33 @@ TAPS will of course have to recognise these different approaches in SMEIL and di
 % TODO: Write something here!
 The communication between processes are the back bone of an SMEIL network. By analysing the different ways to define the communication and how it resembles communication in \cspm{} we will get a better understanding of how to design the code generation.
 \subsubsection{Network}
+% TODO: Write something about how instances can be defined with an instance name or without and how that also impacts how the channels are defined as parameters for the processes and how one process can be instantiated several times but must have a instance name, otherwise it will fuck up. I think truls writes that only one instance can be wildcard in one network.
 The network in SMEIL is the crucial part which ties all the processes together with communication.
 
 In an SMEIL network, processes are instantiated using the \texttt{instance} keyword within the network declaration. This instance declaration instantiates the process with a set of parameters: input and output buses, and constants. This way it is possible to construct the network and connecting the different processes with the process buses.
 Defining the network out of process instances also means that one process can be instantiated with different parameters several times within the same network, providing the possibility of reusing the processes for different purposes.
 An example of an SMEIL network can be seen below, with two processes being instantiated with the output channel of the opposite process. However, this network would not run since none of the processes are instantiated with any values.
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-    proc A (in input)
-        bus a_bus {
-            val: uint;
-        }
-    {
-        a_bus.val = input.val;
+proc A (in input)
+    bus a_bus {
+        val: uint;
     }
+{
+    a_bus.val = input.val;
+}
 
-    proc B (in input)
-        bus b_bus {
-            val: uint;
-        }
-    {
-        b_bus.val = input.val;
+proc B (in input)
+    bus b_bus {
+        val: uint;
     }
+{
+    b_bus.val = input.val;
+}
 
-    network net() {
-        instance a of A(b.b_bus);
-        instance b of B(a.a_bus);
-
-    }
+network net() {
+    instance a of A(b.b_bus);
+    instance b of B(a.a_bus);
+}
 \end{minted}
 It is also possible to define buses within the network in SMEIL, which is done exactly the same as a bus declaration inside a process. Examples will be shown later in this section.\\
 

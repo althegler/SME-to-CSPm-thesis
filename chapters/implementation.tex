@@ -2,11 +2,6 @@
 
 
 
-
-
-
-
-
 \begin{figure}[!ht]
   \centering
   \begin{tikzpicture}
@@ -17,15 +12,15 @@
     \draw [myarrow, dotted] (Q) to[out=180, in=90] (SMEIL);
 
 
-    \node [mysquare] (Parser) at (3, -1) {$Parser$};
-    \node [mysquare] (Codegen) at (5.5, -1) {$Code Gen$};
+    \node [mysquare] (Parser) at (3, -1.3) {$Parser$};
+    \node [mysquare] (Codegen) at (5.5, -1.3) {$Code Gen$};
     \node [draw, red, thick, dotted, fit=(Parser)(Codegen), inner sep=0.5cm] (TAPS) {};
-    \node [red] at (4.4,0.1) {$TAPS$};
-    \draw [myarrow, smooth] (SMEIL) to[out=270, in=180] (TAPS);
+    \node [red] at (4.4, -0.2) {$TAPS$};
+    \draw [myarrow, smooth] (SMEIL) to[out=270, in=180] (Parser);
     \draw [myarrow, smooth] (Parser) to[out=0, in=180] (Codegen);
 
     \node [mysquare] (cspm) at (8.5, 0) {$CSP_M$};
-    \draw [myarrow, smooth] (TAPS) to[out=0, in=270] (cspm);
+    \draw [myarrow, smooth] (Codegen) to[out=0, in=270] (cspm);
     \node [mysquare] (FDR) at (8.5, 2.5) {$FDR4$};
     \node [draw, black, thick, rounded corners, dotted, inner sep=0.2cm] (A) at (5.5, 2.5){$Answers$};
     \draw [myarrow, smooth] (cspm) to[out=90, in=270] (FDR);
@@ -36,14 +31,154 @@
   \label{fig:TAPS_network}
 \end{figure}
 
-
-
-
 \section{Transpiling Channels}
+In SMEIL when a process is reading from a bus channel, it is referencing the bus and channelname within the normal expression. Since the bus parameters for a SMEIL process is the bus name, the process itself must reference the specific channel within that bus. This is applied whether it is reads or writes.
+An example of this can be seen in Listing \ref{lst:smeil_input_parameter}, where \texttt{input.val} indicates a read from the bus \texttt{input} and the channel \texttt{val} within that bus.
+\begin{listing}
+    \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+        proc a (in input)
+            bus abus {
+                val: uint;
+            }
+        {
+            abus.val = input.val + 1;
+        }
+    \end{minted}
+    \caption{}
+    \label{lst:smeil_input_parameter}
+\end{listing}
+SMEIL does not seperate communication and calculation in the process statements which is of great advantage in SMEIL, but the translation becomes more difficult since TAPS has to be able to recognise the communication.
+This means that TAPS can recognise communication by the structure of the assignment. If one of the elements in an assignment, right or left, contains a dot, then we can assume that this is communication. The original grammar of an assignment like the one seen above can be seen in Listing \ref{lst:smeil_assignment_grammar}. A communication is the \textit{hierarchical accessor} alternative in the \textit{statement} grammar. The communication can either be the right hand side of the assignment, which is a write, or part of the left hand side expression, which will then be a read. A write is simple to recognise, since it is not combined with other parts of the grammar. TAPS can search the \textit{name} of a right hand side assignment and see if it contains a dot. The read is a bit more complicated since it can be used like any internal variable in the expressions. This means that TAPS will have to search all names within the nested expression to find a potential read.
+% TODO: Write something more about how TAPS actually achieve this.
+\begin{listing}
+    \begin{grammar}
+      <statement> ::= <name> `=' <expression> `;' (assignment)
+
+      <name> ::= <ident>
+  \alt <name> `.' <name> (hierarchical accessor)
+  \alt <name> `[' <array-index> `]' (array element access)
+
+  <expression> ::= <name>
+  \alt <literal>
+  \alt <expression> <bin-op> <expression>
+  \alt <un-op> <expression>
+  \alt <name> `(' \{ <expression> \}  `)' (function call)
+  \alt `(' <expression> `)'
+
+
+    \end{grammar}
+    \caption{The original assignment, name and expression grammars defined in \cite{Asheim2018}.}
+    \label{lst:smeil_assignment_grammar}
+\end{listing}
+
+When translating an SMEIL bus channel to a \cspm{} channel it give channel names that will be unique in \cspm{} just like the formal name of a bus channel in SMEIL is unique.
+%%%% Channel names
+The simple way of translating the SMEIL channels into \cspm{} chanels are to use the formal name of the SMEIL bus channel already defined. The naming are created by concatinating the channel name, bus name and process name which will ensure that the generated code are more readable than if I had used random unique strings as naming, which is also a possible solution. A unique string might give more security than using a concatinated version, but in this case I decided to make use the allready defined names. This means that all calls using the syntax \texttt{bus.channel} in SMEIL will be translated to \texttt{bus\_channel} in \cspm{}.
+
+There is however one situation where this naming might cause troubles. If a process is reused and instantiated twice in the network, the bus channels defined in the processes would have the same name in SMEIL, but because of the instance declarations in the SMEIL network, it is possible to separate the different channels in SMEIL. Therefore it is important to handle this in \cspm{} so there does not occur problems with having identical channel names.
+
+In the example below we see a network consisting of four instances where two of the instances are the same process. Each instance is defined by an instance name which is used for referencing the buses declared as parameters.
+\begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+network net() {
+    instance c of clock();
+    instance a of A(c.output, val: 1);
+    instance _ of A(c.output, val: 2);
+    instance s of src(a.output);
+}
+\end{minted}
+In SMEIL it is also possible to have a instance without an instance name as can be seen above. However, it is defined in SMEIL that two instances of the same process, cannot both be without an instance name.
+% NOTE: Does not support!!
+TAPS will need to name the channels so that no \cspm{} channels are identical. This can be done by looking at the data from the instances and append the instance name to the \cspm{} channel name. The restrictions to identical process instances in SMEIL ensures that even if there are channels without instance names in the SMEIL program there will never be two identical named  \cspm{} channels in the generated code. This however does mean that the naming of each channel quickly becomes long and chaotic, but it is still more readable than random generated names.
+% NOTE! Currently TAPS does not support the naming of identical process busses.
+
+%%% Calling the channel in the bus
+It is also possible to have bus declarations within the network declaration in SMEIL. These bus channels will be named in the same manner as the other channels, however without a potential instance name appended.
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+
+
+
+
+% TODO: Show an example of range for a channel. That is a type being translated into a range. Like this below:
+\begin{listing}
+\begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+proc seconds (in seconds_in)
+    bus seconds_out {first_digit: u3 range 0 to 5;
+                     second_digit: u4 range 0 to 9;};
+    var seconds: u6 range 1 to 59;
+    var seconds_first_temp: u3 range 0 to 5;
+    var seconds_second_temp: u4 range 0 to 9;
+{
+    seconds = seconds_in.val % 60;
+    seconds_first_temp = seconds / 10;
+    seconds_second_temp = seconds % 10;
+    seconds_out.first_digit = seconds_first_temp;
+    seconds_out.second_digit = seconds_second_temp;
+}
+\end{minted}
+\caption{Example of the \texttt{seconds} process from the SMEIL seven segment display example. See full example in Listing~\ref{lst:smeil} in the appendix.}
+\label{lst:range_smeil}
+\end{listing}
+
+
+An example of simulated SMEIL code can be seen in Listing~\ref{lst:range_smeil}. Notice on lines 2 and 3 that the two channels are defined both with a type \texttt{u3} and \texttt{u4} and with a range 0 to 5 and 0 to 9. These are the observed types and value ranges the simulation tracked for the specific channel. In order to create the \cspm{} channels based on the types, we need to convert \texttt{u3} and \texttt{u4} into its corresponding range, which for \texttt{u3} is 0 through 7 and for \texttt{u4} is 0 through 15. In Listing~\ref{lst:channel_range_cspm} on lines 1 and 2, the calculated ranges are used to define the \cspm{} channels.
+
+\begin{listing}
+\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+channel seconds_out_first_digit : {0..7}
+channel seconds_out_second_digit : {0..15}
+
+    |$\vdots$|
+
+Seconds(seconds_in) =
+let
+    seconds = seconds_in % 60
+    seconds_first_temp = seconds / 10
+    seconds_second_temp = seconds % 10
+within
+    seconds_out_first_digit ! seconds_first_temp ->
+    seconds_out_second_digit ! seconds_second_temp ->
+    SKIP
+\end{minted}
+\caption{Example of the \texttt{Seconds} process from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
+\label{lst:channel_range_cspm}
+\end{listing}
+
+
 
 \section{Transpiling Networks}
 
 \section{Generating Monitor Processes}
+% -----
+
+% In the SMEIL grammar defined in \cite{Asheim2018} it is optional to include a range to the bus channel definitions. The square brackets are indicating optional part of the rule.
+% \begin{listing}
+%     \begin{grammar}
+%     <bus-decl> ::= [ `exposed' ] `bus' <ident> `\{' <bus-signal-decls> `\}'  `;'
+%
+%     % <bus-decl> ::= [ `exposed' ] [ `unique' ] `bus' <ident> \\ `\{' <bus-signal-decls> `\}'  `;'
+%
+%     <bus-signal-decls> ::= <bus-signal-decl> \{ <bus-signal-decl> \}
+%
+%     <bus-signal-decl> ::= <ident> `:' <type> [ `=' <expression> ] [ <range> ] `;'
+%     \end{grammar}
+%     \caption{The bus grammar defined in \cite{Asheim2018}}
+%     \label{lst:smeil_bus_grammar}
+% \end{listing}
+% The monitor process asserts the observed values of the \cspm{} channels and in Listing~\ref{lst:monitor_range_cspm} the two monitor processes for the Seconds \texttt{time} process can be seen. The values used for these statements are the observed values from the SMEIL simulation, as can be seen at the end of lines 2 and 3 in Listing~\ref{lst:range_smeil}. In Listing~\ref{lst:monitor_range_cspm} the ranges are used to assert that the only values communicated on the channels are within 0 and 5, and 0 and 9 respectively.
+
+% \begin{listing}
+% \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+% Seconds_out_first_digit_monitor(c) =
+%     c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
+% Seconds_out_second_digit_monitor(c) =
+%     c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+% \end{minted}
+% \caption{Example of the \texttt{Seconds} monitor processes from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
+% \label{lst:monitor_range_cspm}
+% \end{listing}
 
 \section{Technologies}
 
@@ -83,93 +218,4 @@ Even though we update the data structure \texttt{data} by reference instead of r
 % TODO: Write something about how smart it is that I can use labels in the grammar and that I can then much mor easily control how to handle different alternatives.
 
 
-% (About the read of the process happening outside in the network - from the paper)
-% This ensures that we can generate the processes easily without having to traverse the network in the SMEIL program beforehand to find out which channel provides input for which process. An example of this is shown in Listing~\ref{lst:cspm} in the appendix on lines 61 to 66.
-% "By using this structure it is not necessary to have a symbol table.. "
 
-
-% (fra design)
-% It is, however, important to give channel names that will be unique since a \cspm{} channel is global as opposed to the local channel within each SMEIL bus.
-% %%%% Channel names
-% The naming will be created by concatinating the channel name, bus name and process name along with underscore in order to generate human readable code. It would also be possible simply to generate a unique string, which might give more security than using a concatinated version, but in this case we decided to make it easier for humans to read and understand the generated code, since the system is still in a "new state"%
-%%%% Calling the channel in the bus
-% If the bus is generated in the network, then the naming will be the channel, bus and network name instead..
-% % TODO: add an example of naming in SMEIL and then in CSPm. Both with process and network defined buses
-% In the generated \cspm code, the reference to the each channel, whether it is defined in a process or in a network declaration, will be the specific name generated from the channel, bus and process/network name, as mentioned above. This means that all calls using the syntax \texttt{bus.channel} in SMEIL will be translated to \texttt{bus\_channel} in \cspm.
-
-
-% TODO: Show an example of range for a channel. That is a type being translated into a range. Like this below:
-% \begin{listing}
-% \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-% proc seconds (in seconds_in)
-%     bus seconds_out {first_digit: u3 range 0 to 5;
-%                      second_digit: u4 range 0 to 9;};
-%     var seconds: u6 range 1 to 59;
-%     var seconds_first_temp: u3 range 0 to 5;
-%     var seconds_second_temp: u4 range 0 to 9;
-% {
-%     seconds = seconds_in.val % 60;
-%     seconds_first_temp = seconds / 10;
-%     seconds_second_temp = seconds % 10;
-%     seconds_out.first_digit = seconds_first_temp;
-%     seconds_out.second_digit = seconds_second_temp;
-% }
-% \end{minted}
-% \caption{Example of the \texttt{seconds} process from the SMEIL seven segment display example. See full example in Listing~\ref{lst:smeil} in the appendix.}
-% \label{lst:range_smeil}
-% \end{listing}
-%
-%
-% An example of simulated SMEIL code can be seen in Listing~\ref{lst:range_smeil}. Notice on lines 2 and 3 that the two channels are defined both with a type \texttt{u3} and \texttt{u4} and with a range 0 to 5 and 0 to 9. These are the observed types and value ranges the simulation tracked for the specific channel. In order to create the \cspm{} channels based on the types, we need to convert \texttt{u3} and \texttt{u4} into its corresponding range, which for \texttt{u3} is 0 through 7 and for \texttt{u4} is 0 through 15. In Listing~\ref{lst:channel_range_cspm} on lines 1 and 2, the calculated ranges are used to define the \cspm{} channels.
-%
-% \begin{listing}
-% \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-% channel seconds_out_first_digit : {0..7}
-% channel seconds_out_second_digit : {0..15}
-%
-%     |$\vdots$|
-%
-% Seconds(seconds_in) =
-% let
-%     seconds = seconds_in % 60
-%     seconds_first_temp = seconds / 10
-%     seconds_second_temp = seconds % 10
-% within
-%     seconds_out_first_digit ! seconds_first_temp ->
-%     seconds_out_second_digit ! seconds_second_temp ->
-%     SKIP
-% \end{minted}
-% \caption{Example of the \texttt{Seconds} process from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
-% \label{lst:channel_range_cspm}
-% \end{listing}
-
-
-
-% -----
-
-% In the SMEIL grammar defined in \cite{Asheim2018} it is optional to include a range to the bus channel definitions. The square brackets are indicating optional part of the rule.
-% \begin{listing}
-%     \begin{grammar}
-%     <bus-decl> ::= [ `exposed' ] `bus' <ident> `\{' <bus-signal-decls> `\}'  `;'
-%
-%     % <bus-decl> ::= [ `exposed' ] [ `unique' ] `bus' <ident> \\ `\{' <bus-signal-decls> `\}'  `;'
-%
-%     <bus-signal-decls> ::= <bus-signal-decl> \{ <bus-signal-decl> \}
-%
-%     <bus-signal-decl> ::= <ident> `:' <type> [ `=' <expression> ] [ <range> ] `;'
-%     \end{grammar}
-%     \caption{The bus grammar defined in \cite{Asheim2018}}
-%     \label{lst:smeil_bus_grammar}
-% \end{listing}
-% The monitor process asserts the observed values of the \cspm{} channels and in Listing~\ref{lst:monitor_range_cspm} the two monitor processes for the Seconds \texttt{time} process can be seen. The values used for these statements are the observed values from the SMEIL simulation, as can be seen at the end of lines 2 and 3 in Listing~\ref{lst:range_smeil}. In Listing~\ref{lst:monitor_range_cspm} the ranges are used to assert that the only values communicated on the channels are within 0 and 5, and 0 and 9 respectively.
-
-% \begin{listing}
-% \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-% Seconds_out_first_digit_monitor(c) =
-%     c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
-% Seconds_out_second_digit_monitor(c) =
-%     c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
-% \end{minted}
-% \caption{Example of the \texttt{Seconds} monitor processes from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
-% \label{lst:monitor_range_cspm}
-% \end{listing}
