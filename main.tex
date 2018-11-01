@@ -5,6 +5,27 @@
 
 \input{settings}
 
+
+%%%%%%%%%%%%%%%%%%%%%%
+% Bibliography Setup %
+%%%%%%%%%%%%%%%%%%%%%%
+% \usepackage[backend=biber]{biblatex}
+% \addbibresource{library.bib}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Header and Footer Setup %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\lhead{Alberte Thegler}
+\chead{Master's Thesis}
+\rhead{November 2018}
+
+\renewcommand{\headrulewidth}{0.4pt} % thickness of line at header
+\renewcommand{\footrulewidth}{0.4pt} % thickness of line at footer
+\setlength{\belowcaptionskip}{-10pt} % space below captions
+
+
 %%%%%%%%%%%%%%%%%%%%
 % Front-page Setup %
 %%%%%%%%%%%%%%%%%%%%
@@ -59,17 +80,20 @@ Abstract
 % \chapter{Background Technologies}
 % \label{chap:background}
 % \input{chapters/background}
-%
-\chapter{Analysis}
-\label{chap:analysis}
-\input{chapters/analysis}
-%
-\chapter{Design}
-\label{chap:design}
-\input{chapters/design}
+% %
+% \chapter{Analysis}
+% \label{chap:analysis}
+% \input{chapters/analysis}
+% %
+% \chapter{Design}
+% \label{chap:design}
+% \input{chapters/design}
 
-% \chapter{Implementation}
-% \input{chapters/implementation}
+\chapter{Implementation}
+\input{chapters/implementation}
+
+% \chapter{Clock Extension of TAPS}
+% \input{chapters/clock}
 %
 % \chapter{Experiments and results}
 % \label{chap:exp}
@@ -88,8 +112,8 @@ Abstract
 % Thanks to Uwe Zimmermann who made the seven segment example in TikZ on \url{http://www.texample.net/tikz/examples/segment-display/}.
 
 
-% \newpage
-% citation for citations\cite{Bengtsson1995}
+\newpage
+citation for citations\cite{Bengtsson1995}
 
 
 %%%%%%%%%%%%%%%%

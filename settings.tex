@@ -28,9 +28,6 @@
 
 \usepackage[outputdir=.tmp]{minted}
 
-% \newenvironment{code}{\captionsetup{type=listing}}{}
-% \SetupFloatingEnvironment{listing}{name=Source Code}
-
 
 
 % \usepackage[cache=false]{minted}
@@ -51,6 +48,13 @@
 
 % NOTE: The margins become wider just by including the geometry package
 \usepackage{geometry}
+\geometry{
+%  % a4paper,
+%  % total={170mm,257mm},
+%  % left=20mm,
+ top=30mm,
+ bottom=40mm
+ }
 
 \usepackage{url}
 \usepackage{pgfplots}
@@ -248,24 +252,3 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 
-% \geometry{vmargin=7.5cm}
-
-
-%%%%%%%%%%%%%%%%%%%%%%
-% Bibliography Setup %
-%%%%%%%%%%%%%%%%%%%%%%
-% \usepackage[backend=biber]{biblatex}
-% \addbibresource{library.bib}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Header and Footer Setup %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\lhead{Alberte Thegler}
-\chead{Master's Thesis}
-\rhead{August 2018}
-
-\renewcommand{\headrulewidth}{0.4pt} % thickness of line at header
-\renewcommand{\footrulewidth}{0.4pt} % thickness of line at footer
-\setlength{\belowcaptionskip}{-10pt} % space below captions
