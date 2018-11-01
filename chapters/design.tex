@@ -104,8 +104,8 @@ within
     SKIP
 
 \end{minted}
-\caption{Example of the translated \texttt{Minutes} process defined in Listing \ref{lst:clock_data_generation_example_cspm}.}
-\label{lst:channel_range_cspm}
+\caption{Example of the translated \texttt{Minutes} process defined in Listing \ref{lst:clock_data_generation_example_smeil}.}
+\label{lst:clock_data_generation_example_cspm}
 \end{listing}
 % TODO: Not sure if this example makes sense here, since we have not introduced the network generation yet and therefore there is no connection between the channel \texttt{clock} and the input in the process.
 
@@ -181,42 +181,96 @@ When it comes to transpiling the data generator process into a \cspm{} channel, 
 % TODO: What if I need to translate a bus with letters, or something else? what kind of channel does that become?
 
 
-% % Buses
-% TODO: Maybe this belongs in the implementation part? I dont really feel like this is a design choice as much as an implementation choice.
-As explained above, the input for the \cspm{} processes is the value read from the input channel which is included as a parameter of the process.
-In SMEIL when a process is reading from a bus channel, it is referencing the bus and channelname within the normal expression. Since the bus parameters for a SMEIL process is the bus name, the process itself must reference the specific channel within the bus. This is applied whether it is reads or writes.
-An example of this can be seen below, where \texttt{input.val} are the bus \texttt{input} and the channel \texttt{val} within that bus. SMEIl does not seperate communication and calculation in the process statements which is of great advantage in SMEIL, but the translation becomes more difficult since TAPS have to be able to recognise the communication.
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-    proc A (in input)
-        bus a_bus {
-            val: uint;
-        }
-    {
-        a_bus.val = input.val + 1;
-    }
+% ----------------------------------
+% TODO: Figure out where this is mentioned before, and maybe rewrite it?
+% As explained earlier, the input for the \cspm{} processes is the value read from the input channel which is included as a parameter of the process.
+When translating the SMEIL process to \cspm{} it is important to design a well-formed structure to handle the input bus parameters of the SMEIL processes.
+In SMEIL the parameters for each process can be input or output buses as well as constant values. The bus channel are then directly referenced in the expression within the SMEIL process body, to access the value from the bus channel. The name used in the parameters is not the formal name of the bus, but simply a placeholder for the formal name, which is defined in the network when instantiating the process. This means that the process can be instantiated several times with different parameters without having to change the actual process. \\
+
+There are several different ways to translate this particular part of the SMEIL process, each with its own advantage and disadvantage.
+In Listing \ref{lst:cspm_input_values_examples} we can see three different examples of how to translate an SMEIL input bus into input for a \cspm{} process. The examples are different translations of the SMEIL example from Listing \ref{lst:smeil_input_parameter}.\\
+
+\begin{minipage}[t]{.98\linewidth}
+    \centering
+\begin{minipage}[t]{0.45\linewidth}
+  \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+proc a (in input)
+    bus abus {
+        val: uint;};
+{
+    abus.val = input.val + 1;
+}
+  \end{minted}
+  \captionof{listing}{An SMEIL process with an input bus as parameter.}
+  \label{lst:smeil_input_parameter}
+\end{minipage}
+\hspace{0.6cm}
+\begin{minipage}[t]{0.45\linewidth}
+\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+
+A(input_val) =
+    let
+        result = input_val + 1
+    within
+        a_abus_val ! result ->
+        SKIP
 \end{minted}
+\captionof{listing}{A \cspm{} process with input value as parameter}
+\label{lst:cspm_input_value}
+\end{minipage}
+\hspace{0.6cm}
+\vspace{0.5cm}
+\newline
+\begin{minipage}[t]{0.45\linewidth}
+\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+A() =
+    b_bbus_val ? value ->
+    let
+        result = value + 1
+    within
+        a_abus_val ! result ->
+        SKIP
+\end{minted}
+\captionof{listing}{A \cspm{} process with no input parameter}
+\label{lst:cspm_no_input}
+\end{minipage}
+\hspace{0.6cm}
+\begin{minipage}[t]{0.45\linewidth}
+\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+A(input_bus_channel) =
+input_bus_channel ? value ->
+    let
+      result = value + 1
+    within
+      a_abus_val ! result ->
+      SKIP
+\end{minted}
+\captionof{listing}{A \cspm{} process with input channel as parameter}
+\label{lst:cspm_channel_reads_input}
+\end{minipage}
+\vspace{0.3cm}
+\captionof{listing}{Three different example of ways to translate the input in an SMEIL process to a \cspm{} process.}
+\label{lst:cspm_input_values_examples}
+\vspace{1cm}
+\end{minipage}
 
-This means that TAPS can recognise communication by the structure of the assignment. If one of the elements in an assignment, right or left, contains a dot, then we can assume that this is communication. The original grammar of an assignment like the one seen above can be seen in Listing \ref{lst:smeil_assignment_grammar}. Here is it clear that a communication is the \textit{hierarchical accessor} alternative in the \textit{statement} grammar. The communication can either be the right hand side of the assignment, which is a write, or part of the left hand side expression, which then will be a read. A write is simple to recognise, since it is not combined with other parts of the grammar. TAPS can search the \textit{name} of a right hand side assignment and see if it contains a dot. The read is a bit more complicated since it can be used like any internal variable in the expressions. This means that TAPS will have to search all names within the nested expression to find a potential read.
-\begin{listing}
-    \begin{grammar}
-      <statement> ::= <name> `=' <expression> `;' (assignment)
+Listing \ref{lst:smeil_input_parameter} shows a simple SMEIL process which takes an input bus as parameter. The three other examples in Listing \ref{lst:cspm_input_values_examples} shows different ways to translate this.
 
-      <name> ::= <ident>
-  \alt <name> `.' <name> (hierarchical accessor)
-  \alt <name> `[' <array-index> `]' (array element access)
+In Listing \ref{lst:cspm_input_value} the value itself is the parameter which means that the value can be used directly in the \texttt{let} clause.
+This way of translating results in simpler process generation in TAPS, since all the information needed to translate to this structure lies within the SMEIL process itself. By adding the value itself as a parameter for the process does mean that reading the value must happen somewhere else, which does not match the original SME model structure. \\
 
-  <expression> ::= <name>
-  \alt <literal>
-  \alt <expression> <bin-op> <expression>
-  \alt <un-op> <expression>
-  \alt <name> `(' \{ <expression> \}  `)' (function call)
-  \alt `(' <expression> `)'
+In Listing \ref{lst:cspm_no_input} the process does not have an input parameter and the input parameter from the SMEIL process have been translated directly to the exact channel name corresponding to the bus channel read from in Listing \ref{lst:smeil_input_parameter}. This solution fits within the original SME model since the process itself reads a value before computing and writing, opposite to the solution in Listing \ref{lst:cspm_input_value}. Having to translate the channel name directly does lead to a more complex translation and TAPS have to search the network to find the exact name of the channel. This results in an increase in complexity for the translation of a process, since TAPS will have to search the network for the information in order to be able to translate the process to \cspm{}. Another downside with this structure is that it removes the reusability that the SMEIL \texttt{instance} declaration provides. When the full channel name are specified directly in the process structure, the process cannot be reused with different parameters. Therefore the generated code can become unnecessary complex because we have to define the processes several times instead of simply reusing the process and declaring it with different parameters in the network.\\
 
+In Listing \ref{lst:cspm_channel_reads_input} the channel name are given as parameter. This solution is the best match to the original SMEIL process structure. The process reads the value itself, but the channel name is provided as a parameter, which means that the process can be reused as opposed to the solution in Listing \ref{lst:cspm_no_input}. This solution also have the advantage that TAPS does not have to search for information outside the process to translate the process.
+The small downside to this solution is that the internal structure of the process must be changed on translation, since the name of the input value cannot be used directly in the \texttt{let} clause. In the original SMEIL program in Listing \ref{lst:smeil_input_parameter} the \texttt{input} value are declared in the process parameter and in the process body. In this solution, TAPS would have to change one of these and put in an intermediate step where the process read the value and then use it in the process body.\\
 
-    \end{grammar}
-    \caption{The original assignment, name and expression grammars defined in \cite{Asheim2018}.}
-\end{listing}
+Out of these three solutions, it is clear that even though the solution in Listing \ref{lst:cspm_no_input} are the simplest version, the translation would become much more complex, which is a big disadvantage.
 
+In order to create the simplest solution possible, I decided to use the solution in Listing \ref{lst:cspm_input_value}. Even though it does not exactly match the SME model it will not cause trouble, since the network that does the reading will be very closely connected to the process. Using this solution result in a simpler translation of each process and leaves the more complex information to be translated in the network. This means that most of the translations in the program can be done swiftly without needing much information about the rest of the system. Only the network translation becomes complex.
+% TODO: Make sure I explain how the network of the monitor processes shows that it is closely related to the process.
+In the case where the process does not have any parameters and are using the bus channels hierarchical names to communicate, this problem will not occur and TAPS will be able to translate the processes directly, since the actual name of the bus channel are defined within the process.
+
+% ----------------------------------
 
 \subsection{Meta and verification}
 % - Opserverede værdier - "known limits". Meta information i SMEIL, og det skal oversættes til faktiske processer med faktiske semantic i FDR der også er en del af topologien. (Det er essensen for mig).
