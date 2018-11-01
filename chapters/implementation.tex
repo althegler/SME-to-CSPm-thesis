@@ -1,36 +1,3 @@
-
-
-
-
-\begin{figure}[!ht]
-  \centering
-  \begin{tikzpicture}
-    \node [mysquare] (SME) at (0, 2.5) {$SME$};
-    \node [mysquare] (SMEIL) at (0, 0) {$SMEIL$};
-    \node [draw, black, thick, rounded corners, dotted, inner sep=0.2cm] (Q) at (2.5, 1.3){$Questions$};
-    \draw [myarrow, smooth] (SME) to[out=270, in=90] (SMEIL);
-    \draw [myarrow, dotted] (Q) to[out=180, in=90] (SMEIL);
-
-
-    \node [mysquare] (Parser) at (3, -1.3) {$Parser$};
-    \node [mysquare] (Codegen) at (5.5, -1.3) {$Code Gen$};
-    \node [draw, red, thick, dotted, fit=(Parser)(Codegen), inner sep=0.5cm] (TAPS) {};
-    \node [red] at (4.4, -0.2) {$TAPS$};
-    \draw [myarrow, smooth] (SMEIL) to[out=270, in=180] (Parser);
-    \draw [myarrow, smooth] (Parser) to[out=0, in=180] (Codegen);
-
-    \node [mysquare] (cspm) at (8.5, 0) {$CSP_M$};
-    \draw [myarrow, smooth] (Codegen) to[out=0, in=270] (cspm);
-    \node [mysquare] (FDR) at (8.5, 2.5) {$FDR4$};
-    \node [draw, black, thick, rounded corners, dotted, inner sep=0.2cm] (A) at (5.5, 2.5){$Answers$};
-    \draw [myarrow, smooth] (cspm) to[out=90, in=270] (FDR);
-    \draw [myarrow, dotted] (FDR) to[out=180, in=0] (A);
-
-  \end{tikzpicture}
-  \caption{System structure.}
-  \label{fig:TAPS_network}
-\end{figure}
-
 \section{Transpiling Channels}
 In SMEIL when a process is reading from a bus channel, it is referencing the bus and channelname within the normal expression. Since the bus parameters for a SMEIL process is the bus name, the process itself must reference the specific channel within that bus. This is applied whether it is reads or writes.
 An example of this can be seen in Listing \ref{lst:smeil_input_parameter}, where \texttt{input.val} indicates a read from the bus \texttt{input} and the channel \texttt{val} within that bus.
@@ -77,15 +44,20 @@ The simple way of translating the SMEIL channels into \cspm{} chanels are to use
 
 There is however one situation where this naming might cause troubles. If a process is reused and instantiated twice in the network, the bus channels defined in the processes would have the same name in SMEIL, but because of the instance declarations in the SMEIL network, it is possible to separate the different channels in SMEIL. Therefore it is important to handle this in \cspm{} so there does not occur problems with having identical channel names.
 
-In the example below we see a network consisting of four instances where two of the instances are the same process. Each instance is defined by an instance name which is used for referencing the buses declared as parameters.
-\begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-network net() {
-    instance c of clock();
-    instance a of A(c.output, val: 1);
-    instance _ of A(c.output, val: 2);
-    instance s of src(a.output);
-}
-\end{minted}
+In the example in Listing \ref{lst:Instance_variations} we see a network consisting of four instances where two of the instances are the same process. Each instance is defined by an instance name which is used for referencing the buses declared as parameters.
+\begin{listing}
+    \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+    network net() {
+        instance c of clock();
+        instance a of A(c.output, val: 1);
+        instance _ of A(c.output, val: 2);
+        instance s of src(a.output);
+    }
+    \end{minted}
+    \caption{Example of a network with four instances whereas two are instances of the same process.}
+    \label{lst:Instance_variations}
+\end{listing}
+
 In SMEIL it is also possible to have a instance without an instance name as can be seen above. However, it is defined in SMEIL that two instances of the same process, cannot both be without an instance name.
 % NOTE: Does not support!!
 TAPS will need to name the channels so that no \cspm{} channels are identical. This can be done by looking at the data from the instances and append the instance name to the \cspm{} channel name. The restrictions to identical process instances in SMEIL ensures that even if there are channels without instance names in the SMEIL program there will never be two identical named  \cspm{} channels in the generated code. This however does mean that the naming of each channel quickly becomes long and chaotic, but it is still more readable than random generated names.
@@ -144,8 +116,6 @@ Since the assertion we wish to make is to verify the widths of the channels, it 
 
 When it comes to transpiling the data generator process into a \cspm{} channel, we also use the type of the outbus bus channel to define it. TAPS use this instead of the observed values because we cannot guarantee the precise input values of the system. If I used the observed values, the assertions will pass every time, since it will test the values already used to generate the rest of the observed values.
 
-
-
 \section{Generating Monitor Processes}
 When generating the monitor processes in the \cspm{} program we use the observed values for each channel, as described above.
 In the SMEIL grammar defined in \cite{Asheim2018} it is optional to include a range to each bus channel definitions. In Listing \ref{lst:smeil_bus_grammar} the relevant grammar rules from \cite{Asheim2018} can be seen. The square brackets indicates optional parts.
@@ -184,17 +154,51 @@ Seconds_out_second_digit_monitor(c) =
 \caption{Example of the \texttt{Seconds} monitor processes from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
 \label{lst:monitor_range_cspm}
 \end{listing}
+The naming of the monitor processes are the name of the channel they are asserting concatinated with \texttt{\_monitor}. This is very simple but very usefull since it means we can automatically find the name of the monitor process when we have the channel name, and vice versa. We also know that no two channel names will ever be equal in the generated \cspm{} code and therefore the monitor processes will also not have any duplicates when using this name scheme. \\
 
 This monitor process structure is a simple but general solution which can be reused in many situations and due to the opserved ranges, TAPS can always provide a monitor process with this structure.
 % TODO: Make sure that examples of the failure in the seven segment example are included somewhere, as well as a working example.
 
 
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
 
 \section{Transpiling Networks}
+% TODO: This headline is almost the same at it is in design chapter
+% TODO: Ive shown the \texttt{seconds} process translated and its monitors, so here I can show the network combining these.
+When generating the process monitor network as described in Section \ref{sec:design_translating_network}, TAPS go through all writes within each process and generate the monitor processes for each channel. In order to generate the process monitor network TAPS firstly adds all the reads of the input parameters for the process. From the information given in the SMEIL network for each instance, TAPS knows which channel is the channel to read from for this specific process and then the value will be added as a process parameter, however there are several steps to this process. In the SMEIL instance declarations, the process name itself is not necessarily declared within the process parameter. The process parameter might be defined using the instance name possible to define for each instance in a network as explained with the example in Listing \ref{lst:Instance_variations}. Therefore TAPS first have to search the network to specify which process the input parameter is defined within. Since the channel itself is not declared directly in the instance declaration in SMEIL TAPS will then search through the data in order to see which channel are contained within the specified bus and then which channels are actually being read from within this specific process. This data are all gathered from different processes in the network, however, since we have generalised the process translation as well as the monitor process translation it is only within the network translation that it is necessary to search for data elsewhere in the system, which is an advantage.\\
+
+% TODO: TAPS does not currently support more than one input channel
+After TAPS have generated all reads for the process, TAPS start to generate the process monitor network. TAPS search through the created monitor processes and for each process it synhronise the process together with the monitor process over the channel it is asserting. TAPS builds an extra layer to the nested structure for each extra monitor processes. This is quite easy to auto generate since TAPS can simply run through the list of monitor processes or write channels, and loop over it. \\
+
+In Listing \ref{lst:channel_range_cspm} the translated \texttt{Seconds} process is defined, and in Listing \ref{lst:monitor_range_cspm} the two monitor processes for the \texttt{Seconds} process are shown.
+In Listing \ref{lst:network_example_cspm} the network generated for the \texttt{Seconds} process is shown where it is easy to see how the read is performed first in the process before the first digit monitor process is synchronised together with the \texttt{Seconds} process. Adding a parentheses around the first synhronisation to keep the structure, the second monitor process is synchronised on the second digit channel which completes the process monitor network.
+
+Lastly the \texttt{assert} operator is used to specify to FDR4 that it should create a refinement check against the specification process \texttt{SKIP} and the implementation process \texttt{N\_seconds} and also that it should use the Failure model.
+
+\begin{listing}
+\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+N_seconds = clock_out_val ? variable ->
+            (Seconds(variable)
+            [| {| seconds_out_first_digit|} |]
+            Seconds_out_first_digit_monitor(seconds_out_first_digit))
+            [| {| seconds_out_second_digit|} |]
+            Seconds_out_second_digit_monitor(seconds_out_second_digit)
+
+assert SKIP [F= N_seconds \ Events
+\end{minted}
+\caption{Example of the \texttt{Seconds} network processes from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
+\label{lst:network_example_cspm}
+\end{listing}
+
+
+% TODO: This might just belong in the new version!
+% When the smaller process monitor networks have been created TAPS will then be able to synhronise other smaller monitor networks where there is shared communication. TAPS controls that all communication are handled within this new network. (Maybe it makes sense to generate smaller network which can then be synhronised. I mean where each smaller network is a process with a name, so it does not become so large nested.. )
+% % TODO: Figure out how to make sure that all data are synchronised. It might be something about needing to have a linked list or something to keep all the data together. both stuff defined as parameter and communication defined by using the formal names.
+
+
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
 
 \section{Technologies}
 
