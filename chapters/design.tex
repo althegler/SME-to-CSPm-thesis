@@ -165,17 +165,9 @@ We can standardise the network generation by creating a two-step communication p
 
 % TODO: Figure out if this entire subsubsection actually belongs in implementation
 \subsubsection{Translating Buses and Channels}
-We know that SMEIL defines all channels within buses and that \cspm{} is only channel based. Fortunately the buses in SMEIL is a shell, containing the channel definitions and an idenfifier. This means that TAPS can translate all SMEIL bus channels into a corresponding \cspm{} channel rather easily.\\
-
-When generating the channels in \cspm{}, it is necessary to define its range of possible values. If a channel is only defined by having the integer type, FDR4 would try to verify for all possible integers, which results in a seemingly unbounded runtime. As explained in Chapter~\ref{chap:analysis}, all simulated SMEIL programs will include the observed range and restricted types for all channels and variables. The types represent the observed width of the channels in bits, and by calculating the possible range from these types, we can create the corresponding channels in \cspm{}, and thereby avoid having a seemingly endless runtime in FDR4.\\
-
-Since the assertion we wish to make is to verify the widths of the channels, it might seem redundant to create \cspm{} channels with a limited range. FDR4 would always only check the values in the defined channel range and therefore there is no point in asserting if the values go beyond this range. After simulating the SME network, SMEIL provides us with both a type and a range of observed values. The type is used to create the \cspm{} channel range and the observed values are used for the assertion. The type will always represent equal or more values than the range of observed values, and by using these values the assertions becomes valuable.
-\\
-
-When it comes to transpiling the data generator process into a \cspm{} channel, we also use the types of the SMEIL simulation to define it. We use this instead of the observed values because we cannot guarantee the precise input values of the system. If we used the observed values, the assertions will pass every time, since it will test the values already used to generate the rest of the observed values.
-
-% Because there are several different ways to define a bus in SMEIL %TODO: see the analysis chapter,
-% the translation will have to recognize the different types and generate the \cspm channels no matter how they where defined.
+% TODO: Here might be some interesting design stuff. How do I handle if bus channels are used directly in the process without being used as a parameter. In that case I would have to be sure I defined it in cspm{}, but this should be solved by simply taking all bus definitions and create a channel for all of the channels within those. Since no bus channel can be used without haveing be declared somewhere in the system, this would ensure that we translate all of them.
+% "Because there are several different ways to define a bus in SMEIL %TODO: see the analysis chapter,
+% the translation will have to recognize the different types and generate the \cspm channels no matter how they where defined."
 %
 
 % TODO: What if I need to translate a bus with letters, or something else? what kind of channel does that become?
@@ -276,10 +268,11 @@ In the case where the process does not have any parameters and are using the bus
 % - Opserverede værdier - "known limits". Meta information i SMEIL, og det skal oversættes til faktiske processer med faktiske semantic i FDR der også er en del af topologien. (Det er essensen for mig).
 
 % %%%% Monitor processes %%%%%
-In order to create the assertions for the refinement checking, I decided to create separate assert functions to keep the code structure clean. I know that for each \cspm{} channel there must be an assertion, except for input channels.
-Consequently, we create a \textit{monitor} process for each channel and its only job is to listen in on the channel communication and assert the values communicated there. The monitor process is a process that we add specifically for asserting legal communication values in FDR4 and it does not affect the original SME network.
+In order to create the assertions for the refinement checking, I decided to create separate assert functions to keep the code structure clean. It would have been possible to include the assertions within the processes, but it is important to keep seperations of concerns and therefore I decided to add this extra process. This will increase the complexity of the generated \cspm{} network, but it will be a minor difference and it is still preferable to more complex process structures.
 
-There might be a case where we are not interested in verifying all channels, but we add assertions to all channels, to simplify the code generation. If TAPS was to handle only including assertions on some channels, then there must be introduced a specific notation for which channels the assertions should be included. This is definitely possible, and might be relevant for future work, but adding this functionality might also have the consequence that some errors would not be caught, since the programmar would be responsible for asserting which channels was worth checking.
+I know that for each \cspm{} channel there must be an assertion, except for input channels. Consequently, we create a \textit{monitor} process for each channel and its only job is to listen in on the channel communication and assert the values communicated there. The monitor process is a process that we add specifically for asserting legal communication values in FDR4 and it does not affect the original SME network.
+
+There might be a case where we are not interested in verifying all channels, but we add assertions to all channels, to simplify the code generation. If TAPS should only include assertions on some channels, then a specific notation for which channels the assertions should be included, must be introduced. This is definitely possible, and might be relevant for future work, but adding this functionality might also have the consequence that some errors would not be caught, since the programmar would be responsible for asserting which channels was worth checking.
 
 In Figure~\ref{fig:assertion_process} the outline of this kind of structure can be seen and we expect that this structure can be used for several different types of problems and thereby ensure a cleaner code structure.
 \begin{figure}[!ht]
@@ -299,7 +292,8 @@ In Figure~\ref{fig:assertion_process} the outline of this kind of structure can 
   \label{fig:assertion_process}
 \end{figure}
 
-The meta information that I am using to create the assertions on each channel are meta information in the SMEIL program. TAPS use the observed range of values for each channel to define the range of acceptable values in the assertions. TAPS then translates these values, not into meta data in \cspm{} but as an actual process with actual real semantics which is included as a part of the topology of the \cspm{} network.
+
+% The meta information that I am using to create the assertions on each channel are meta information in the SMEIL program. TAPS use the observed range of values for each channel to define the range of acceptable values in the assertions. TAPS then translates these values, not into meta data in \cspm{} but as an actual process with actual real semantics which is included as a part of the topology of the \cspm{} network.
 
 % %%%% Monitor processes: monitor something else that ranges
 

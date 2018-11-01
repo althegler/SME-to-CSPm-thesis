@@ -51,28 +51,28 @@ SMEIL does not seperate communication and calculation in the process statements 
 This means that TAPS can recognise communication by the structure of the assignment. If one of the elements in an assignment, right or left, contains a dot, then we can assume that this is communication. The original grammar of an assignment like the one seen above can be seen in Listing \ref{lst:smeil_assignment_grammar}. A communication is the \textit{hierarchical accessor} alternative in the \textit{statement} grammar. The communication can either be the right hand side of the assignment, which is a write, or part of the left hand side expression, which will then be a read. A write is simple to recognise, since it is not combined with other parts of the grammar. TAPS can search the \textit{name} of a right hand side assignment and see if it contains a dot. The read is a bit more complicated since it can be used like any internal variable in the expressions. This means that TAPS will have to search all names within the nested expression to find a potential read.
 % TODO: Write something more about how TAPS actually achieve this.
 \begin{listing}
-    \begin{grammar}
-      <statement> ::= <name> `=' <expression> `;' (assignment)
+\begin{grammar}
+<statement> ::= <name> `=' <expression> `;' (assignment)
 
-      <name> ::= <ident>
-  \alt <name> `.' <name> (hierarchical accessor)
-  \alt <name> `[' <array-index> `]' (array element access)
+<name> ::= <ident>
+\alt <name> `.' <name> (hierarchical accessor)
+\alt <name> `[' <array-index> `]' (array element access)
 
-  <expression> ::= <name>
-  \alt <literal>
-  \alt <expression> <bin-op> <expression>
-  \alt <un-op> <expression>
-  \alt <name> `(' \{ <expression> \}  `)' (function call)
-  \alt `(' <expression> `)'
+<expression> ::= <name>
+\alt <literal>
+\alt <expression> <bin-op> <expression>
+\alt <un-op> <expression>
+\alt <name> `(' \{ <expression> \}  `)' (function call)
+\alt `(' <expression> `)'
 
 
-    \end{grammar}
-    \caption{The original assignment, name and expression grammars defined in \cite{Asheim2018}.}
-    \label{lst:smeil_assignment_grammar}
+\end{grammar}
+\caption{The original assignment, name and expression grammars defined in \cite{Asheim2018}.}
+\label{lst:smeil_assignment_grammar}
 \end{listing}
 
 When translating an SMEIL bus channel to a \cspm{} channel it give channel names that will be unique in \cspm{} just like the formal name of a bus channel in SMEIL is unique.
-%%%% Channel names
+\subsection{Naming Channels}
 The simple way of translating the SMEIL channels into \cspm{} chanels are to use the formal name of the SMEIL bus channel already defined. The naming are created by concatinating the channel name, bus name and process name which will ensure that the generated code are more readable than if I had used random unique strings as naming, which is also a possible solution. A unique string might give more security than using a concatinated version, but in this case I decided to make use the allready defined names. This means that all calls using the syntax \texttt{bus.channel} in SMEIL will be translated to \texttt{bus\_channel} in \cspm{}.
 
 There is however one situation where this naming might cause troubles. If a process is reused and instantiated twice in the network, the bus channels defined in the processes would have the same name in SMEIL, but because of the instance declarations in the SMEIL network, it is possible to separate the different channels in SMEIL. Therefore it is important to handle this in \cspm{} so there does not occur problems with having identical channel names.
@@ -93,15 +93,10 @@ TAPS will need to name the channels so that no \cspm{} channels are identical. T
 
 %%% Calling the channel in the bus
 It is also possible to have bus declarations within the network declaration in SMEIL. These bus channels will be named in the same manner as the other channels, however without a potential instance name appended.
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
 
-
-
-
-% TODO: Show an example of range for a channel. That is a type being translated into a range. Like this below:
+\subsection{\cspm{} Channel Ranges}
+When defining the channels in \cspm{} it is important, to defined a limited space of values accepted for the channel. If the channel is defined for the entire space of integers, which are within a signed or twos-complement 32-bit representation in FDR4, FDR4 would try to verify all possible integers which would result in the statespace becomming too large and FDR would run out of space. Therefore TAPS need to define some specific range of values for each channel but it must be values relevant to the channel and not some random ranges.
+As explained in Chapter~\ref{chap:analysis}, all simulated SMEIL programs will include the observed range and restricted types for all channels and variables. The types represent the minimum observed width of the channels in bits, and by calculating the possible range from these types, we can create the corresponding channels in \cspm{}, and thereby avoid having a seemingly endless runtime in FDR4.
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 proc seconds (in seconds_in)
@@ -123,14 +118,12 @@ proc seconds (in seconds_in)
 \end{listing}
 
 
-An example of simulated SMEIL code can be seen in Listing~\ref{lst:range_smeil}. Notice on lines 2 and 3 that the two channels are defined both with a type \texttt{u3} and \texttt{u4} and with a range 0 to 5 and 0 to 9. These are the observed types and value ranges the simulation tracked for the specific channel. In order to create the \cspm{} channels based on the types, we need to convert \texttt{u3} and \texttt{u4} into its corresponding range, which for \texttt{u3} is 0 through 7 and for \texttt{u4} is 0 through 15. In Listing~\ref{lst:channel_range_cspm} on lines 1 and 2, the calculated ranges are used to define the \cspm{} channels.
+An example of simulated SMEIL code can be seen in Listing~\ref{lst:range_smeil}. Notice that the two channels are defined both with a type \texttt{u3} and \texttt{u4} and with a range 0 to 5 and 0 to 9. These are the observed types and value ranges the simulation has tracked for each specific channel. In order to create the \cspm{} channels based on the types, we need to convert \texttt{u3} and \texttt{u4} into the range of values that the types represents. For \texttt{u3} this is 0 through 7 and for \texttt{u4} it is 0 through 15. In Listing~\ref{lst:channel_range_cspm} the calculated ranges are used to define the \cspm{} channels.
 
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 channel seconds_out_first_digit : {0..7}
 channel seconds_out_second_digit : {0..15}
-
-    |$\vdots$|
 
 Seconds(seconds_in) =
 let
@@ -147,38 +140,61 @@ within
 \end{listing}
 
 
+Since the assertion we wish to make is to verify the widths of the channels, it might seem redundant to create \cspm{} channels with a limited range. FDR4 would always only check the values in the defined channel range and therefore there is no point in asserting if the values go beyond this range. After simulating the SMEIL network, the compiler provides us with both a type and a range of observed values. The type, as explained above, is used to create the restricted range for each \cspm{} channel and the observed values are used for the assertion. The range of values that the types represent will always represent equal or more values than the range of observed values, and by using these values the assertions becomes valuable.\\
 
-\section{Transpiling Networks}
+When it comes to transpiling the data generator process into a \cspm{} channel, we also use the type of the outbus bus channel to define it. TAPS use this instead of the observed values because we cannot guarantee the precise input values of the system. If I used the observed values, the assertions will pass every time, since it will test the values already used to generate the rest of the observed values.
+
+
 
 \section{Generating Monitor Processes}
-% -----
+When generating the monitor processes in the \cspm{} program we use the observed values for each channel, as described above.
+In the SMEIL grammar defined in \cite{Asheim2018} it is optional to include a range to each bus channel definitions. In Listing \ref{lst:smeil_bus_grammar} the relevant grammar rules from \cite{Asheim2018} can be seen. The square brackets indicates optional parts.
+\begin{listing}
+    \begin{grammar}
+    <bus-decl> ::= [ `exposed' ] `bus' <ident> `\{' <bus-signal-decls> `\}'  `;'
 
-% In the SMEIL grammar defined in \cite{Asheim2018} it is optional to include a range to the bus channel definitions. The square brackets are indicating optional part of the rule.
-% \begin{listing}
-%     \begin{grammar}
-%     <bus-decl> ::= [ `exposed' ] `bus' <ident> `\{' <bus-signal-decls> `\}'  `;'
-%
-%     % <bus-decl> ::= [ `exposed' ] [ `unique' ] `bus' <ident> \\ `\{' <bus-signal-decls> `\}'  `;'
-%
-%     <bus-signal-decls> ::= <bus-signal-decl> \{ <bus-signal-decl> \}
-%
-%     <bus-signal-decl> ::= <ident> `:' <type> [ `=' <expression> ] [ <range> ] `;'
-%     \end{grammar}
-%     \caption{The bus grammar defined in \cite{Asheim2018}}
-%     \label{lst:smeil_bus_grammar}
-% \end{listing}
-% The monitor process asserts the observed values of the \cspm{} channels and in Listing~\ref{lst:monitor_range_cspm} the two monitor processes for the Seconds \texttt{time} process can be seen. The values used for these statements are the observed values from the SMEIL simulation, as can be seen at the end of lines 2 and 3 in Listing~\ref{lst:range_smeil}. In Listing~\ref{lst:monitor_range_cspm} the ranges are used to assert that the only values communicated on the channels are within 0 and 5, and 0 and 9 respectively.
+    <bus-signal-decls> ::= <bus-signal-decl> \{ <bus-signal-decl> \}
 
-% \begin{listing}
-% \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-% Seconds_out_first_digit_monitor(c) =
-%     c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
-% Seconds_out_second_digit_monitor(c) =
-%     c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
-% \end{minted}
-% \caption{Example of the \texttt{Seconds} monitor processes from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
-% \label{lst:monitor_range_cspm}
-% \end{listing}
+    <bus-signal-decl> ::= <ident> `:' <type> [ `=' <expression> ] [ <range> ] `;'
+    \end{grammar}
+    \caption{The bus grammar defined in \cite{Asheim2018}}
+    \label{lst:smeil_bus_grammar}
+\end{listing}
+\begin{listing}
+    \begin{grammar}
+    <bus-decl> ::= `bus' <ident> `\{' <bus-signal-decls> `\}'  `;'
+
+    <bus-signal-decls> ::= <bus-signal-decl> \{ <bus-signal-decl> \}
+
+    <bus-signal-decl> ::= <ident> `:' <type> [ `=' <expression> ] <range> `;'
+    \end{grammar}
+    \caption{The bus grammar defined in \cite{Asheim2018} changed to match the demands of the translation.}
+    \label{lst:smeil_bus_grammar_no_option}
+\end{listing}
+As explained in Chapter \ref{chap:design}, all channels except the input channels are verified in FDR4. This means that there will be created a monitor process for each channel and since TAPS use the observed values for each channel for the verification, I had to change the original grammar of SMEIL to suppport this. Therefore the grammar shown in Listing \ref{lst:smeil_bus_grammar} is changed to the grammar defined in Listing \ref{lst:smeil_bus_grammar_no_option}. The only difference is that ranges are no longer optional and that the keywork \texttt{exposed} are no longer allowed, since TAPS are not supporting co-simulation, which is what this keyword indicates. \\
+
+The monitor process asserts that the observed values of the \cspm{} channels are actually what is communicated on the channels. In Listing~\ref{lst:monitor_range_cspm} the two monitor processes for the \texttt{Seconds} process from the seven segment example can be seen. The values used for these statements are 0 through 5 for the first digit and 0 through 9 for the second which can be seen defined for each channel in Listing~\ref{lst:range_smeil}.
+\begin{listing}
+\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+Seconds_out_first_digit_monitor(c) =
+    c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
+Seconds_out_second_digit_monitor(c) =
+    c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+\end{minted}
+\caption{Example of the \texttt{Seconds} monitor processes from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
+\label{lst:monitor_range_cspm}
+\end{listing}
+
+This monitor process structure is a simple but general solution which can be reused in many situations and due to the opserved ranges, TAPS can always provide a monitor process with this structure.
+% TODO: Make sure that examples of the failure in the seven segment example are included somewhere, as well as a working example.
+
+
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+------------------------------------------------------------------------------\\
+
+\section{Transpiling Networks}
 
 \section{Technologies}
 
