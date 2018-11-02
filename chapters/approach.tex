@@ -1,3 +1,4 @@
+%!TEX root = ../main.tex
 % some explanation about what I am actually doing in this project.
 %
 % "Now I have shown what others have done with verification, now I need to be explicit about what I am going to do"
@@ -5,11 +6,12 @@
 % Tegne et billede af måden jeg gerne vil løse det her problem på.
 
 
+As explained in Chapter \ref{chap:related_work} there exists several attempts to translate programs written in CSP into a hardware description language. But even a good implementation of this require that the programmer creates the specification of the network, which can be very tedious especially for a novice within the CSP world. The fact that the developer need to be able to understand enough CSP to be able to specify the exact network in a language like \cspm{} will most likely lead to less developers utilising the functionalities and advantages of a process algebra like CSP.\\
 
+What I wish to do is to reverse the structure. I wish to provide a solution where the developer can model the network first and then automatically generate the specification for that exact network. On top of this, I want to be able to formally verify specific properties of this specification model. This can provide valuable insight into the possible pitfalls of the hardware model which a standard test bench cannot.\\
 
-There are several different ways to use SMEIL, one being co-simulation as described above. However, in this work, we focus on the independent SMEIL representation and thus we only present examples in pure SMEIL. These pure SMEIL programs must contain a process which generates input for the network since the network cannot receive input elsewhere. The program is simulated using the command line tool. Simulation is done in order to test the design of the system.
+In this thesis I introduce the system \texttt{TAPS}, a transpiler that provides translation from hardware models to specification models while also including specific properties for verification.\\
 
+The language used to model the hardware model is called SME Interpretation Language (SMEIL) and is based on a model called Synchronous Message Exchage (SME). SMEIL resembles a standard high level programming languages while still providing all the necessary elements of hardware modeling. The high level programming structure of SMEIL enables the traditional developer to model hardware models without much trouble. \\
 
-
-% (..The simulation turning int to i4 for instance...)
-This property is of great value when translating into \cspm{}, and when creating assertions, since we can use these values to actually assert the network.
+TAPS provides translation to the machine-readable version of the CSP process algebra, \cspm{}. The generated \cspm{} code will be including the assertion statements to formally verify properties within the hardware model described in the \cspm{} program. These properties can then be verified with the \cspm{} refinement checker tool FDR4, described in Chapter \ref{chap:related_work}.
