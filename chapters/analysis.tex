@@ -473,7 +473,7 @@ It it also possible to give the output bus as a process parameter. An example of
 \paragraph{\cspm{} channels}
 In \cspm{} the processes can communicate on buses both through process parameters and by using the global names. Therefore it should be possible to translate both of these situations in TAPS. It is of course important that TAPS can recognise the two different situations, since it might affect how the process is translated. Since all channel definitions are defined outside of processes in \cspm{} the situation where the bus is defined inside the process would simply translate to a channel definition outside of the process in \cspm{}.
 
-An example of a \cspm{} process, communicating both via its process parameter channel and via a global name can be seen below. The process \texttt{P} reads a value from the \texttt{input} parameter, which is the channel \texttt{d}. The process then writes the value on the \texttt{c} channel and terminates.
+An example of a \cspm{} process, communicating both via its process parameter channel and via a global name can be seen below. The process \texttt{P} reads a value from the \texttt{input} channel, which is the channel \texttt{d}. The process then writes the value on the \texttt{c} channel and terminates.
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 channel c : {0..10}
 channel d : {0..10}
@@ -520,14 +520,3 @@ This data is the crucial data to gather in order for FDR4 to be able to verify t
 As we mentioned in Chapter \ref{chap:background} FDR4 is a refinement checking tool and all assertions in FDR4 must be to assert that an implemented process refines a specification process.
 It is therefore necessary, but also a challenge, to create a stucture in \cspm{} that can provide a simple assertion on the values communicated on the channels while being able to fit into one of the CSP refinement models.
 % TODO: Maybe I am supposed to add more here. But right now I cant think of what to add other than the stuff from "version 2 of the thesis", which I am waiting with for now.
-
-
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-
-
-
-\section{Internal clock structure} \label{sec:analysis_clock}
-% Here I should analyse the clock structure of SMEIL and also introduce how there is not such thing in CSPm. I am not sure if it is enough to introduce it in the background chapter, or if it is also needed here.

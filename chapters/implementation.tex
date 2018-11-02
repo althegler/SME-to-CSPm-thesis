@@ -11,7 +11,7 @@ An example of this can be seen in Listing \ref{lst:smeil_input_parameter}, where
             abus.val = input.val + 1;
         }
     \end{minted}
-    \caption{}
+    \caption{Example of a read and a write in SMEIL.}
     \label{lst:smeil_input_parameter}
 \end{listing}
 SMEIL does not seperate communication and calculation in the process statements which is of great advantage in SMEIL, but the translation becomes more difficult since TAPS has to be able to recognise the communication.
@@ -163,7 +163,6 @@ This monitor process structure is a simple but general solution which can be reu
 
 \section{Transpiling Networks}
 % TODO: This headline is almost the same at it is in design chapter
-% TODO: Ive shown the \texttt{seconds} process translated and its monitors, so here I can show the network combining these.
 When generating the process monitor network as described in Section \ref{sec:design_translating_network}, TAPS go through all writes within each process and generate the monitor processes for each channel. In order to generate the process monitor network TAPS firstly adds all the reads of the input parameters for the process. From the information given in the SMEIL network for each instance, TAPS knows which channel is the channel to read from for this specific process and then the value will be added as a process parameter, however there are several steps to this process. In the SMEIL instance declarations, the process name itself is not necessarily declared within the process parameter. The process parameter might be defined using the instance name possible to define for each instance in a network as explained with the example in Listing \ref{lst:Instance_variations}. Therefore TAPS first have to search the network to specify which process the input parameter is defined within. Since the channel itself is not declared directly in the instance declaration in SMEIL TAPS will then search through the data in order to see which channel are contained within the specified bus and then which channels are actually being read from within this specific process. This data are all gathered from different processes in the network, however, since we have generalised the process translation as well as the monitor process translation it is only within the network translation that it is necessary to search for data elsewhere in the system, which is an advantage.\\
 
 % TODO: TAPS does not currently support more than one input channel
@@ -175,7 +174,7 @@ In Listing \ref{lst:network_example_cspm} the network generated for the \texttt{
 Lastly the \texttt{assert} operator is used to specify to FDR4 that it should create a refinement check against the specification process \texttt{SKIP} and the implementation process \texttt{N\_seconds} and also that it should use the Failure model.
 
 \begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 N_seconds = clock_out_val ? variable ->
             (Seconds(variable)
             [| {| seconds_out_first_digit|} |]
@@ -195,47 +194,39 @@ assert SKIP [F= N_seconds \ Events
 % % TODO: Figure out how to make sure that all data are synchronised. It might be something about needing to have a linked list or something to keep all the data together. both stuff defined as parameter and communication defined by using the formal names.
 
 
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-
 \section{Technologies}
 
-Usually when doing any form of translation either by a compiler or interpreter, the use of a symbol table is often needed in order to keep information about variable names, function names, classes, communication ect. Usually the translation, when reaching a symbol in the translation, use the symbol table to look up a symbol and retrieve its context if it has any information about said symbol. This can be to check that a variable have been declared or for type checking ect.. The symbol table is usually generated in the analysis section and are used for look ups througout the compilation or interpretation.
-....
+Usually when doing any form of translation either by a compiler or interpreter, the use of a symbol table is often needed in order to keep information about variable names, function names, classes, communication ect. Usually the translation, when reaching a symbol in the translation, use the symbol table to look up a symbol and retrieve its context if it has any information about said symbol. This can be to check that a variable have been declared or for type checking or similar. The symbol table is usually generated in the analysis section and are used for look ups througout the compilation or interpretation. When parsing the code, TAPS gathers all relevant information from the code, and since TAPS expect the SMEIL program to be well-formed, it does not need a symbol table to check if variables have been declared in the process declaration before being used in the body of the process.
+TAPS use ANTLR4~\cite{antlr} as the parser generator with Python 2.7 as its source.
+For the actual gode generation the templating language Jinja2~\cite{jinja2} have been used.
 
 \subsection{ANTLR4}
-For the transpiling between SMEIL source code and \cspm{} source code, we decided to use ANTLR4~\cite{antlr} for creating a parser and a lexer. ANTLR4 is a Java-based parser generator library that, based on a grammar, can generate parsers in Java or another target language. ANTLR4 provided a tool that could easily transform the given grammar into a parser and lexer that could immediately be used to transform into \cspm{}.
+For the transpiling between SMEIL source code and \cspm{} source code, I decided to use ANTLR4 for creating a parser and a lexer. ANTLR4 is a Java-based parser generator library that, based on a grammar, can generate parsers in Java or another target language. ANTLR is a well used tool with a lot of documentation and which have been updated to a new and improved version 4 recently. By using ANTLR4 I could easily transform the SMEIL grammar into a parser and lexer that could then immediately be used to transform into \cspm{}.
+ANTLR4 supports Extended BNF (EBNF) and it must be defined in \texttt{.g4} file format, which is very similar to other standard grammars. The SMEIL grammar have been changed slightly either because it was more efficient to parse the programs if a grammar rule was removed. For instance the SMEIL grammar does not have a short way of representing "one or more" but only "zero or more". In ANTLR4 it is possible to define the rules as "one or more", and some of these SMEIL rules have been simplified to this. The grammar have also been changes in a few places, simply because there are things within the SMEIL grammar that TAPS does not allow, such as optional ranges, as described earlier.
 
-ANTLR takes a grammar, defined in .g4 (BKNF?) and create the parser and lexer of the files.
+% A lexical analysis, which is what a lexer , is a process of converting a string of characters into tokens, which is also called tokenization. Each token represents a lexer rule in the grammer, for instance, if the string is "123" and there is a lexer rule "INT: {0-9}+" which means one or more of 0-9 digits. Then the token would be an INT.
+%
+% A parser...%TODO: write more here
+% Should I write something about what a lexer and a parser is? I am pretty sure Brian said no, that it is not a part of the job. The job is to describe how I generate the code, not how I parse it with an automatic parse generator. But I should explain what ANTLR do and how it is an advantage to me.
 
-A lexical analysis, which is what the lexer does, is a process of converting a string of characters into tokens, which is also called tokenization. Each token represents a lexer rule in the grammer, for instance, if the string is "123" and there is a lexer rule "INT: {0-9}+" which means one or more of 0-9 digits. Then the token would be an INT.
+After parsing the code with ANTLR4, one can decide to traverse the parse tree itself or use either the listener or the visitor methods that ANTLR4 provides. The main difference between the listener and the visitor is that the listener provides methods which are called by the walker object directly, and the visitor methods must call its children explicitly to walk them. Both methods can provide the same results, and it often depends on preference. In my implemenation of TAPS I first tried the listener method, but realising that I do not need data from all parse rules, it was not necessary to walk the entire tree and therefore I shifted to the visitor method where I can be specific about which rules ANTLR4 should walk.
 
-A parser...%TODO: write more here
+After ANTLR4 have walked the parse tree and collected all relevant information, the data is transformed to match the requirements of the \cspm{} code. For example, the names of a bus channel in SMEIL it transformed into a combined name for a \cspm{} channel. I have defined templates in Jinja2 that match these generalised structures in \cspm{} that I can use to represent the SMEIL code. These templates are then used together with the transformed data to generate the \cspm{} code. 
 
-Currently, only a subset of the SMEIL grammar have been implemented for translating and parts of the grammar have been changed slightly to match the expectations from a simulated SMEIL program, which varies a bit from a non-simulated SMEIL program. An example of this could be that in the original SMEIL grammar a channel declaration only includes an optional range, however, we are expecting a simulated SMEIL program and therefore the simulation would always have generated ranges of observed values for each channel. Therefore, in the grammar, created for ANTLR4, the range for each channel must always be defined.
-
-The ANTRL4 grammar is provided in a filetype called \texttt{.g4} but the structure of the grammar is similar to standard grammar notation.
-After running ANTLR4 and generating a parser and a lexer, one can decide to traverse the parse tree itself or use a listener or visitor that ANTLR4 provides. The main difference between the two is that the methods the listener provides are called by the walker object, which ANTLR4 provides, and the visitor methods must call their children explicitly to walk them.
-For our implementation, we used the ANTLR4 listener along with Python. When generating a parser and lexer for another target language than Java, the programmer only has to specify this in the ANTLR4 command in the command-line.\\
-
-% NOTE: This part below have been added mostly as a brain dump. Should be re-written or something
-
-With this implementation, we have used the visitor method, which is a well known traversal method %TODO: Is that true?
-With the visitor we gain the advantage that we decide which part of the parse tree we traverse, instead of having to traverse the entire parse tree as with the listener method. With the visitor, for each parser we have to explicitly call \texttt{visit()} on the children that we wish to visit, which, in some cases can make a tree traversal more complex, but in our case we wish to seperate concerns and this is done by having three different tree traversals which collect three differet pieces of data for the code generation.
-When restructuring the code for the visitor method, we have to implement the top parsers, \texttt{module} and \texttt{entity}, even though they dont have any real value for the data we need to collect. However, because of the visitor method having to call all children, we need to implement these two parsers, simply so they can call their children.
-This seem a little pointless compared to the listener, where we can ignore the parsers we do not care about, but if we use a listener we would have to use a stack system and that would cause problems, because a terminal node that we only want sometimes might push something on the stack that we did not want to. Because every time that terminal node is entered or exited the code is run. With the visitor we can control when the nodes are run which means that we avoid some messy stack problems.
-A visitor can return a value like other standard functions which means that we have directly access to the result from it or its children. However, if there are more than one child the result will have to be assigned in a list or similar, to access.
-If there are two expressions in one alternative, we can get the two seperate results by calling \texttt{self.visit(ctx.expression(0))} and \texttt{self.visit(ctx.expression(1))}. This simplifies the structure since we do not have to handle loops in this case, because we know that the structure would always be two expressions, not more and no less.\\
-Even though we update the data structure \texttt{data} by reference instead of returning it as a result from the tree traversals, it is still necessary to return values from some of the parsers. Parts of the data structure cannot be created before having specific data, and the top parser with all the information will then gather the results from its children and update the \texttt{data} dictionary with the new data.
+%
+% With the visitor we gain the advantage that we decide which part of the parse tree we traverse, instead of having to traverse the entire parse tree as with the listener method. With the visitor, for each parser we have to explicitly call \texttt{visit()} on the children that we wish to visit, which, in some cases can make a tree traversal more complex, but in our case we wish to seperate concerns and this is done by having three different tree traversals which collect three differet pieces of data for the code generation.
+% When restructuring the code for the visitor method, we have to implement the top parsers, \texttt{module} and \texttt{entity}, even though they dont have any real value for the data we need to collect. However, because of the visitor method having to call all children, we need to implement these two parsers, simply so they can call their children.
+% This seem a little pointless compared to the listener, where we can ignore the parsers we do not care about, but if we use a listener we would have to use a stack system and that would cause problems, because a terminal node that we only want sometimes might push something on the stack that we did not want to. Because every time that terminal node is entered or exited the code is run. With the visitor we can control when the nodes are run which means that we avoid some messy stack problems.
+% A visitor can return a value like other standard functions which means that we have directly access to the result from it or its children. However, if there are more than one child the result will have to be assigned in a list or similar, to access.
+% If there are two expressions in one alternative, we can get the two seperate results by calling \texttt{self.visit(ctx.expression(0))} and \texttt{self.visit(ctx.expression(1))}. This simplifies the structure since we do not have to handle loops in this case, because we know that the structure would always be two expressions, not more and no less.\\
+% Even though we update the data structure \texttt{data} by reference instead of returning it as a result from the tree traversals, it is still necessary to return values from some of the parsers. Parts of the data structure cannot be created before having specific data, and the top parser with all the information will then gather the results from its children and update the \texttt{data} dictionary with the new data.
 
 
 % TODO: Maybe it is worth mentioning how I remove some sub-"parsers" in the grammer, because it made the parsing more complicated . Such like I removed the processdecl nonterminal because I could then call visit(ctx.busdecl) specificly. Otherwise I could also just do "if ctx.busdecl: ..." but, this gave one less step (however, now I am thinking about it, it might not be a good idea. It gives more complexity and maybe thats not good if other people need to understand the antlr grammar. )
 
 % TODO: Write something about how I should just gather the data and then letting the transformation part do any data transformations. I am, for example, not doing that now since I am adding calculations and communications into two different lists.
 
-% TODO: Write something about how smart it is that I can use labels in the grammar and that I can then much mor easily control how to handle different alternatives.
+% TODO: Write something about how smart it is that I can use labels in the grammar and that I can then much more easily control how to handle different alternatives.
 
 
 

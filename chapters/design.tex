@@ -72,7 +72,7 @@ Since \cspm{} does not need to declare variables beforehand, we can ignore the v
 % NOTE Constants are currently not implemented in TAPS
 % TODO: How to handle variables with predefined values
 
-The types and ranges of variables are not translated, and unless we need the information for verification, it is completely ignored. We can only do this because we know the SMEIL program must be well-formed and since the variables are not used for verification, it does not matter what types and values the SMEIL program expects of these.
+The types and ranges of variables are not translated, and unless we need the information for verification. It is, however, necessary that TAPS looks through to check if any of the internal variables are instantiated with a value, since TAPS will have to keep this information for the translation. If the variables are not instantiated with a predefined value, TAPS simply ignore the variable declaration. We can only do this because we know the SMEIL program must be well-formed and since the variables are not used for verification, it does not matter what types and values the SMEIL program expects of these.
 
 All assignments are translated directly into \cspm{} without much change, however if the assignment is to or from a bus, TAPS have to differentiate and handle these assignments differently, which will be explained later in this section.
 
@@ -119,7 +119,7 @@ When adding a data generator process as well as syncronisation, the data generat
 To summarise, when generating data in \cspm{} from a SMEIL data generator process, the two possibilities are either to define the data in \cspm by a single channel or by a data generator process and syncronisation, just like in SMEIL.
 Currently TAPS only support generating an input channel from the SMEIL network.
 % NOTE: Only one type of data generator process are supported right now - having the input as a input parameter
-Listing \ref{lst:clock_data_generation_example_cspm} is the translated version of the SMEIL network from Listing \ref{lst:clock_data_generation_example_smeil}. Here it can be seen that the \texttt{clock} process from the SMEIL network, is translated into a channel in \cspm{}
+Listing \ref{lst:clock_data_generation_example_cspm} is the translated version of the SMEIL network from Listing \ref{lst:clock_data_generation_example_smeil}. Here it can be seen that the \texttt{clock} process from the SMEIL network, is translated into the channel \texttt{clock} in \cspm{}
 The translation of the range values defined for each channel are described later in this section.
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
@@ -137,25 +137,13 @@ within
 \caption{Example of the translated \texttt{Minutes} process defined in Listing \ref{lst:clock_data_generation_example_smeil}.}
 \label{lst:clock_data_generation_example_cspm}
 \end{listing}
-% TODO: Not sure if this example makes sense here, since we have not introduced the network generation yet and therefore there is no connection between the channel \texttt{clock} and the input in the process.
-
 In the case where the SMEIL network does not have a data generator process but are instantiated with constants or internal values, the \cspm processes would also have to be instantiated with the values as parameters. This means that the the \cspm{} network would not contain an input channel, but that the processes that are instantiated with a constant or internal value, must be translated to contain this information as well.
-% TODO: Maybe add a short two column example of the parameter variables here
-If the SMEIL process are defined with an internal value, the \cspm{} process must also be defined with this initial value. This is a bit more tricky since we usually ignore the value declarations, but since the value are defined with a specific value, we have to include this in the process.
-% TODO: Figure out what happens when a value is instantiated within the SMEIL process. and then continue writing this.
-
-
-% TODO: The Addone example does not make much sense to show here, since it does not work for the non-clocked system. I could talk about how a programmer might just add a data generation process. But this does not really make sense since i have a solution (clocked version) which I will explain later in the report.
+If the SMEIL process are defined with internal values, the \cspm{} process must also be defined with this initial value.
 
 
 %% Generator processes - More than one process
 If there are several data generation processes in the SMEIL program, TAPS will not handle the processes different than if there were one data generator process. The processes will be translated into a \cspm channels for each data generator process, and the comunication to the rest of the network will still be kept intact since all the communication are specified by the SMEIL network structure.
 
-
-% (moved from analysis: )
-%  % None of these two posssible usecases are currently implemented in TAPS, and thus the keyword \texttt{exposed} will cause an error in the transpiler. %TODO: Will it cause an error? And should I add more info to this?
-%
-% ------------------------------------------------------------
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % NOTE: The problem is that in the unclocked version there are two ways of defining the read. Either the network reads and the process gets the value as a parameter or the process reads itself.
@@ -171,9 +159,7 @@ If there are several data generation processes in the SMEIL program, TAPS will n
 
 \subsection{Translating Buses and Channels}
 % TODO: Here might be some interesting design stuff. How do I handle if bus channels are used directly in the process without being used as a parameter. In that case I would have to be sure I defined it in cspm{}, but this should be solved by simply taking all bus definitions and create a channel for all of the channels within those. Since no bus channel can be used without haveing be declared somewhere in the system, this would ensure that we translate all of them.
-% "Because there are several different ways to define a bus in SMEIL %TODO: see the analysis chapter,
-% the translation will have to recognize the different types and generate the \cspm channels no matter how they where defined."
-%
+
 
 % TODO: What if I need to translate a bus with letters, or something else? what kind of channel does that become?
 
@@ -262,19 +248,15 @@ The small downside to this solution is that the internal structure of the proces
 Out of these three solutions, it is clear that even though the solution in Listing \ref{lst:cspm_no_input} are the simplest version, the translation would become much more complex, which is a big disadvantage.
 
 In order to create the simplest solution possible, I decided to use the solution in Listing \ref{lst:cspm_input_value}. Even though it does not exactly match the SME model it will not cause trouble, since the network that does the reading will be very closely connected to the process. Using this solution result in a simpler translation of each process and leaves the more complex information to be translated in the network. This means that most of the translations in the program can be done swiftly without needing much information about the rest of the system. Only the network translation becomes complex.
-% TODO: Make sure I explain how the network of the monitor processes shows that it is closely related to the process.
 In the case where the process does not have any parameters and are using the bus channels hierarchical names to communicate, this problem will not occur and TAPS will be able to translate the processes directly, since the actual name of the bus channel are defined within the process.
 
 \subsection{Verification in \cspm{}}
-
-% TODO: Maybe I should write something about using SKIP and failures model?
-% TODO: I also need to add that we do include an assert statement.
-% TODO: Maybe I should do it with the FD model, but in this case it does not really make sense, since all processes end after one iterations (they all SKIP). But it is worth mentioning it in the new system, because there it becomes relevant
-
 % %%%% Monitor processes %%%%%
 In order to create the assertions for the refinement checking, I decided to create separate assert functions to keep the code structure clean. It would have been possible to include the assertions within the processes, but it is important to keep seperations of concerns and therefore I decided to add this extra process. This will increase the complexity of the generated \cspm{} network, but it will be a minor difference and it is still preferable to more complex process structures.
 
 I know that for each \cspm{} channel there must be an assertion, except for input channels. Consequently, we create a \textit{monitor} process for each channel and its only job is to listen in on the channel communication and assert the values communicated there. The monitor process is a process that we add specifically for asserting legal communication values in FDR4 and it does not affect the original SME network.
+
+The monitor process checks the values communicated on the channel and if all values are within the expected range and if it is not the monitor process behaves as the \texttt{STOP} process. If all values are within the range, the process behaves as the \texttt{SKIP} process.
 
 There might be a case where we are not interested in verifying all channels, but we add assertions to all channels, to simplify the code generation. If TAPS should only include assertions on some channels, then a specific notation for which channels the assertions should be included, must be introduced. This is definitely possible, and might be relevant for future work, but adding this functionality might also have the consequence that some errors would not be caught, since the programmar would be responsible for asserting which channels was worth checking.
 
@@ -296,8 +278,17 @@ In Figure~\ref{fig:assertion_process} the outline of this kind of structure can 
   \label{fig:assertion_process}
 \end{figure}
 
+For FDR4 to actually perform any refinement checking, an assertion must be added to the network by using the \texttt{assert} keyword. The assertion I wish to make is to check if the entire network terminates successfully. This is done by using the \texttt{SKIP} process as the specification process of a refinement check as well as the network to verify.
+\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+assert SKIP [F= Network \ Events
+\end{minted}
+The example seen above shows a \cspm{} assertion which informs FDR4 what kind of refinement checking to do.
+It is necessary to hide all events of the system since it would otherwise not be possible to verify the system unless I already had the exact failures or traces of the network. By hiding all events, all events become internal, and would still comply with the rules and structures of the network, but the refinement check would not include them. This also means that the end result of the network is what is checked and in this case we wish to verify that the network behaves like the \texttt{SKIP} process, which means that it will have terminated successfully.
 
-% The meta information that I am using to create the assertions on each channel are meta information in the SMEIL program. TAPS use the observed range of values for each channel to define the range of acceptable values in the assertions. TAPS then translates these values, not into meta data in \cspm{} but as an actual process with actual real semantics which is included as a part of the topology of the \cspm{} network.
+I am using the \textit{failures} model described in Chapter \ref{chap:background} since I am not able to use the \textit{traces} model here. The reason I can not use the \textit{traces} model is because \texttt{SKIP} is defined as $\tick \then \STOP$. Since failures in the network are defined using \texttt{STOP}, the failures would simply also be accepted when using the \textit{traces} model, since the traces are the same. By using the \textit{failures} model, the refinement check does fail if a monitor process does not terminate successfully. This is because the failures of a \texttt{SKIP} process includes $\tick$, which the failures of a \texttt{STOP} process does not. Therefore, even though their traces are similar, the failures are not.
+
+
+So the meta information that I am using to create the assertions on each channel are meta information within the SMEIL program. TAPS use the observed range of values for each channel to define the range of acceptable values in the assertions. TAPS then translates these values, not into meta data in \cspm{} but as an actual process with actual real semantics which is included as a part of the topology of the \cspm{} network.
 
 % %%%% Monitor processes: monitor something else that ranges
 
@@ -350,32 +341,3 @@ After this small network have been generated, it can then be synchronised togeth
 % TODO: What if several processes write to the same output channel? How to handle the monitor process then?
 
 As mentioned in Chapter \ref{chap:analysis}, it is possible to instantiate one SMEIL process several times within the SMEIL network. Since TAPS is creating the network in \cspm{} by synchronising processes with each other via channels, it can synchronise the same process several times with different channels or parameters, creating the same functionality as the instances in SMEIL.\\
-
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-------------------------------------------------------------------------------\\
-
-
-
-\section{Clock cycle problem}
-% \input{chapters/clock_cycle_problem}
-
-CSP was not initially developed for hardware modeling, and therefore it is not evident how to handle the clock cycle, which is an essential part of hardware modeling. When we transpile the SME network into \cspm{}, the SMEIL simulation have provided the ranges of all values from the simulation and therefore all clock cycles. This means that when FDR4 asserts a property it asserts on all possible communication combinations for all the simulated clock cycles. Therefore, even though we are transpiling from an SME model, where the clock is crucial, we can simply translate ``one-to-one" from the SMEIL program and still get an accurate assertion on the properties.
-
-
-
-
-% It is important to mention that the FDR version of the SMEIL program are represented as one clock cycle and therefore we do not have to handle implicit clock cycle issues. we can just translate one-to-one, because FDR models one clock cycle and the input represents all possible input in one clock cycle.
-
-
-
-% TODO: Async vs. sync processes
-
-%%% Generator processes - clock cycles
-%TODO: Write something here?
-
-
-% TODO: Write that the read of a process does not make sense in the network and that we move it to be internal inside the process.
-
-

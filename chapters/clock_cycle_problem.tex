@@ -50,3 +50,30 @@ In this case, it is only necessary to add an upper limit test, since the network
 % It is important to note that SME processes usually do not end, but continue running forever. However, when we simulate with SME, the simulation end after some specific number of clock cycles, and this is what we wish to verify.
 % It might be interesting to use the "running forever" thing to verify stuff on it. But at the moment I cant see what we would verify. Deadlocks would never happen in SME, so it would be possible to use it to check that the translation have been successful, but this is not so relevant for other people.
 % It might be that the stuff we wish to verify is not possible in a limited clock cycle range and that it is necessary to run it "forever". I am not sure.
+
+
+
+% (From design)
+% \section{Clock cycle problem}
+% % \input{chapters/clock_cycle_problem}
+%
+% CSP was not initially developed for hardware modeling, and therefore it is not evident how to handle the clock cycle, which is an essential part of hardware modeling. When we transpile the SME network into \cspm{}, the SMEIL simulation have provided the ranges of all values from the simulation and therefore all clock cycles. This means that when FDR4 asserts a property it asserts on all possible communication combinations for all the simulated clock cycles. Therefore, even though we are transpiling from an SME model, where the clock is crucial, we can simply translate ``one-to-one" from the SMEIL program and still get an accurate assertion on the properties.
+%
+%
+%
+%
+% % It is important to mention that the FDR version of the SMEIL program are represented as one clock cycle and therefore we do not have to handle implicit clock cycle issues. we can just translate one-to-one, because FDR models one clock cycle and the input represents all possible input in one clock cycle.
+%
+%
+%
+% % TODO: Async vs. sync processes
+%
+% %%% Generator processes - clock cycles
+% %TODO: Write something here?
+%
+%
+% % TODO: Write that the read of a process does not make sense in the network and that we move it to be internal inside the process.
+
+
+% (from verification in design)
+% TODO: Maybe I should do it with the FD model, but in this case it does not really make sense, since all processes end after one iterations (they all SKIP). But it is worth mentioning it in the new system, because there it becomes relevant
