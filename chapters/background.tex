@@ -85,7 +85,7 @@ An SMEIL module consists of the actual SMEIL program as well as import statement
 
 The two fundamental components of an SMEIL program is \texttt{process} and \texttt{network}. The process consists of variable and bus definitions, as well as the statements that are evaluated once for each clock cycle. The purpose of the \texttt{network} declaration is to define the relations between each entity in the program. A small example of the process and network syntax can be seen in Listing~\ref{lst:smeil_small_syntax_example} and a further introduction to the language can be found in Chapter \ref{chap:analysis}.\\
 
-The SME model supports both synchronous and asynchronous processes. A synchronous process is run during every clock cycle and an asynchronous process are only run when receiving a signal on the input bus. Unfortunately, SMEIL does not currently support asynchronous processes. %TODO: Ask truls if it is implemented in other sme implementations.
+The SME model supports both synchronous and asynchronous processes. A synchronous process is run during every clock cycle and an asynchronous process are only run when receiving a signal on the input bus. Unfortunately, SMEIL does not currently support asynchronous processes.
 \begin{listing}
 \begin{minted}[escapeinside=&&, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 proc addone (in inbus)
@@ -126,78 +126,50 @@ Therefore libsme provides a way to re-type the SME network based on the values o
 During the simulation, the observed minimum and maximum value for all variables and channel are captured and saved along with the original value. SMEIL have been extended to include lower bounds for the purpose of this thesis.
 
 After the simulation, these minimum and maximum values are then converted into SMEIL types large enough to hold the range.
-The new SMEIL program with the updated types and observed ranges are then passed through the type checker, in order to ensure that all constraints from the original program are still respected.
-------------------------------------------------------
-An example of this can be seen in Figure \ref{fig:smeil_restricted_types_and_ranges} where a unlimited size integer is re-typed to an integer of fixed size after the simulation. In Figure \ref{fig:invalid} an example of a violation can be seen. Here the value c is contrained to \texttt{i10} but if the channel \texttt{b.chan} observe values that are 16-bit long then the restrictions on the c variable are violated.
+The new SMEIL program, with the updated types and observed ranges, are then passed through the type checker in order to ensure that all constraints from the original program are still respected.
 
+An example of this can be seen in Listing \ref{lst:smeil_restricted_types_and_ranges} where a unlimited size integer is re-typed to an integer of fixed size after the simulation.\\
 \begin{minipage}[t]{.98\linewidth}
     % \centering
-  \begin{minipage}[t]{0.30\linewidth}
+  \begin{minipage}[t]{0.45\linewidth}
     \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc A ()
- bus b {
-  chan: int;
- };
- var c: i10;
+    bus b {
+        chan: int;
+    };
+    var c: i10;
 {
-  c = b.chan;
+    c = b.chan;
 }
     \end{minted}
-    \captionof{listing}{Unconstrained types.}
-    \label{fig:oktype}
+    \captionof{listing}{Example of unconstrained channel type before simulation.}
+    \label{lst:unconstrained_smeil_type}
   \end{minipage}
   \hspace{0.5cm}
-  \begin{minipage}[t]{0.30\linewidth}
+  \begin{minipage}[t]{0.45\linewidth}
     \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc A ()
- bus b {
-  chan: i6 range 0 to 29;
- };
- var c: i10;
+    bus b {
+        chan: i6 range 0 to 29;
+    };
+    var c: i10;
 {
- c = b.chan;
+    c = b.chan;
 }
     \end{minted}
-    \captionof{listing}{Valid.}
-    \label{fig:non-violated}
+    \captionof{listing}{Example of constrained channel type and range after simulation.}
+    \label{lst:constrained_smeil_type}
   \end{minipage}
-  \hspace{0.5cm}
-  \begin{minipage}[t]{0.30\linewidth}
-   \begin{minted}{smeil_lexer.py:SMEILLexer -x}
-proc A ()
- bus b {
-  chan: i16 range 0 to 30717;
- };
- var c: i10;
-{
- c = b.chan;
-}
-   \end{minted}
-    \captionof{listing}{Invalid.}
-    \label{fig:violated}
-  \end{minipage}
-   \captionof{listing}{Shows a process entering the simulator with an unconstrained type (a)
-     and examples of two possible resulting programs (b, c). The type changing
-     between the examples is underlined.}
-   \label{fig:simtyping}
+    \vspace{0.5cm}
+   \captionof{listing}{Example of channel types before and after simulation. Example from \cite{smeil}.}
+   \label{lst:smeil_restricted_types_and_rangesg}
    \vspace{1cm}
 \end{minipage}
-
-
-It is taken from Truls article and I should change the captions and also mention where I got it from.
-Maybe it is not necessary to have the invalid version in this example? It is necessary for Truls, but maybe not for me.
-
-In Figure \ref{fig:smeil_restricted_types_and_ranges} the two last programs, showed in Figure x and y, will be the result of the re-typing of the program after simulation. That is, the programs resulting from the simulation of the program in Figure z.
-
----------------------------------------------------
-
-
 \subsubsection{Co-simulation}
 Often when modeling hardware in Hardware Description Languages (HDLs) like VHDL or Verilog, code for testing and verifying are often written in the same language as the design itself. Unfortunately, the HDLs often does not have the functionality for generating proper simulation input. Using general-purpose languages for testing hardware models are useful since the range of available libraries are much larger.
 Therefore the SMEIL simulator provides a simple language-independent API which enables SME implementations written for general-purpose languages to communicate with SME networks written in SMEIL, so-called co-simulation.
 The big advantage of the SMEIL approach to co-simulation is that SME is used on both sides of the co-simulation and therefore can act as a single entity.
-The PySME %TODO: Reference
-library has been extended to support co-simulation with SMEIL, thereby providing the possibility of writing networks in PySME which can interact with SME networks written in SMEIL. Currently, only PySME has been extended with this but is expected to be implemented in the other SME implementations as well.
+The PySME~\cite{pysme} library has been extended to support co-simulation with SMEIL, thereby providing the possibility of writing networks in PySME which can interact with SME networks written in SMEIL. Currently, only PySME has been extended with this but is expected to be implemented in the other SME implementations as well.
 When simulating the SMEIL network, the compiler can record a trace of all communication between processes in the network. This trace file can then be used as a source for the VHDL test bench, which can be used to verify the generated VHDL code.
 
 In Figure~\ref{fig:smeil_transpiler} the SMEIL transpiler structure can be seen.
@@ -267,7 +239,6 @@ Local definitions can be defined by wrapping them inside a \texttt{let within} s
 \cspm{} provides support for lambda terms which have the syntax $\backslash \  x_1,...,x_n @\ x$. An example could be \texttt{f = \textbackslash x, y @ x \% y}. \\
 It is simple and ideal to use pattern matching in a lot of cases in \cspm, similar to most functional programming languages. Case statements can be defined via pattern matching as well as comprehensions, communications etc. There are several rules that belong to pattern matching within \cspm{} which will not be introduced here. For more information see the \cspm{} Reference Manual~\cite{Scattergood2011}.\\
 
-% TODO: Figure out if I need to explain named types and data types in cspm
 In \cspm{} a channel is defined with the keyword \texttt{channel} and an identifier as a tag. Channels can be simple structures like \texttt{channel clock} or more complex like \texttt{channel c : \{0..10\}} which represents a channel $c$, that can communicate integers in the range of 0 through 10. A channel becomes an event when all necessary values have been provided. With channel \texttt{c}, the value \texttt{c.5} is of type Event. All events are members of the built-in data type \texttt{Events}. It is possible to define channels to be infinite, but when using \cspm{} in FDR4, it is not common use since FDR4 would run out of space due to the state space becoming too large.
 
 \subsubsection{\cspm{} Processes}
