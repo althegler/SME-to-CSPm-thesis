@@ -6,21 +6,22 @@
 % Three components: Behavioral, structural, meta data
 
 % Jeg skal ikke fortælle hvordan jeg har gjort det men analyse af problemet og ikke af løsningen. Jeg skal blot beskrive problemstillingerne.
-In this section we analyse the differences between the SMEIL model and the functionality of \cspm. We also introduce important parts of the SMEIL structure and grammar to provide an understanding of the different challenges.
+In this section I analyse the differences between the SMEIL model and the \cspm{} language. I also introduce important parts of the SMEIL structure and grammar to provide an understanding of the different challenges.
 
 \section{Verification}
 \label{sec:analysis_verification}
 % TODO: Still not sure I introduce the problem properly
-The reason for translating SMEIL to \cspm{} is to use the refinement checking property of the CSP language. By loading the \cspm{} programs into FDR4 we can verify different properties within the SMEIL program.
-Before we can design the transpiler and generate the \cspm{} code, it is essential to figure out what kind of properties would be beneficial to verify in hardware, and what kind of properties are possible to verify with FDR4.
-As mentioned in Chapter \ref{chap:background}, FDR4 provides refinement checking with different models. FDR4 is often used for deadlock checking, but since the SME model guarantee deadlock freedom, it will not be necessary to use this property within FDR4\footnote{It might be interesting to do the deadlock checking simply to verify that the translation was done correctly. The generated \cspm{} code should also be deadlock free}.\\
+The reason for translating SMEIL to \cspm{} is to use the refinement checking properties of the CSP language. By loading a \cspm{} program into FDR4 it is possible to verify different properties within the SMEIL network.
+Before I can design the transpiler and generate the \cspm{} code, it is essential to figure out what kind of properties would be beneficial to verify in hardware, and what kind of properties are even possible to verify with FDR4.
+As mentioned in Chapter \ref{chap:background}, FDR4 provides refinement checking with different models, like the traces and failures models. FDR4 is often used for deadlock checking, but since the SME model guarantee deadlock freedom, it will not be necessary to use this property within FDR4\footnote{It might be interesting to do the deadlock checking simply to verify that the translation was done correctly. The generated \cspm{} code should also be deadlock free.}.\\
 
-In hardware, we would typically want to verify that the communication on a bus does not exceed a certain range or that the sum of multiple signals does not exceed a specific value. A bus might be able to carry other data than needed, and being able to model a circuit that can assert that the bus never carries other data than expected, is of great value.
+In hardware, it would typically be relevant to verify that the communication on a bus does not exceed a certain range or that the sum of multiple signals does not exceed a specific value. A bus might be able to carry other data than needed, and being able to model a circuit that can assert that the bus never carries other data than expected, is of great value.
 
 Therefore it would be interesting to verify that certain values are never communicated on a specific channel, or that they are the only values communicated on the channel.
-When designing hardware it is always designed as a single unit but typically it will be connected with other units, creating a bigger structure. It is difficult to know exactly what input the network will have to handle and therefore it is interesting to be able to assert exactly what values can be communicated on the channels but also how the network react when unforseen values are input.
 
-To provide an understanding of the problem this kind of verification would be able to solve, we here introduce an example that will be referred to several times throughout the thesis.
+When designing hardware it is always designed as a single network. Typically the single network would be connected with other networks, creating a bigger structure. It is difficult to know exactly what input the network will have to handle and therefore it is interesting to be able to assert if unforseen values can be input and if the system handles them without error.
+
+To provide an understanding of the problem, this kind of verification would be able to solve, I introduce an example that will be referred to several times throughout this thesis.
 
 \subsection{Seven Segment example}
 \label{sec:example-seven_segment_intro}
@@ -54,10 +55,10 @@ In this example, we wish to model a typical digital clock that is able to calcul
 
 Like \texttt{time\_since\_midnight} in Listing~\ref{lst:python}, the network must have some input of data. The input value represents seconds since midnight, and in order to calculate hours, minutes, and seconds we model three different processes, called the \texttt{time} processes in this example.
 
-When writing hardware models in pure SMEIL, the only way to generate input for the network is to create a data generator process. This process, called the \texttt{clock} process in our example, is instantiated with a start time and is incremented by 1 for each simulation cycle, representing a one second increase.
+When writing hardware models in pure SMEIL, the one the the possible ways to generate input for the network is to create a data generator process. This process, called the \texttt{clock} process in our example, is instantiated with a start time and is incremented by 1 for each simulation cycle, representing a one second increase.
 % TODO: Do I need to move this further down? It might be that SMEIL have not been introduced properly so they wont understand it yet. It is an option to move it after Meta..
 The result is communicated on the process output bus, where the three \texttt{time} processes are listening. These \texttt{time} processes receive the number and by the use of simple integer arithmetic, calculate the hours, minutes, and seconds since midnight respectively. It is obvious that at some point in time, each \texttt{time} process will calculate a two-digit result, for example at 12 hours or 42 seconds. However, a single seven segment display can only show one digit between 0 and 9. Therefore we need two seven segment displays for each \texttt{time} process in order to show the correct time in a 24-hour interval. Each \texttt{time} process has an output bus with two individual channels that represent the communication to each different display. The number representing either hours, minutes, or seconds are separated into first and second digit, by $\lfloor \frac{x}{10} \rfloor$ and $(x \text{ mod } 10)$. These six different results are then communicated onto the six different channels which represent the six different seven segment displays.
-The outline of this network can be seen in Figure~\ref{fig:smeil_network}.\\
+The outline of this network can be seen in Figure~\ref{fig:smeil_network}.
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{python}
 from math import floor
@@ -104,13 +105,13 @@ print(time( 66666)) # =>  18:31:06
 In Figure~\ref{fig:smeil_network} the network consists of four processes, the data generator process, \textit{I}, which creates the input that is broadcasted out on the network. The three \texttt{time} processes, hours (\textit{H}), minutes (\textit{M}), and seconds (\textit{S}) are the processes described above, which calculate each part of the current time. The outputs are communicated on the six outgoing channels.\\
 
 In this example the properties we wish to assert with FDR4, are the width of the channels. That is, we want to prove that certain values will never be communicated on certain channels.
-One could imagine that 4 bits can be communicated between the \texttt{time} processes and the seven segment displays. But 4 bits can represent the numbers 0 through 15, and our seven segment displays can only display the numbers 0 through 9. Therefore we wish to assert that even though the channels can carry 4 bits, the actual communication on the six output channels does not exceed 9. In general, the displays will be able to display 0 through 9, but since the example is a clock showing a 24-hour interval, the displays will of course not be able to show minutes and seconds above 59 and hours above 23.
+One could imagine that 4 bits can be communicated between the \texttt{time} processes and the seven segment displays. But 4 bits can represent the numbers 0 through 15, and our seven segment displays can only display the numbers 0 through 9. Therefore we wish to assert that even though the channels can carry 4 bits, the actual communication on the six output channels does not exceed 9. In general, the displays will always be able to display 0 through 9, but since the example is a clock showing a 24-hour interval, the displays will of course not be able to show minutes and seconds above 59 and hours above 23.
 
 The full SMEIL code for this example can be seen in Listing~\ref{lst:smeil} in  the appendix.
 
-\section{Transpiling SMEIL to \cspm{}}
+\section{Transpiling from SMEIL to \cspm{}}
 \label{sec:transpiling}
-Since we are translating code from SMEIL to \cspm{}, the challenge it to find \cspm{} structures that corresponds to the SMEIL strucutres. The ultimate goal is to find methods for transpiling, that can be generalised to most problems.
+Since we are translating code from SMEIL to \cspm{}, the challenge is to find \cspm{} structures that corresponds to the SMEIL strucutres. The ultimate goal is to find methods for transpiling, that can be generalised to most problems.
 
 From the introduction to both SMEIL and \cspm it is clear that the main intention of each language is different and therefore the transpiling of a process in SMEIL to a \cspm process might not be completely trivial.
 % All data from the SMEIL process will need to be translated into data and structures within the \cspm model, calculations and communications alike.
@@ -124,40 +125,39 @@ From the introduction to both SMEIL and \cspm it is clear that the main intentio
 % I SMEIL har jeg et prædefineret konsistent navnerum. Jeg skal ikke lave en symboltabel. Jeg arver direkte fra SMEIL til CSPm. Så her kan jeg snakke om at hvis jeg gjorde det på en anden måde ville jeg ikke kunne gøre det sådan. Det skal jeg skrive om her. TODO: Make a decision about where this belongs. It does not seem to be fitting in with the analysis, but on the other hand this was what Brian told me. But is he right?
 
 
-When analysing the general structure of SMEIL programs, there are three structures that are particular interesting when we are interested in translating from SMEIL to \cspm{}. These three structures are:
+When analysing the general structure of SMEIL programs, there are three structures that are particular interestingin terms of translating from SMEIL to \cspm{}. These three structures are:
 \begin{enumerate}
     \item \textbf{Behavioral:} The general behavior of each process and function.
     \item \textbf{Structural:} How the circuit is connected, i.e which buses connects to which processes.
-    \item \textbf{Meta information/Observed values} %TODO: Meta information or observed values?:
-    All data information from the SMEIL network that could be beneficial for our translation to \cspm{}.
+    \item \textbf{Verification data} All data from the SMEIL network that could be beneficial for our translation to \cspm{} and the verification.
 \end{enumerate}
 
 % TODO: Should I add the clock problem to the list, so it becomes four parts?
 
 \subsection{Behavioral}
 %% - Behavioral description - hvad den enkelte funktion gør. det oversættes ret nemt. Jeg bekymre mig ikke om variable og sådan nogle ting. Det er allerede gjort før det gøres til SMEIL, og dem kan jeg genbruge i min code generation.  Funktionel indhold af processer/ opførsel af den enkelte process - det er rimelig nemt oversat direkte til CSPm. Her kan man beskrive hvis der er nogle sproglige udfordringer, fx hvis CSPm ikke har loops eller lign.
-The behaviour of the single process in the SMEIL program is the base of the functionality of the SMEIL program. By analysing the different structures of processes in SMEIL, we can get a sense of how it should be created in \cspm.
+The behaviour of the single process in the SMEIL program is the base of the functionality in an SMEIL program. By analysing the different structures of processes in SMEIL, we can get a sense of how it could be created in \cspm.
 \subsubsection{Processes}
 % TODO: Maybe I only need to introduce SMEIL stuff that TAPS support?
 
 % %%%% SMEIL processes %%%%
-An SMEIL process is defined by the \texttt{proc} keyword and consists of an identifier, process parameters, bus and variable declarations. The body of the process, or the process statements, consists of sequential statements such as communications and calculations that are to be evaluated once for each clock cycle. A small example of a SMEIL process can be seen below. The process \texttt{a} takes an input bus, \texttt{input}, and writes on its own output bus \texttt{abus}.
+An SMEIL process is defined by the \texttt{proc} keyword and consists of an identifier, process parameters, bus and variable declarations. The body of the process, or the process statements, consists of sequential statements such as communications and calculations that are to be evaluated once for each clock cycle. A small example of a SMEIL process can be seen below. The process \texttt{add} takes an input bus, \texttt{input}, and writes on its own output bus \texttt{addbus}.
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-    proc a (in input)
-        bus abus {
+    proc add (in input)
+        bus addbus {
             val: uint;
         }
     {
-        abus.val = input.val + 1;
+        addbus.val = input.val + 1;
     }
 \end{minted}
 % TODO: This example is the same as listing lst:smeil_input_parameter in implementation
 It is not possible to declare variables inside the process statements and therefore all variable and communications must be declared in the declarative part of the process. This attribute should simplify the translation to \cspm, since TAPS will only have to search the declarative part of the process to find all variable and bus definitions.
 A process can be instantiated with a set of parameters. These parameters can be a mix of input and output buses and constants. A process is initiated in the network of a SMEIL program which will be explained later.\\
 
-In the SMEIL grammar, it is possible to declare if the process is \texttt{sync} or \texttt{async}. A \texttt{sync} process is run during each clock cycle, and a \texttt{async} process is only run when they receive a signal on the input bus. The current implementation of SMEIL does not support \texttt{async} processes, which means that all SMEIL process are in sync and behaves like decribed in Chapter \ref{chap:background}, where they read and write once in each clock cycle.
-The syncronicity of the processes are an essential part of the SMEIL network and therefore it is crucial that the generated code is able to model this correctly. In \cspm{} a process does not communicate until it receives an input, which match the async process of SMEIL. However, since it is only the  synchronous processes that are supported in SMEIL, it is necessary to introduce
-a structure to the \cspm network, that simulates the synchronous structure of the SMEIL proceses.
+In the SMEIL grammar, it is possible to declare if the process is synchronous or asynchronous by the keywords \texttt{sync} and \texttt{async}. A \texttt{sync} process is run during each clock cycle, and a \texttt{async} process is only run when it receives a signal on the input bus. The current implementation of SMEIL does not support \texttt{async} processes, which means that all SMEIL process are synchronised and behaves like decribed in Chapter \ref{chap:background}, where they read, execute and write once in each clock cycle.
+The syncronicity of the processes are an essential part of the SMEIL network and therefore it is crucial that the generated code is able to model this correctly. In \cspm{} a process does not communicate until it receives an input, which match the asynchronous process of SMEIL. However, since it is only the  synchronous processes that are supported in SMEIL, it is necessary to introduce
+a structure to the \cspm{} network, that simulates the synchronous structure of the SMEIL proceses.
 \\
 
 In an SMEIL process, the declarative part of the process can consists of different variables and constants as well as bus definitions. In this next part we introduce variables and constants, whereas buses are described in section \ref{sec:analysis_structural}.
@@ -166,28 +166,23 @@ Constants are used when declaring named constant values and consists of an ident
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 const hours: uint = 24;
 \end{minted}
-Variables are very similar to constants but simply hold mutable values within the process. In SMEIL variables persist their values in between clock cycles, which mean that it is possible for a process to save a value or result and reuse it in the next clock cycle.
+
 \paragraph{Variables}
-The only difference between variable and constants in SMEIL, is that variables can also take a range of values, for example:
+Variables are very similar to constants but simply hold mutable values within the process. In SMEIL variables persist their values in between clock cycles, which mean that it is possible for a process to save a value or results and reuse it in the next clock cycle.
+The only grammatically difference between variable and constants in SMEIL, is that variables can also take a range of values, for example:
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 var minutes: u6 = 0 range 0 to 59;
 \end{minted}
-The assignment of \texttt{= 0} is simply to give an initial value of the variable, but is optional, as well as the ranges are optional. The range give an expected value range of the variable. When simulating the SMEIL program, the range of observed values are used to define the type of the variable.
+The assignment of \texttt{= 0} is simply to give an initial value of the variable, but both initial values and ranges are optional. The range provide a range of expected values of the variable.
 
-In SMEIL, the types of variable and constants must always be defined and this also applies to bus channel declaration. The types can be either unlimited size integers, \texttt{int} and \texttt{uint}, or restricted to a specific bit-length. The prefixes \texttt{i} and \texttt{u} refers to signed and unsigned integers followed by a number determining the bit-length. For instance, \texttt{i4} represents a signed 4-bit integer.
-The unlimited bit size \texttt{int} and \texttt{uint} are not realistic to have in \cspm since, when verifying a program, FDR4 will look at the entire possible statespace, and with unlimited integers the statespace will be enormous. FDR4 restricts its integer types to signed 32-bit\cite{UniversityofOxford}. \cspm does not apply types to its variables and constants the same way as SMEIL and \cspm also does not support all the types that SMEIL support.
-Because of the type-system of SMEIL the libsme compiler will provide a warning if the values or ranges assigned to a constant or variable are above or below what the type can represent. In the example below the number 59 cannot be represented by 4 bits and therefore it would cause a warning from the compiler.
+In SMEIL, the types of variable and constants must always be defined which also applies to bus channel declaration. The types can be either unlimited size integers, \texttt{int} and \texttt{uint}, or restricted to a specific bit-length. The prefixes \texttt{i} and \texttt{u} refers to signed and unsigned integers followed by a number determining the bit-length. For instance, \texttt{i4} represents a signed 4-bit integer.
+The unlimited bit size \texttt{int} and \texttt{uint} are not realistic to have in \cspm{} since, when verifying a program, FDR4 will look at the entire possible statespace, and with unlimited integers the statespace will be enormous. FDR4 restricts its integer types to signed 32-bit~\cite{UniversityofOxford}.
+\cspm{} does not include types to its variables and constants the same way as SMEIL does. \cspm{} also does not support all the different types that SMEIL support.
+Because of the type-system of SMEIL the libsme compiler will provide a warning if the values of a constant or variable are above or below what the type can represent. In the example below the number 59 cannot be represented by 4 bits and therefore it would cause a warning from the compiler.
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 var minutes: u4 = 0 range 0 to 59;
 \end{minted}
-
-% TODO: Should this be moved somewhere else?
-In the SME model, processes never terminate, but when simulating an SMEIL program, it is necessary to terminate the simulation at some point, but it should simply be seen as a snapshot of the process and not that the process terminates when the simulation ends.
-The number of clock cycles, the simulation is run for, is specified via the command line tool.
-There is, of course, limitations to the simulation, and it is important to note that the simulation is a simple tool to simulate the running system, however it does necessary provide all possible results of the system. If a system fails at a 1000 clock cycles, but the system is only simulated for 100 clock cycles, then we would not know about the failure. If the translation use the observed values from a simulation, the user need to know the limitations of the simulation.
-% If the simulation is not passing through enough clock cycles, the verification might be inadequate. Since the verification builds on the observed values, the simulation needs to be long enough such that the whole possible range of input values is exhausted. %TODO: Where should I add this? Removed it from the background section
-
-In \cspm, constant can be declared as we know it from many other languages;
+In \cspm, constants can be declared as we know it from many other languages;
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 N = 5
 \end{minted}
@@ -199,13 +194,13 @@ Proc(x) =
     within
         channel ! m -> SKIP
 \end{minted}
-A variable is also defined when communication specific values over channels in \cspm. For example in the example below, the received value is assigned to the variable $x$ which is then used when writing the value out in the \texttt{output} channel.
+A variable is also defined when communication specific values over channels in \cspm. For example in the example below, the received value is assigned to the variable $x$ which is then used when writing the value to the \texttt{output} channel.
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 P = input ? x -> output ! x -> STOP
 \end{minted}
 
 Translating constants and variables from SMEIL to \cspm will not prove difficult, since the structures are quite similar.
-A potential challenge lies in deciding how to define a variable that has been declared with initial value in SMEIL, since this mean that the \cspm translation will have to define the variable before it is used within the calculations.\\
+A potential challenge lies in deciding how to define a variable that has been declared with initial value in SMEIL. This is because the \cspm translation will have to define the variable before it is used within the calculations, and this will increase the complexity of the translation.\\
 % \paragraph{Enumerations}
 % In SMEIL it is also possible to declare enumerations within a process or a network declaration. Emumerations can be used to referencing symbolic constants instead of its numerical constants which can improve the readability of the program.
 % Currently enumerations are not implemented in TAPS.
@@ -217,27 +212,27 @@ A potential challenge lies in deciding how to define a variable that has been de
 % SMEIL does not support this, so I also wont support this and therefore I might not need this paragraph. It is however interesting because it is kind of a foor loop, but not because of the side effects but to simplyfy generation of code structures.
 
 
-The other part of an SMEIL process is the statement part where the actual behaviour of the process is defined. The semantics of statements in SMEIL corresponds to what we typically see in C-like languages.
+The other part of an SMEIL process is the statement part where the actual behaviour of the process is defined. The semantics of statements in SMEIL corresponds to what we typically see in C-like languages, some are mentioned here below.
 \paragraph{Assignments}
-An assignment in SMEIL consists of a name and an expression. It can be used in two different ways within the SMEIL process statements: assigning to a variable and assigning to a bus channel. In SMEIL the compiler will always be able to recognise what is being assigned by looking at the type of the object and therefore SMEIL do not differentiate between these two assignments.
+An assignment in SMEIL consists of a name and an expression. It can be used in two different ways within the SMEIL process statements: assigning to a variable and assigning to a bus channel. In SMEIL, the compiler will always be able to recognise what is being assigned by looking at the type of the object and therefore SMEIL do not differentiate between these two assignments.
 This property will cause a challenge when translating to \cspm{}, since communication and variable assignments are two different things in a \cspm program. Thus TAPS will have to be able to recognise what type of assignment it is, in order to create the correct translation.
 \paragraph{if-statements}
-If-statements are structured like we know from other languages with an if-expression, then-expression, elif-expression and an else-expression.
-These kinds of statements can also be defined in \cspm, but \cspm does not support elif-expressions within the if-statement, so the translation would have to restructure the elif-expression to a nested if-expression.
-Since the structure of the \cspm process is different, an if-statement might have a different context in the \cspm program. It is possible that TAPS have to take extra precautions to provide the correct context to the if-statement.
+If-statements are structured like we know from other languages with the keywords \texttt{if}, \texttt{then}, \texttt{elif} and \texttt{else}.
+These kinds of statements can also be defined in \cspm, but \cspm does not support elif-expressions within the if-statement, so the translation would have to restructure the elif-expression to a nested \texttt{if then} expression.
+
 % \paragraph{Loops}
 % TODO: Write something here when I am sure how loops work in CSPm.
 
 \paragraph{Traces and assertions}
 The trace statement in SMEIL is not affecting the behaviour of the process, but it simply prints out the string and arguments that is given, like a printf in C.
-In \cspm it is possible to add a print statement, but this will appear in the right hand side of the FDR4 session window for easy evaluation, and it does not support printing out text, but rather calculations. Thus the trace statements in SMEIL is not compatible with \cspm and either the trace statements should be thrown away or kept as a comment in the generated code.\\
+In \cspm it is possible to add a print statement, but this will appear in the right hand side of the FDR4 session window for easy evaluation, and it does not support printing out text, but rather calculations. Thus the trace statements in SMEIL is not compatible with \cspm so either the trace statements should be thrown away or kept as a comment in the generated code.\\
 
 The assert statements are used internally in SMEIL and evaluated during program execution. If the assert statement is not valid, then the execution is halted and the error message, defined in the assert statement, is printed, for instance
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 assert(hour < 23, "hours cannot be greater than 23");
 \end{minted}
 
-Even though we wish to assert properties in FDR4, the properties that FDR4 can verify are not similar to the properties that the assert statements in SMEIL are asserting. As was introduced in Section \ref{sec:background_fdr}, FDR4 is a refinement checker and the assert statements in FDR4 are asserting the refinement check. In the \cspm language, assertions like \texttt{assert 4 + 4 == 8} is possible, however FDR4 does not support this. The two types of assert statement are therefore not equivalent. However, it should also not be of interest to translate the SMEIL assert statements, since a potential error found via an SMEIL assertion, might as well be found and corrected in SMEIL than in FDR4.
+Even though we wish to assert properties in FDR4, the properties that FDR4 can verify are not similar to the properties that the assert statements in SMEIL can assert. As was introduced in Section \ref{sec:background_fdr}, FDR4 is a refinement checker and the assert statements in FDR4 are asserting the refinement check. In the \cspm language, assertions like \texttt{assert 4 + 4 == 8} is possible, however FDR4 does not support this. The two types of assert statement are therefore not equivalent. However, it would also not be of any interest to translate the SMEIL assert statements, since a potential error found via an SMEIL assertion, might as well be found and corrected in SMEIL than in FDR4.
 % \paragraph{Switch statements}
 % TODO: Write something about switch statements when I know more.
 
@@ -246,10 +241,10 @@ Expressions in SMEIL and their precedence rules are similar to C-like languages 
 
 In \cspm the standard binary operators like \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, and \texttt{\%} all take two arguments of type \texttt{Int} and return a value of type \texttt{Int}. It is important to notice that in \cspm, the \texttt{/} operator returns the quotient and rounds towards negative infinity. The \texttt{\%} operator in \cspm returns the modulus.
 Floating point number are, not supported by FDR4\cite{Scattergood2011} which is also clear from the fact that the binary operators take only \texttt{Int} as their inputs.
-As mentioned in Section \ref{sec:background_smeil}, SMEIL supports floating poitn numbers in the simulator, but it has not been extensively tested.
+As mentioned in Section \ref{sec:background_smeil}, SMEIL supports floating point numbers in the simulator, but it has not been extensively tested.
 
 The unary \texttt{-} operator, representing a negation of an integer and the unary \texttt{!} operator, representing logical negation are both represented in the FDR4 syntax. The relational operators \texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}, \texttt{==} and \texttt{!=} returns boolean values both in SMEIL and in \cspm. The logical conjunction and disjunction operators \texttt{\&\&} and \texttt{||} are also represented in both SMEIL and \cspm and both only accepting boolean values.
-The presedence of the above mentioned operators are not entirely identical across SMEIL and \cspm, so it might be necessary to add extra parentheses to keep the correct semantic.
+The presedence of the above mentioned operators are not entirely identical across SMEIL and \cspm, so it will sometimes be necessary to add extra parentheses to keep the correct semantic.
 
 % SMEIL also supports shift operations which is not supported in FDR4, but...
 % The programming languages C, C++, and Go, however, have only one right shift operator, >>. Most C and C++ implementations, and Go, choose which right shift to perform depending on the type of integer being shifted: signed integers are shifted using the arithmetic shift, and unsigned integers are shifted using the logical shift. - From wiki
@@ -261,7 +256,7 @@ The presedence of the above mentioned operators are not entirely identical acros
 
 % %%%% CSPm processes %%%%
 As mentioned above, processes in SMEIL can be defined with parameters which represents input and output buses as well as constants. In \cspm{} processes can also be defined with parameters that can be variables, channels or similar.
-In \cspm the processs behaviour also represents functionality, but the behaviour is often more focused on communicative behaviour between other processes. A typical process in \cspm could look like the one in Listing \ref{dining_philosopher_cspm} which represents a philosopher process from the dining philosophers problem. The process behaviour shows a philosophers actions in communicating with other processes. As can be seen, the process also conduct some simple calculations, but the main structure consists of communication, which is the purpose of \cspm, to be able to verify communication between parallel processes.
+In \cspm the processs behaviour also represents functionality, but the behaviour is often more focused on communicative behaviour between other processes. A typical process in \cspm could look like the one in Listing \ref{dining_philosopher_cspm} which represents a philosopher process from the dining philosophers problem. The process behaviour shows a philosophers actions in communicating with other processes. As can be seen, the process also conduct some simple calculations, but the main structure consists of communication, which is the main purpose of \cspm, to be able to describe communication between processes.
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 PHIL(i) = thinks.i -> sits!i -> picks!i!i -> picks!i!((i+1)%N) ->
@@ -272,14 +267,14 @@ PHIL(i) = thinks.i -> sits!i -> picks!i!i -> picks!i!((i+1)%N) ->
 \label{dining_philosopher_cspm}
 \end{listing}
 
-The translation of processes from SMEIL to \cspm does include challenges and cannot be translated directly. In SMEIL the calculations of the process is as important as the communication whereas in \cspm, calculation is often not in focus. The challenge lies in structuring the \cspm process in a way that gives the same functionality while still keep the \cspm communication behaviour and the assertion properties.
+The translation of processes from SMEIL to \cspm does include challenges and cannot be translated directly. The challenge lies in structuring the \cspm process in a way that gives the same functionality while still keep the \cspm communication behaviour and the assertion properties.
 
 \subsubsection{Generating data}
 %%%%% Generator processes %%%%%
 When writing pure SMEIL programs, there will always be a need to generate input for the network. If the program was not written as pure SMEIL, the input for the network would be provided by the surrounding code. But in the case of pure SMEIL, the input data must be generated, which can be done in a few ways.
-One way of initialising the network is by instantiating the processes with constants given as a parameter or hard code internal values into the process. These values will then act as the starting point of the network. Another way of initialising data in the SMEIL network, is to have a seperate process creating data for the network. We call this a data generator process.
+One way of initialising the network is by instantiating the processes with constants given as a parameter or hard code internal values into the process. These values will then act as the starting point of the network. Another way of initialising data in the SMEIL network, is to have a seperate process creating data for the network. We call this a data generator process. Examples of both can be seen in Listings \ref{lst:addone_data_generation_example} and \ref{lst:clock_data_generation_example_smeil}.
 
-An example of a process being instantiated with a constant can be seen in Listing \ref{lst:addone_data_generation_example}. Here we see the \texttt{Addone} network, which is a simple SMEIL network with two processes. The \texttt{add} process receives an input value, add the constant value to the input and writes it out on the outbus bus. The \texttt{id} process receives an input and writes it to its output bus imediately. Networks in SMEIL are introduced further in Section \ref{sec:analysis_structural}, but the network in this example is simply defining the input bus of the \texttt{add} process to be the output bus of the \texttt{id} process, as well as defining that the constant value in the \texttt{add} process is 1.
+Listing \ref{lst:addone_data_generation_example} shows an example of a process being instantiated with a constant. the \texttt{Addone} network is a simple SMEIL network with two processes. The \texttt{add} process receives an input value, add the constant and the input values together and writes it out on the outbus bus. The \texttt{id} process receives an input and writes it to the output bus imediately. Networks in SMEIL are introduced further in Section \ref{sec:analysis_structural}, but the network in this example is simple and it is defining the input bus of the \texttt{add} process to be the output bus of the \texttt{id} process, as well as defining that the constant value in the \texttt{add} process is 1. \\
 
 \begin{listing}
     \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
@@ -308,44 +303,42 @@ An example of a process being instantiated with a constant can be seen in Listin
     \caption{The SMEIL network \texttt{Addone} with two processes. The \texttt{add} process is instantiated with a value \texttt{constant} which is constant and used once for each clock cycle. The example is similar to the Addone example in \cite{smeil}.}
     \label{lst:addone_data_generation_example}
 \end{listing}
-
-
-In Listing \ref{lst:clock_data_generation_example_smeil} we see another way to instantiate the SMEIL network. Here the process \texttt{clock} is a data generator process. It does not have any input bus so it cannot receive data, so are only generating data for the network. This example is to show the data generator process concept, so the \texttt{minutes} process is simple and is just calculating how many minutes have passed since the simulation started.
+Listing \ref{lst:clock_data_generation_example_smeil} shows another way to instantiate the SMEIL network. Here the process \texttt{clock} is a data generator process. It does not receive data from any input bus, so it can only generate data for the network. This example is only to show the data generator process concept, so the \texttt{minutes} process is simple and is just calculating how many minutes have passed since the simulation started by dividing the input with 60.
 \begin{listing}
     \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-    proc clock()
-        bus output {
-            val: uint;
-        };
-        var i: uint = 0;
-    {
-        i = i + 1;
-        output.val = i;
-    }
+proc clock()
+    bus output {
+        val: uint;
+    };
+    var i: uint = 0;
+{
+    i = i + 1;
+    output.val = i;
+}
 
-    proc minutes (in input)
-        bus output {
-            val: uint;
-        };
-        from_clock : uint;
-    {
-        from_clock = input.val / 60;
-        output.val = from_clock
-    }
+proc minutes (in input)
+    bus output {
+        val: uint;
+    };
+    from_clock : uint;
+{
+    from_clock = input.val / 60;
+    output.val = from_clock
+}
 
 
-    network net() {
-        instance c of clock();
-        instance s of minutes(c.output)
-    }
+network net() {
+    instance c of clock();
+    instance s of minutes(c.output)
+}
     \end{minted}
-    \caption{The SMEIL network \texttt{Minutes}, with a data generator process and a calculation process.}
+    \caption{The SMEIL network \texttt{Minutes}, with a data generator process and a calculation process that calculates minutes since simulation start.}
     \label{lst:clock_data_generation_example_smeil}
 \end{listing}
 
 The data generator process is not defined as a seperate process type in SMEIL and it is therefore up to TAPS to recognise these types of processes. A process that takes no input is obviously a data generation process, however, in SMEIL it is possible to use buses directly in the process body without defining them as input parameters. The challenge lies in recognising if the process takes input either by an input parameter or by using the bus directly in the process body.\\
 
-If an SMEIL network consists of more than one data generator process, or a network consists of a data generator process but also contains processes that are instantiated with values, it should not cause problems to the \cspm{} code generation. As long as TAPS translate the network from SMEIL to \cspm{} correctly, it will not matter how many data generator processes there are. They will simply be included in the network as all other processes.
+If an SMEIL network consists of more than one data generator process, or a network consists of a data generator process but also contains processes that are instantiated with values, it should not cause problems to the \cspm{} code generation. As long as TAPS translate the network from SMEIL to \cspm{} correctly, with all the communication intact, it will not matter how many data generator processes there are. They will simply be included in the network as all other processes.
 
 TAPS will of course have to recognise these different approaches in SMEIL and differentiate them to generate correct \cspm{} code.
 
@@ -356,47 +349,55 @@ TAPS will of course have to recognise these different approaches in SMEIL and di
 The communication between processes are the back bone of an SMEIL network. By analysing the different ways to define the communication and how it resembles communication in \cspm{} we will get a better understanding of how to design the code generation.
 \subsubsection{Network}
 % TODO: Write something about how instances can be defined with an instance name or without and how that also impacts how the channels are defined as parameters for the processes and how one process can be instantiated several times but must have a instance name, otherwise it will fuck up. I think truls writes that only one instance can be wildcard in one network.
-The network in SMEIL is the crucial part which ties all the processes together with communication.
+The network in SMEIL is the crucial part which ties all the processes together with the buses.
 
-In an SMEIL network, processes are instantiated using the \texttt{instance} keyword within the network declaration. This instance declaration instantiates the process with a set of parameters: input and output buses, and constants. This way it is possible to construct the network and connecting the different processes with the process buses.
-Defining the network out of process instances also means that one process can be instantiated with different parameters several times within the same network, providing the possibility of reusing the processes for different purposes.
-An example of an SMEIL network can be seen below, with two processes being instantiated with the output channel of the opposite process. However, this network would not run since none of the processes are instantiated with any values.
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-proc A (in input)
-    bus a_bus {
-        val: uint;
+In an SMEIL network, processes are instantiated using the \texttt{instance} keyword within the network declaration. This instance declaration instantiates the process with a set of parameters defined for the specific process.
+Defining the network out of process instances also have the advantage that one process can be instantiated with different parameters several times within the same network, providing the possibility of reusing the processes for different purposes.
+An example of an SMEIL network can be seen in Listing \ref{lst:smeil_two_instantiations_example}, where the \texttt{add} process is instantiated twice with different constant values.
+\begin{listing}
+    \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+    proc clock ()
+        bus output {
+            val: uint;
+        };
+        var i: uint = 0;
+    {
+        i = i + 1;
+        output.val = i;
     }
-{
-    a_bus.val = input.val;
-}
 
-proc B (in input)
-    bus b_bus {
-        val: uint;
+    proc add (in input, const const_val)
+        bus addbus {
+            val: uint;
+        }
+    {
+        addbus.val = input.val + const_val;
     }
-{
-    b_bus.val = input.val;
-}
 
-network net() {
-    instance a of A(b.b_bus);
-    instance b of B(a.a_bus);
-}
-\end{minted}
-It is also possible to define buses within the network in SMEIL, which is done exactly the same as a bus declaration inside a process. Examples will be shown later in this section.\\
+    network net() {
+        instance c of clock();
+        instance a1 of A(c.output, const_val: 2);
+        instance a2 of A(c.output, const_val: 4);
+    }
+    \end{minted}
+    \caption{Example of two instantiations of the same SMEIL process.}
+    \label{lst:smeil_two_instantiations_example}
+\end{listing}
 
-There is no network structure in \cspm{}, but as SMEIL use the \texttt{instance} declaration to define communication as well as instantiate the processes. In \cspm{} communication between processes are enforced by parallel operators, some of which are described in Chapter \ref{chap:background}. Is should be possible to create equivalent communication structure by using these operators, but it would quickly become very complex since the operators only syncronise two processes at the time. It is necessary to find a general structure within these syncronisations so that automatic translation is possible.
+It is also possible to define buses within the network in SMEIL, which is same syntax as a bus declaration in a process. Examples will be shown later in this section.\\
+
+In \cspm{} there is no network structure, but \cspm{} do have a structure for declaring parallel communication which resembles the instance declarations in SMEIL. The prarallel operators define communication between processes in \cspm{} which is described in Chapter \ref{chap:background}. Is should be possible to create equivalent communication structures by using these operators, but it would quickly become very complex since the operators only syncronise two processes at the time. It is necessary to find a general structure within these syncronisations so that automatic translation is possible.
 
 This translation step is a great challenge and will require carefully planning in order to get all the information from each part in the correct position of one another.
 
 \subsubsection{Buses and Channels}
-% TODO: Check that I say that the type (or range) of a SMEIL channel can be translated to the range of an \cspm channel.
 % %%%% SMEIL buses and channels %%%%
-In SMEIL buses are used as the glue between the processes where all communication in the network is defined. The bus are used for communication from one SME processes to other SMEIL processes. A bus consist of one or more channels, and each channel have a type describing the data that can be communicated on it. However, the same types does not have to apply to all channels in the one bus. All channels in a single bus is connected to a process at the same time, but a process always communicates on a single channel.
-Buses may form many-to-many relationships between processes and thus creating a similar situation as consists in hardware buses with physical wires where several different components can be connected to the same physical wire.
+In SMEIL buses are the glue between the processes and no communication happens outside of a bus. A bus consist of one or more channels, and each channel have a type describing the data that can be communicated on it.
+% NOTE: This does not belong here, but I like the wording so maybe I can use it somewhere else. "Buses may form many-to-many relationships between processes and thus creating a similar situation as consists in hardware buses with physical wires where several different components can be connected to the same physical wire."
+Since buses in an SMEIL network is simply shells containing one or more channels, in itself it does not have a type or values. All channels within a bus have an identifier, types, and values, but the same types does not have to apply to all channels in a single bus. An SMEIL bus does have an identifier which is used to referencing the specific bus, aswell as when referencing the channels within the bus.
 
-Since buses in an SMEIL network is simply shells containing channels, in itself it does not have a type or values. All channels within a bus have an identifier, types, and values. An SMEIL bus does have an identifier which is used to referencing the specific bus, aswell as when referencing the channels within the bus. Since a bus is connected with all channels at the same time, the processes of SMEIL does not receive the channel as input parameter, but the bus itself. It is then up to the body of the process to call the correct channel in the input bus to get the content that was communicated on the specific channel.
-Below we see an example of a bus definition in SMEIL. The bus is identified with the name \texttt{day} and it consists of three channel: \texttt{hours}, \texttt{minutes}, and \texttt{seconds}. Each channel are defined with a type and a range of values.
+The SMEIL process receives the bus as a parameter and therefore all channels within the bus are connected to the process at the same time. It is then up to the developer to call the correct channel within the bus to either read or write.
+Below an example of a bus definition in SMEIL can be seen. The bus is identified with the name \texttt{day} and it consists of three channels, \texttt{hours}, \texttt{minutes}, and \texttt{seconds}. Each channel are defined with a type, \texttt{u5} and \texttt{u6} and a range of 0 through 23 and 0 through 59.
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 bus day {
     hours:   u5 range 0 to 23;
@@ -405,12 +406,7 @@ bus day {
 };
 \end{minted}
 
-Each SMEIL channel should be corresponding with a \cspm{} channel and therefore the translation of these should be simple. It will however be crucial that the naming of the \cspm{} channels are unique and that it is clear which \cspm{} channels correspond to which SMEIL bus channels, so that we can ensure equivalence between the SMEIL network and the \cspm{} network.
-
-In SMEIL, a bus can also be defined with the keyword \texttt{exposed} which indicated that the bus is used to external interactions for example through co-simulation as described in Chapter \ref{chap:background}.
-
-SMEIL have been designed so that the creation of a circuit is very flexible. Each process can have any number and combinations of input buses, output buses, and constants. Therefore TAPS will have to be able to handle several different ways of defining these in \cspm{}.
-
+A single SMEIL channel corresponds to a single \cspm{} channel and therefore the translation of these should be simple.
 \paragraph{SMEIL input bus}
 The input bus for each SMEIL process can be defined in different ways. The input bus can be defined as a process parameter which can be seen in the example below. Here the process reads the data from the bus \texttt{input} and writes the date out on the \texttt{a\_bus} bus.
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
@@ -422,7 +418,7 @@ The input bus for each SMEIL process can be defined in different ways. The input
         a_bus.val = input.val;
     }
 \end{minted}
-It is also possible to use the formal identifier of the bus in the process body, thereby not accessing it through the input parameter. An example of this can be seen below. Here the proces \texttt{A} reads the input by asccessing the hierarchical name of the bus defined in process \texttt{B}.
+It is also possible to use the formal identifier of the bus in the process body, thereby not accessing it through the input parameter. An example of this can be seen below. Here the proces \texttt{A} reads the input by asccessing the hierarchical name of the bus channel \texttt{val} within the bus \texttt{b\_bus} defined in process \texttt{B}. However, as a result of this, the process can be instantiated several times in the network but it will always read from \texttt{B.b\_bus.val}.
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
     proc A ()
         bus a_bus {
@@ -443,35 +439,39 @@ It is also possible to use the formal identifier of the bus in the process body,
 
 \paragraph{SMEIL output bus}
 The output bus can also be defined in several different ways.
-As seen in the previous examples, the output bus can be defined inside the process itself with the keyword \texttt{bus} along with the channel definitions.
+As seen in the previous examples, the output bus can be defined inside the process itself using the keyword \texttt{bus} along with the channel definitions.
 
-As with input buses, it is also possible to reference the hierarchical name of the channel directly inside the process body.
-It it also possible to give the output bus as a process parameter. An example of this can be seen below where the process \texttt{A} reads from the \texttt{input} bus and writes to the \texttt{output} bus. As can be seen in the network, the input bus for process \texttt{A} is the \texttt{b\_bus} defined in process \texttt{B}, but the output bus of process \texttt{A} is a bus defined in the network called \texttt{net\_bus}. If the output bus is not defined inside the process itself it must be defined in the network.
+As with input buses, it is also possible to reference the hierarchical name of the channel directly inside the process body the same way as in the example above.
+
+It it also possible to give the output bus as a process parameter. An example of this can be seen below where the process \texttt{addone} reads from its \texttt{input} bus and writes to its \texttt{output} bus, both defined as parameters.
+As can be seen in the network, the input bus for process \texttt{addone} is the \texttt{constant\_bus} defined in process \texttt{constant}. The output bus of process \texttt{addone} is a bus defined in the network called \texttt{net\_bus}. In this example the network simply calculates \texttt{1 + 1} for each clock cyles.
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-    proc A (in input, out output)
-    {
-        output.val = input.val;
+proc constant ()
+    bus constant_bus {
+        val: uint;
     }
+{
+    constant_bus.val = 1;
+}
 
-    proc B ()
-        bus b_bus {
-            val: uint;
-        }
-        b_bus.val = 1;
+proc addone (in input, out output)
+{
+    output.val = input.val + 1;
+}
+
+network net() {
+    bus net_bus {
+        val: uint;
     }
+    instance const of constant();
+    instance add of addone(const.constant_bus, net_bus);
 
-    network net() {
-        bus net_bus {
-            val: uint;
-        }
-        instance a of A(b.b_bus, net_bus);
-        instance b of B();
-
-    }
+}
 \end{minted}
+SMEIL have been designed so that the creation of a circuit is very flexible. Each process can have any number and combinations of input buses, output buses, and constants as parameters and the communication is not restricted to what is defined as parameters. Therefore TAPS will have to be able to handle several different ways of defining these in \cspm{}.
 
 \paragraph{\cspm{} channels}
-In \cspm{} the processes can communicate on buses both through process parameters and by using the global names. Therefore it should be possible to translate both of these situations in TAPS. It is of course important that TAPS can recognise the two different situations, since it might affect how the process is translated. Since all channel definitions are defined outside of processes in \cspm{} the situation where the bus is defined inside the process would simply translate to a channel definition outside of the process in \cspm{}.
+In \cspm{} the processes can communicate on channels both through process parameters and by using the global names. Therefore it should be possible to translate both of these situations in TAPS. It is of course important that TAPS can recognise the two different situations, since it might affect how the process is translated. Since all channel definitions are defined outside of processes in \cspm{} the bus definition, inside the process in SMEIL, would simply translate to a channel definition outside of the process in \cspm{}.
 
 An example of a \cspm{} process, communicating both via its process parameter channel and via a global name can be seen below. The process \texttt{P} reads a value from the \texttt{input} channel, which is the channel \texttt{d}. The process then writes the value on the \texttt{c} channel and terminates.
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
@@ -485,16 +485,19 @@ Network = P(d) -> SKIP
 
 \subsection{Meta}
 % - Opserverede værdier - "known limits". Meta information i SMEIL, og det skal oversættes til faktiske processer med faktiske semantic i FDR der også er en del af topologien. (Det er essensen for mig).
-As described in Section \ref{sec:analysis_verification} we wish to be able to verify the data communicated in the SMEIL network. In the seven segment example we wish to verify that the values communicated to the displays are never outside the range defined for the displays.
+As described in Section \ref{sec:analysis_verification} we wish to be able to verify the data communicated in a SMEIL network. For example, in the seven segment example we wish to verify that the values communicated to the displays are never outside the range defined for each display.
 
-In order for us to create the assertions in \cspm{} we need to figure out what values should be allowed to be communicated, and which should not.
-As we know from Chapter \ref{chap:background} when simulating the SMEIL program all observed values on each channel are turned into a range of the maximum and minimum values for that specific channel. During the simulation, the type will also be restricted to the lowest representation possible. For example, if a channel was originally set to be \texttt{int} (unbounded), but the observed values from the simulation show that it could be changed to an \texttt{i8} (signed 8-bit integer with a range of -128 to 127), then the simulated output would be \texttt{i8}.
-It is possible to define a bounded type before the simulation as well as assigning a value to the channel. In that case the compiler will leave the type to what was previously defined, no matter if the simulation would assign a type that could represent larger or smaller range of numbers. So it is possible to restrict the values for each channel if needed.
+In order for TAPS to create the assertions in \cspm{} we need to figure out what values should be allowed to be communicated, and which should not.
+As we know from Chapter \ref{chap:background} when simulating the SMEIL program all observed values on each channel are turned into a range of the maximum and minimum values for that specific channel. During the simulation, the type of the channel will also be restricted to the lowest representation possible. For example, if a channel was originally set to be \texttt{int} (unbounded), but the observed values from the simulation show that it could be changed to an \texttt{i8} (signed 8-bit integer with a range of -128 to 127), then the simulated type would be \texttt{i8}.
 
-The range definition of each channel are the actual values seen on the channel and therefore we can use these data for the assertions in FDR4.
+It is possible to define a bounded type before the simulation as well as assigning a value to the channel. In that case the compiler will leave the type to what was previously defined, no matter if the simulation would assign a type that could represent larger or smaller range of numbers. So it is possible to restrict the range and type for each channel manually if needed.
 
-In the seven segment example we know that the maximum range we can display on a segment display are 0 through 9. In Listing \ref{lst:range_smeil} we can see an example of the \texttt{seconds} process from the seven segment example.
-Each channel definition contains a type and a range. The range for the first digit channel are 0 through 5. We know that the display can only handle digits from 0 through 9, but in this case the simulation restricted it even further, as explained in Section \ref{sec:analysis_verification}, seconds will not be able to display above 59, which is why the first digit has a maximum of 5.
+The range definition of each channel are the actual values communicated on the channel and therefore these data can be used for the assertions in FDR4.
+
+In the seven segment example I know that the maximum range it is possible to display on a segment display are 0 through 9. In Listing \ref{lst:range_smeil} an example of the simulated \texttt{seconds} process from the seven segment example can be seen.
+Each channel definition contains a type and a range. The range for the first digit channel are 0 through 5.
+
+As explained before, the displays can only display digits from 0 through 9, but in this case, the simulation of the system results in a more restricted version. As explained in Section \ref{sec:analysis_verification}, seconds will not be able to display above 59, which is also the result from the simulation.
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 proc seconds (in seconds_in)
@@ -511,12 +514,12 @@ proc seconds (in seconds_in)
     seconds_out.second_digit = seconds_second_temp;
 }
 \end{minted}
-\caption{Example of the \texttt{seconds} process from the SMEIL seven segment display example. See full example in Listing~\ref{lst:smeil} in the appendix.}
+\caption{Example of the simulated \texttt{seconds} process from the SMEIL seven segment display example. See full example in Listing~\ref{lst:smeil} in the appendix.}
 \label{lst:range_smeil}
 \end{listing}
 
-This data is the crucial data to gather in order for FDR4 to be able to verify the values communicated on the channels.
+This data is crucial to gather in order for FDR4 to be able to verify the values communicated on the channels.
 
 As we mentioned in Chapter \ref{chap:background} FDR4 is a refinement checking tool and all assertions in FDR4 must be to assert that an implemented process refines a specification process.
-It is therefore necessary, but also a challenge, to create a stucture in \cspm{} that can provide a simple assertion on the values communicated on the channels while being able to fit into one of the CSP refinement models.
+The challenge lies in creating a structure in \cspm{} that can provide a simple assertion of the values communicated on the channels while being able to fit into one of the CSP refinement models.
 % TODO: Maybe I am supposed to add more here. But right now I cant think of what to add other than the stuff from "version 2 of the thesis", which I am waiting with for now.
