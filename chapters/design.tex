@@ -1,6 +1,5 @@
 %!TEX root = ../main.tex
 % Description of the actual solutions
-% TODO: Write something here
 The goal of automatic translation is to be able to create a general solution which can fit different types of problems and therefore it is necessary to generalise the different aspects of the translation and find a solution that fits all.
 
 \begin{figure}[!ht]
@@ -9,7 +8,7 @@ The goal of automatic translation is to be able to create a general solution whi
     \node [mysquare] (SME) at (0, 2.5) {$SME$};
     \node [mysquare] (SMEIL) at (0, 0) {$SMEIL$};
     \node [draw, black, thick, rounded corners, dotted, inner sep=0.2cm] (Q) at (2.5, 1.3){$Questions$};
-    \draw [myarrow, smooth] (SME) to[out=270, in=90] (SMEIL);
+    \draw [myarrow, dashed] (SME) to[out=270, in=90] (SMEIL);
     \draw [myarrow, dotted] (Q) to[out=180, in=90] (SMEIL);
 
 
@@ -32,67 +31,44 @@ The goal of automatic translation is to be able to create a general solution whi
   \label{fig:TAPS_network}
 \end{figure}
 
+% TODO: Figure out what to do with this figure and write something general about the system.
 \section{Designing TAPS}
 % TODO: Maybe this section should be removed and the title should be the title on the entire chapter? To be determined
 
 % TODO: Reference meeting with Brian 26/9-2018 around 6:00-8:00. Talk in general about how the design of the entire system is.
 
-In this section we describe the main design decisions included in creating TAPS and address the challenges of the translating between SMEIL and \cspm{}.
+In this section we describe the main design decisions included in creating TAPS and address the challenges that lies in translating SMEIL to \cspm{}.
 
 \subsection{Translating Processes}
-In order to translate the SMEIL process to a \cspm{} process we had to create a general process structure in \cspm{}. We know that the SME model enforce that each process reads, computes and writes, in that order, for each clock cycle, so we needed to create a \cspm{} structure that could support this. First of all we wished to have one \cspm{} process per SMEIL process, since it would simplify the translation and a simpler solution typically results in a less errornous solution.
+In order to translate an SMEIL process to a \cspm{} process I had to create a general process structure in \cspm{}. I know that the SME model enforce that each process reads, execute, and writes, in that order, for each clock cycle, so I needed to create a \cspm{} structure that could support this. First of all I wanted to attempt to have one \cspm{} process per SMEIL process, since it would simplify the translation and a simpler solution typically results in a less errornous solution.
 
-What first comes to mind in \cspm{} when we want to read and then write, is a very simple process structure using prefix and communication operators.
+What first comes to mind in \cspm{} when a process must read and then write, is a very simple process structure using prefix and communication operators.
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-Proc(x) = c ? x -> d ! x-> SKIP
+Proc = c ? x -> d ! x-> SKIP
 \end{minted}
-This is the simplest \cspm{} process that match the SME model, however with this structure it is not possible to include all the possible calculations that SMEIL support. It turned out that the tricky part of translating a general SMEIL process to \cspm{} was to be able to include the calculations properly.
+This is one of the simplest \cspm{} process that match the SME model, however with this structure it is not simple to include all the possible calculations that SMEIL support. It turned out that the tricky part of translating a general SMEIL process to \cspm{} was to be able to include the executions properly.
 
-By using the \texttt{let within} structure in \cspm{} we are able to keep the communication together with the arithmetics in one \cspm{} process while keeping a simple structure. The \cspm{} process does not do the actual read, but instead received the value as a parameter, then all arithmetics are performed inside the \texttt{let} clause while the writing will be put in the \texttt{within} clause.
-In Listing~\ref{lst:cspm_let_within_example}, an example of the \texttt{let within} structure can be seen. This structure will work as a general translation structure from SMEIL processes to \cspm{} processes. Since we know that all reads and calculations must be done before writing, this structure should always work for a well-structured SMEIL process.
-
+By using the \texttt{let within} structure in \cspm{} it is possible to keep the communication together with the arithmetics in one \cspm{} process while keeping a simple structure. All arithmetics are performed inside the \texttt{let} clause while the writing will be put in the \texttt{within} clause.
+In Listing~\ref{lst:cspm_let_within_example}, an example of the \texttt{let within} structure can be seen. This structure will work as a general translation structure from SMEIL processes to \cspm{} processes. Since I know that all reads and calculations must be done before writing, this structure should always work for a well-structured SMEIL process.
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 channel c : {0..100}
 
 P(input) =
-let
-    x = input * 5
-    y = input * 10
-within
-    c ! x -> c ! y -> SKIP
+    let
+        x = input * 5
+        y = input * 10
+    within
+        c ! x -> c ! y -> SKIP
 \end{minted}
-\caption{Example of the \texttt{let within} structure used to create the proper structure within the \cspm{} processes.}
+\caption{Example of the \texttt{let within} structure used to create the process structure within \cspm{}.}
 \label{lst:cspm_let_within_example}
 \end{listing}
-
-Since \cspm{} does not need to declare variables beforehand, we can ignore the variable declarations in the SMEIL process and translate all the arithmetic statements, with the variables, directly.
-
-% Constants are simply defined in the \cspm program, seperate from the process. Since the SMEIL programs must be well-formed, we know that only the processes that define the constant will use it, and therefore it is not a problem that
-% NOTE Constants are currently not implemented in TAPS
-% TODO: How to handle variables with predefined values
-
-The types and ranges of variables are not translated, and unless we need the information for verification. It is, however, necessary that TAPS looks through to check if any of the internal variables are instantiated with a value, since TAPS will have to keep this information for the translation. If the variables are not instantiated with a predefined value, TAPS simply ignore the variable declaration. We can only do this because we know the SMEIL program must be well-formed and since the variables are not used for verification, it does not matter what types and values the SMEIL program expects of these.
-
-All assignments are translated directly into \cspm{} without much change, however if the assignment is to or from a bus, TAPS have to differentiate and handle these assignments differently, which will be explained later in this section.
-
-If-satements are translated into the \cspm{} version of an if-statement, which is very similar to the SMEIL version. However, since \cspm{} does not support \texttt{elif}, the \cspm{} if-statements can be nested to form these expressions. This quickly becomes very complex and hard to read, but since it is auto generated, it is not a problem to create.
-% NOTE: If-statements are currently not implemented in TAPS
-
-
-Traces and assertions are, as explained in Chapter \ref{chap:analysis} not useful in the \cspm{} program and therefore we either throw them away or keep them as comments for the sake of understanding the generated code. Currently TAPS throw them away, but it would be a simple task to change this and add them as comments in the generated \cspm{} code.
-% NOTE: Assertions are not curently implemented in TAPS. Trace is.
-
-Most expressions of SMEIL can be directly translated, like \texttt{+}, \texttt{-}, \texttt{/} and \texttt{\%} etc. however there are a few differences in the presendence. The unary \texttt{not} operator does not have the same presedence in the SMEIL as in \cspm{}. This means that the programmer needs to be aware of this, and include parentheses when using the operator to ensure the correct translation. The programmar also needs to be aware of the fact that in \cspm{} the equality comparison operators and comparison operators have the same presedence, but they are seperated in the SMEIL grammar.
-Bitwise operations does not exist in \cspm{}, so these would have to be transformed to standard arithmetics. % TODO: This is currently not implemented.
-% TODO: Write more about how this could be done.
-% TODO: Write more when I have more implemented for the processes (like arrays and stuff)
-
 \subsection{Translating Data Generation}
 %%% Generator processes
-It is important to make sure that TAPS can translate all the different ways of data generation. The first problem is to recognise the data generator process in SMEIL. We know that a data generator process in SMEIL does not read any input value, no matter if it is through a process parameter or by using the channels hierarchical name. Therefore TAPS can look through the process body and if the process does not contain input communication, then it will assume that the process it a data generator process. \\
+It is important to make sure that TAPS can translate all the different ways of data generation. The first problem is to recognise the data generator process in SMEIL. We know that a data generator process in SMEIL does not read any input value, no matter if it is through a process parameter or by using the channels hierarchical name. Therefore TAPS can look through the process body and if the process does not contain input communication, then it will assume that the process is a data generator process. \\
 
-In \cspm it is necessary to define the space of data that FDR4 search through when running the refinement checking. It this space becomes unecessarily large, the runtime of the verification will also become unecessarily long, and therefore it is important to be carefull when defining the space of input values for the generated system.
+In \cspm it is necessary to define the space of data that FDR4 will search through when running the refinement checking. It this space becomes unecessarily large, the runtime of the verification will also become unecessarily long, and therefore it is important to be carefull when defining the space of input values for the generated system.
 
 It is possible to create a process in \cspm with the same functionality as the SMEIL data generator process. However, in that case, it would be necessary to syncronise the data process with all the processes receiving the data. Otherwise FDR4 would evaluate all values within the defined range of the channel instead of what was actually communicated on the channel, making the data generator process obsolete. This extra syncronisation will increase the complexity of the \cspm{} network, and it might also increase the runtime of the verification since the \cspm{} network would include more states.
 
@@ -112,14 +88,14 @@ It is possible to create a process in \cspm with the same functionality as the S
     \caption{A \cspm{} network with two processes. The output \texttt{o} of the process \texttt{data} is within the range 0 through 10, and the channel \texttt{c} is defined for the range 0 through 100.}
     \label{fig:csp_data_generator_process}
 \end{figure}
-A figure of this concept can be seen in Figure \ref{fig:csp_data_generator_process}. Here, the channel \texttt{c} between the \texttt{data} process and the \texttt{calc} process is defined for range of \texttt{\{0..100\}}. If the two processes are not syncronised on this channel, the two processes do not have to agree on communication and therefore the search space for FDR4 includes all the values from 0 through 100. This means that if we just have the channel \texttt{c} as an input channel for the process \texttt{calc}, without a process writing to the channel, we get the same result because the processes are not syncronised on the channel.
-However, if the processes are syncronised, FDR4 will still allocate all 100 posibilities, but it only continues the search on the values actually communicated on the channel. In this case, the only values FDR4 would actually continue searching will be from 0 through 10.
-When adding a data generator process as well as syncronisation, the data generator process would be able to define specific data for the search space and that might prove to be an advantage when interested in more complex data. However, we are interested in verifying that the hardware circuits also can handle data outside of the expected range of input. Therefore, for this kind of verification, it is an advantage that FDR4 will search a larger space. However, it is important to find a balance between verifying input values outside of the expected range space, and verification runtime.
+A figure of this concept can be seen in Figure \ref{fig:csp_data_generator_process}. Here, the channel \texttt{c} between the \texttt{data} process and the \texttt{calc} process is defined for range of \texttt{\{0..100\}}. If the two processes are not syncronised on this channel, the two processes do not have to agree on communication and therefore the search space for FDR4 includes all the values from 0 through 100 but the\texttt{data} process only outputs 0 through 10. Becasue the processes are not synchronised on the channel, it would be the same results if the the input data for the \texttt{calc} channel was only the channel \texttt{c} without any process writing to it.
+However, if the processes are syncronised, FDR4 will still allocate all 100 posibilities, but it only continues the search on the values actually communicated on the channel.
+When adding a data generator process as well as syncronisation, the data generator process would be able to define more specific data for the network and that might prove to be an advantage when interested in more complex data. However, we are interested in verifying that the hardware model ensures that all communicated data are handled as expected. Therefore, for this kind of verification, it is an advantage that FDR4 will search a larger space than expected, to find potential problems. However, it is important to find a balance between verifying input values outside of the expected range space, and verification runtime.
 
-To summarise, when generating data in \cspm{} from a SMEIL data generator process, the two possibilities are either to define the data in \cspm by a single channel or by a data generator process and syncronisation, just like in SMEIL.
+To summarise, when generating data in \cspm{} from a SMEIL data generator process, the two possibilities are either to define the data in \cspm by one or more input channels or by a data generator process and syncronisation.
 Currently TAPS only support generating an input channel from the SMEIL network.
 % NOTE: Only one type of data generator process are supported right now - having the input as a input parameter
-Listing \ref{lst:clock_data_generation_example_cspm} is the translated version of the SMEIL network from Listing \ref{lst:clock_data_generation_example_smeil}. Here it can be seen that the \texttt{clock} process from the SMEIL network, is translated into the channel \texttt{clock} in \cspm{}
+Listing \ref{lst:clock_data_generation_example_cspm} is the translated version of the SMEIL network from Listing \ref{lst:clock_data_generation_example_smeil}. Here it can be seen that the \texttt{clock} process from the SMEIL network, is translated into an input channel \texttt{clock} in \cspm{}.
 The translation of the range values defined for each channel are described later in this section.
 \begin{listing}
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
@@ -137,9 +113,7 @@ within
 \caption{Example of the translated \texttt{Minutes} process defined in Listing \ref{lst:clock_data_generation_example_smeil}.}
 \label{lst:clock_data_generation_example_cspm}
 \end{listing}
-In the case where the SMEIL network does not have a data generator process but are instantiated with constants or internal values, the \cspm processes would also have to be instantiated with the values as parameters. This means that the the \cspm{} network would not contain an input channel, but that the processes that are instantiated with a constant or internal value, must be translated to contain this information as well.
-If the SMEIL process are defined with internal values, the \cspm{} process must also be defined with this initial value.
-
+In the case where the SMEIL network does not have a data generator process but are instantiated with constants or internal values, the \cspm processes would also have to be instantiated with these values as parameters. This means that the the \cspm{} network would not necessarily contain an input channel, but that the processes that are instantiated with a constant or internal value, must be translated to contain this information as well.
 
 %% Generator processes - More than one process
 If there are several data generation processes in the SMEIL program, TAPS will not handle the processes different than if there were one data generator process. The processes will be translated into a \cspm channels for each data generator process, and the comunication to the rest of the network will still be kept intact since all the communication are specified by the SMEIL network structure.
@@ -166,10 +140,10 @@ If there are several data generation processes in the SMEIL program, TAPS will n
 % TODO: Figure out where this is mentioned before, and maybe rewrite it?
 % As explained earlier, the input for the \cspm{} processes is the value read from the input channel which is included as a parameter of the process.
 When translating the SMEIL process to \cspm{} it is important to design a well-formed structure to handle the input bus parameters of the SMEIL processes.
-In SMEIL the parameters for each process can be input or output buses as well as constant values. The bus channel are then directly referenced in the expression within the SMEIL process body, to access the value from the bus channel. The name used in the parameters is not the formal name of the bus, but simply a placeholder for the formal name, which is defined in the network when instantiating the process. This means that the process can be instantiated several times with different parameters without having to change the actual process. \\
+In SMEIL the parameters for each process can be input or output buses as well as constant values. The bus channel are then directly referenced in the expression within the SMEIL process body to access the value from the bus channel. The name used in the parameters of the process, is not the formal name of the bus, but simply a placeholder for the formal name which is defined in the network when instantiating the process. \\
 
 There are several different ways to translate this particular part of the SMEIL process, each with its own advantage and disadvantage.
-In Listing \ref{lst:cspm_input_values_examples} we can see three different examples of how to translate an SMEIL input bus into input for a \cspm{} process. The examples are different translations of the SMEIL example from Listing \ref{lst:smeil_input_parameter}.\\
+In Listing \ref{lst:cspm_input_values_examples} we can see three \cspm{} examples of how to translate an SMEIL input bus into an input for a \cspm{} process.\\
 
 \begin{minipage}[t]{.98\linewidth}
     \centering
@@ -238,29 +212,31 @@ input_bus_channel ? value ->
 Listing \ref{lst:smeil_input_parameter} shows a simple SMEIL process which takes an input bus as parameter. The three other examples in Listing \ref{lst:cspm_input_values_examples} shows different ways to translate this.
 
 In Listing \ref{lst:cspm_input_value} the value itself is the parameter which means that the value can be used directly in the \texttt{let} clause.
-This way of translating results in simpler process generation in TAPS, since all the information needed to translate to this structure lies within the SMEIL process itself. By adding the value itself as a parameter for the process does mean that reading the value must happen somewhere else, which does not match the original SME model structure. \\
+This way of translating results in simpler process generation in TAPS, since all the information needed to translate to this process structure lies within the SMEIL process itself.
+When adding the value itself as a process parameter, reading the value must happen somewhere else, which does not match the original SME model structure. \\
 
-In Listing \ref{lst:cspm_no_input} the process does not have an input parameter and the input parameter from the SMEIL process have been translated directly to the exact channel name corresponding to the bus channel read from in Listing \ref{lst:smeil_input_parameter}. This solution fits within the original SME model since the process itself reads a value before computing and writing, opposite to the solution in Listing \ref{lst:cspm_input_value}. Having to translate the channel name directly does lead to a more complex translation and TAPS have to search the network to find the exact name of the channel. This results in an increase in complexity for the translation of a process, since TAPS will have to search the network for the information in order to be able to translate the process to \cspm{}. Another downside with this structure is that it removes the reusability that the SMEIL \texttt{instance} declaration provides. When the full channel name are specified directly in the process structure, the process cannot be reused with different parameters. Therefore the generated code can become unnecessary complex because we have to define the processes several times instead of simply reusing the process and declaring it with different parameters in the network.\\
+In Listing \ref{lst:cspm_no_input} the process does not have an input parameter and the input parameter from the SMEIL process have been translated directly to the formal channel name corresponding to the bus channel input in Listing \ref{lst:smeil_input_parameter}. This solution fits within the original SME model since the process itself reads a value before computing and writing, opposite to the solution in Listing \ref{lst:cspm_input_value}. Having to translate the channel name directly does lead to a more complex translation and TAPS will have to search the network to find the exact name of the channel. Another downside with this structure is that it removes the reusability that the SMEIL \texttt{instance} declaration provides. Therefore the generated code can become unnecessary complex because we have to define the processes several times instead of simply reusing the process and declaring it with different parameters in the network.\\
 
 In Listing \ref{lst:cspm_channel_reads_input} the channel name are given as parameter. This solution is the best match to the original SMEIL process structure. The process reads the value itself, but the channel name is provided as a parameter, which means that the process can be reused as opposed to the solution in Listing \ref{lst:cspm_no_input}. This solution also have the advantage that TAPS does not have to search for information outside the process to translate the process.
-The small downside to this solution is that the internal structure of the process must be changed on translation, since the name of the input value cannot be used directly in the \texttt{let} clause. In the original SMEIL program in Listing \ref{lst:smeil_input_parameter} the \texttt{input} value are declared in the process parameter and in the process body. In this solution, TAPS would have to change one of these and put in an intermediate step where the process read the value and then use it in the process body.\\
+The small downside to this solution is that the internal structure of the process must be changed on translation, since the name of the input value cannot be used directly in the \texttt{let} clause. In the original SMEIL program in Listing \ref{lst:smeil_input_parameter} the \texttt{input} value are declared in the process parameter and used directly in the process body. In this solution, TAPS would have to change one of these and put in an intermediate step where the process read a value and then use the value in the process body.\\
 
 Out of these three solutions, it is clear that even though the solution in Listing \ref{lst:cspm_no_input} are the simplest version, the translation would become much more complex, which is a big disadvantage.
 
-In order to create the simplest solution possible, I decided to use the solution in Listing \ref{lst:cspm_input_value}. Even though it does not exactly match the SME model it will not cause trouble, since the network that does the reading will be very closely connected to the process. Using this solution result in a simpler translation of each process and leaves the more complex information to be translated in the network. This means that most of the translations in the program can be done swiftly without needing much information about the rest of the system. Only the network translation becomes complex.
+In order to create the simplest solution possible, I decided to use the solution in Listing \ref{lst:cspm_input_value}. Even though it does not exactly match the SME model it will not be a problem, since the network that reads from the channel will be very closely connected to the process. Using this solution results in a simpler translation of each process and leaves the more complex information to be translated in the network. This means that most of the translations in the program can be done swiftly without needing much information about the rest of the system. Only the network translation becomes complex.
+
 In the case where the process does not have any parameters and are using the bus channels hierarchical names to communicate, this problem will not occur and TAPS will be able to translate the processes directly, since the actual name of the bus channel are defined within the process.
 
 \subsection{Verification in \cspm{}}
 % %%%% Monitor processes %%%%%
 In order to create the assertions for the refinement checking, I decided to create separate assert functions to keep the code structure clean. It would have been possible to include the assertions within the processes, but it is important to keep seperations of concerns and therefore I decided to add this extra process. This will increase the complexity of the generated \cspm{} network, but it will be a minor difference and it is still preferable to more complex process structures.
 
-I know that for each \cspm{} channel there must be an assertion, except for input channels. Consequently, we create a \textit{monitor} process for each channel and its only job is to listen in on the channel communication and assert the values communicated there. The monitor process is a process that we add specifically for asserting legal communication values in FDR4 and it does not affect the original SME network.
+I know that for each \cspm{} channel there must be an assertion, except for input channels. Consequently, TAPS create a \textit{monitor} process for each channel and its only job is to listen in on the channel communication and assert the values communicated there. The monitor process is a process that is aadded specifically for asserting legal communication values in FDR4 and it does not affect the original SME network.
 
-The monitor process checks the values communicated on the channel and if all values are within the expected range and if it is not the monitor process behaves as the \texttt{STOP} process. If all values are within the range, the process behaves as the \texttt{SKIP} process.
+The monitor process checks the values communicated on the channel and if all values are within the expected range the process behaves as the \texttt{SKIP} process. If all values are not within the expected range, the monitor process behaves as the \texttt{STOP} process.
 
-There might be a case where we are not interested in verifying all channels, but we add assertions to all channels, to simplify the code generation. If TAPS should only include assertions on some channels, then a specific notation for which channels the assertions should be included, must be introduced. This is definitely possible, and might be relevant for future work, but adding this functionality might also have the consequence that some errors would not be caught, since the programmar would be responsible for asserting which channels was worth checking.
+There might be a case where the developer is not interested in verifying all channels, but TAPS still add assertions to all channels, to simplify the code generation. If TAPS should only include monitor proceses for some channels, then a specific notation for which channels the monitor processes should be included, must be introduced. This is definitely possible, and might be relevant for future work, but adding this functionality might also have the consequence that some errors would not be caught, since the developer would be responsible for asserting which channels is worth checking.
 
-In Figure~\ref{fig:assertion_process} the outline of this kind of structure can be seen and we expect that this structure can be used for several different types of problems and thereby ensure a cleaner code structure.
+In Figure~\ref{fig:assertion_process} the outline of the monitor process structure can be seen. I expect that this structure can be used for several different types of problems and thereby ensure a cleaner code structure.
 \begin{figure}[!ht]
   \centering
   \begin{tikzpicture}[auto]
@@ -295,11 +271,11 @@ So the meta information that I am using to create the assertions on each channel
 \subsection{Translating Network}
 \label{sec:design_translating_network}
 % write here about how the design of the network came to be. To synchronise the process with the monitor processes which could then be syncronised together with other processes if needed. This means that we generate small structures which together creates a larger structure.
-When translating networks in SMEIL to \cspm{} it is crucial that the composition of the network are kept intact. The SMEIL network are seperated into instances which each instantiates a single process and potentially its communication. As mentioned in Chapter \ref{chap:analysis} the equivalence to the SMEIL network in \cspm{}, are the parallel operators. To create a similar network in \cspm{} TAPS will synchronise the processes together with the channels they are communicating on.
-This is the only way in \cspm{} to enforce communication on channels which is the essential part of the network in SMEIL.
+When translating networks in SMEIL to \cspm{} it is crucial that the composition of the network are kept intact. The SMEIL network are seperated into instances that each instantiates a single process its parameters. As mentioned in Chapter \ref{chap:analysis} the equivalence to the SMEIL network in \cspm{}, are the parallel operators. To create a similar network in \cspm{} TAPS will synchronise the processes together with the channels they are communicating on.
+This is the only way in \cspm{} to enforce synchronised communication on channels which is the essential part of the synchronised network in SMEIL.
 
 An example of a simple network in \cspm{} can be seen below where the process \texttt{A} are synchronised with the process \texttt{B} over the channel \texttt{c}.
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel c : {0..10}
 
 A = c ! 42 -> SKIP
@@ -309,8 +285,9 @@ Network = A [|{| c |}|] B
 \end{minted}
 This example use the generalised parallel operator, since both processes communicate on the channel \texttt{c} and no other channels.
 
-Two processes that must synchronise on the same channels but also must communicate on other channels can be synchronised using the alphabetised parallel operator. An example can be seen below where process \texttt{A} communicates both on channel \texttt{c} and \texttt{d}. If the generalised parallel operator was used in this case including channel \texttt{d} in the synchronisation, then process \texttt{B} would also have to agree on communication on channel \texttt{d}, which would never happen since it does not communicate on channel \texttt{d}. This is where the alphabetised parallel operator comes into play. In this example the alphabetised parallel operator express that process \texttt{A} is allowed to perform events from the set on the left hand side of the operater, which contains both channel \texttt{c} and \texttt{d} and process \texttt{B} is only allowed to perform events on channel \texttt{c}.
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+Two processes that must synchronise on the same channels but also must communicate on other channels can be synchronised using the alphabetised parallel operator. An example can be seen below where process \texttt{A} communicates both on channel \texttt{c} and \texttt{d}. If the generalised parallel operator was used in this case including channel \texttt{d} in the synchronisation, then process \texttt{B} would also have to agree on communication on channel \texttt{d}, which would never happen since it does not communicate on channel \texttt{d}.
+In this example the alphabetised parallel operator express that process \texttt{A} is allowed to perform events from the set on the left hand side of the operater, which contains both channel \texttt{c} and \texttt{d} and process \texttt{B} is only allowed to perform events on channel \texttt{c}, defined on the right hand side.
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel c : {0..10}
 channel d : {0..100}
 
@@ -321,19 +298,22 @@ Network = A [{| c, d |} || {| c |}] B
 \end{minted}
 
 The challenge, when translating the network from SMEIL to \cspm{}, is to ensure that all processes connect with the other processes on the correct channels.
-Since it is only possible to synchronise two processes at a time in \cspm{} it is a challenge to generate entire network. The syncronisation of two processes becomes a new process which can then be synchronised with another process. This will continue for every process in the network and therefore, it quickly becomes very complex. It is an advantage that the \cspm{} networks are automatically generated, since it quickly becomes too large for easy hand translation, even for smaller examples.
+Since it is only possible to synchronise two processes at a time in \cspm{} it is a challenge to generate an entire network. The syncronisation of two processes becomes a new process which can then be synchronised with another process. This will continue for every process in the network and therefore, it quickly becomes very complex. It is an advantage that the \cspm{} networks are automatically generated, since it quickly becomes too large for easy hand translation, even for smaller examples.
 
-Not only is it important that the network is generated to be equivalent to the original SMEIL network, but the monitor processes generated for each of the \cspm{} processes must also be included in the network. Since the monitor processes are only listining in on one specific channel, we start out by synchronising it together with the writing process by using the generalised parallel operator. Since the monitor processes, currently defined, are only asserting one channel the synchronisation is simple but crucial to the assertions in FDR4.
+Not only is it important that the network is generated to be equivalent to the original SMEIL network, but the monitor processes generated for each of the \cspm{} processes must also be included in the network. Since the monitor processes are only listining in on one specific channel, TAPS start out by synchronising it together with the writing process by using the generalised parallel operator.
 The monitor process must always be synchronised with the writing process and not the process reading from the channel, since the synchronisation requires the two processes to agree on communication. If the monitor process was synchronised with the reading process, both would want to read, which would fail.
+
+Since the monitor processes are currently only asserting one channel the synchronisation is simple but crucial to the assertions in FDR4.\\
+
 If there are several output channels from a process the synchronisation of the monitor processes will be nested together. A structure like this can be seen in the excample below.
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 Process_A_monitor_network = (A [|{| c1 |}|] monitor1) [|{| c2 |}|] monitor2
 \end{minted}
-As mentioned above, if the process contains an input parameter the read must happen outside of the process itself. This is also included in this monitor network before the processes are synchronised.
+As mentioned above, if the process contains an input parameter the read must happen outside of the process itself. This is also included in this proces monitor network before the processes are synchronised.
 \begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 Process_A_monitor_network = channel ? x -> (A(x) [|{| c1 |}|] monitor1) [|{| c2 |}|] monitor2
 \end{minted}
-This design structure ensures that the monitor processes are included correctly in the network and also that each read for the processes are defined without too much complexity. This process monitor network can be considered a \texttt{shell} around the process, only containing process relevant information.
+This design structure ensures that the monitor processes are included correctly in the network and also that each read for the processes are defined without too much complexity. This process monitor network can be considered a \texttt{shell} around the process, only containing process relevant information. Because of the structure of this process monitor network, TAPS is able to use this as was it a single process that reads and writes to other processes.
 
 After this small network have been generated, it can then be synchronised together will other similar networks that share communication.
 % TODO: What if the processes use the formal names of the channels. Does TAPS notice these channels and are they added to the network properly?

@@ -168,7 +168,7 @@ const hours: uint = 24;
 \end{minted}
 
 \paragraph{Variables}
-Variables are very similar to constants but simply hold mutable values within the process. In SMEIL variables persist their values in between clock cycles, which mean that it is possible for a process to save a value or results and reuse it in the next clock cycle.
+Variables are very similar to constants but simply hold mutable values within the process. In SMEIL variables preserve their values in between clock cycles, which mean that it is possible for a process to save a value or results and reuse it in the next clock cycle.
 The only grammatically difference between variable and constants in SMEIL, is that variables can also take a range of values, for example:
 \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 var minutes: u6 = 0 range 0 to 59;
@@ -386,7 +386,7 @@ An example of an SMEIL network can be seen in Listing \ref{lst:smeil_two_instant
 
 It is also possible to define buses within the network in SMEIL, which is same syntax as a bus declaration in a process. Examples will be shown later in this section.\\
 
-In \cspm{} there is no network structure, but \cspm{} do have a structure for declaring parallel communication which resembles the instance declarations in SMEIL. The prarallel operators define communication between processes in \cspm{} which is described in Chapter \ref{chap:background}. Is should be possible to create equivalent communication structures by using these operators, but it would quickly become very complex since the operators only syncronise two processes at the time. It is necessary to find a general structure within these syncronisations so that automatic translation is possible.
+In \cspm{} there is no network structure, but \cspm{} do have a structure for declaring parallel communication which resembles the instance declarations in SMEIL. The prarallel operators define communication between processes in \cspm{} which is described in Chapter \ref{chap:background}. Is should be possible to create equivalent communication structures by using these operators, but it would quickly become very complex since the operators only syncronise two processes at a time. It is necessary to find a general structure within these syncronisations so that automatic translation is possible.
 
 This translation step is a great challenge and will require carefully planning in order to get all the information from each part in the correct position of one another.
 
