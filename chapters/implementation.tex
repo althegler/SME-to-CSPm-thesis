@@ -28,17 +28,17 @@ In SMEIL when a process is reading from a bus channel, it is referencing the bus
 An example of this can be seen in Listing \ref{lst:smeil_input_parameter}, where \texttt{input.val} indicates a read from the bus \texttt{input} and the channel \texttt{val} within that bus.
 
 \begin{listing}
-    \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-        proc a (in input)
-            bus abus {
-                val: uint;
-            }
-        {
-            abus.val = input.val + 1;
-        }
-    \end{minted}
-    \caption{Example of a read and a write in SMEIL.}
-    \label{lst:smeil_input_parameter}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
+proc a (in input)
+    bus abus {
+        val: uint;
+    }
+{
+    abus.val = input.val + 1;
+}
+\end{minted}
+\caption{Example of a read and a write in SMEIL.}
+\label{lst:smeil_input_parameter}
 \end{listing}
 SMEIL does not seperate communication and calculation in the process statements which is of great advantage in SMEIL, but the translation becomes more difficult since TAPS has to be able to recognise the communication.
 
@@ -72,16 +72,16 @@ The simple way of translating the SMEIL channels into \cspm{} chanels are to use
 There is however one situation where this naming might cause troubles. If a process is reused and instantiated twice in the network, the bus channels defined in the two processes would have the same name in SMEIL, but because of the instance declarations in the SMEIL network, the channels are seperated. This is important to handle in \cspm{} so there does not occur problems with having identical channel names.
 
 \begin{listing}
-    \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-    network net() {
-        instance c of clock();
-        instance a of A(c.output, val: 1);
-        instance _ of A(c.output, val: 2);
-        instance s of src(a.output);
-    }
-    \end{minted}
-    \caption{Example of a network with four instances whereas two are instances of the same process.}
-    \label{lst:Instance_variations}
+\begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+network net() {
+    instance c of clock();
+    instance a of A(c.output, val: 1);
+    instance _ of A(c.output, val: 2);
+    instance s of src(a.output);
+}
+\end{minted}
+\caption{Example of a network with four instances whereas two are instances of the same process.}
+\label{lst:Instance_variations}
 \end{listing}
 In the example in Listing \ref{lst:Instance_variations} we see a network consisting of four instances where two of the instances are the same process with different constant parameter.
 All but one instance is defined by an instance name which can be used for referencing in the instance parameters. It is also possible to have instances without an instance name. However, it is defined in SMEIL that two instances of the same process, cannot both be without an instance name.\\
@@ -155,7 +155,7 @@ As explained in Chapter \ref{chap:design}, all channels except the input channel
 \end{listing}
 The monitor process asserts that the observed values of the \cspm{} channels are actually what is communicated on the channels. In Listing~\ref{lst:monitor_range_cspm} the two monitor processes for the \texttt{Seconds} process from the seven segment example can be seen. The values used for these statements are 0 through 5 for the first digit and 0 through 9 for the second which can be seen defined for each channel in Listing~\ref{lst:range_smeil}.
 \begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 Seconds_out_first_digit_monitor(c) =
     c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
 Seconds_out_second_digit_monitor(c) =
@@ -244,6 +244,4 @@ After ANTLR4 have walked the parse tree and collected all relevant information, 
 % TODO: Write something about how I should just gather the data and then letting the transformation part do any data transformations. I am, for example, not doing that now since I am adding calculations and communications into two different lists.
 
 % TODO: Write something about how smart it is that I can use labels in the grammar and that I can then much more easily control how to handle different alternatives.
-
-
 

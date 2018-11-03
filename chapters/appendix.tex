@@ -2,7 +2,7 @@
 \section*{Paper}
 % Add the paper as PDF here
 \section*{Full SMEIL and \cspm code}
-\begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc clock ()
     bus clock_out {val: u17 range 1 to 86401;};
     var i: u17 = 0 range 0 to 86401;
@@ -66,7 +66,7 @@ network clock_network ()
 \end{minted}
 \captionof{listing}{The full SMEIL code used for transpiling in the seven segment display example.\label{lst:smeil}}
 
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel clock_out_val : {0..131071}
 
 channel hours_out_first_digit : {0..3}

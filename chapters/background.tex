@@ -87,7 +87,7 @@ The two fundamental components of an SMEIL program is \texttt{process} and \text
 
 The SME model supports both synchronous and asynchronous processes. A synchronous process is run during every clock cycle and an asynchronous process are only run when receiving a signal on the input bus. Unfortunately, SMEIL does not currently support asynchronous processes. %TODO: Ask truls if it is implemented in other sme implementations.
 \begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+\begin{minted}[escapeinside=&&, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 proc addone (in inbus)
     bus outbus {
         val: int;
@@ -96,12 +96,12 @@ proc addone (in inbus)
     outbus.val = inbus.val + 1;
 }
 
-    |$\vdots$|
+    &$\vdots$&
 
 network net() {
     instance a of addone(b.outbus);
     instance b of ..
-    |$\vdots$|
+    &$\vdots$&
 }
 \end{minted}
 \caption{Small example of process and network syntax in SMEIL.}
@@ -127,66 +127,69 @@ During the simulation, the observed minimum and maximum value for all variables 
 
 After the simulation, these minimum and maximum values are then converted into SMEIL types large enough to hold the range.
 The new SMEIL program with the updated types and observed ranges are then passed through the type checker, in order to ensure that all constraints from the original program are still respected.
-% An example of this can be seen in Figure \ref{fig:smeil_restricted_types_and_ranges} where a unlimited size integer is re-typed to an integer of fixed size after the simulation. In Figure \ref{fig:invalid} an example of a violation can be seen. Here the value c is contrained to \texttt{i10} but if the channel \texttt{b.chan} observe values that are 16-bit long then the restrictions on the c variable are violated.
+------------------------------------------------------
+An example of this can be seen in Figure \ref{fig:smeil_restricted_types_and_ranges} where a unlimited size integer is re-typed to an integer of fixed size after the simulation. In Figure \ref{fig:invalid} an example of a violation can be seen. Here the value c is contrained to \texttt{i10} but if the channel \texttt{b.chan} observe values that are 16-bit long then the restrictions on the c variable are violated.
 
-% \begin{minipage}[t]{.98\linewidth}
-%     % \centering
-%   \begin{minipage}[t]{0.30\linewidth}
-%     \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-% proc A ()
-%  bus b {
-%   chan: int;
-%  };
-%  var c: i10;
-% {
-%   c = b.chan;
-% }
-%     \end{minted}
-%     \captionof{listing}{Unconstrained types.}
-%     \label{fig:oktype}
-%   \end{minipage}
-%   \hspace{0.5cm}
-%   \begin{minipage}[t]{0.30\linewidth}
-%     \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-% proc A ()
-%  bus b {
-%   chan: i6 range 0 to 29;
-%  };
-%  var c: i10;
-% {
-%  c = b.chan;
-% }
-%     \end{minted}
-%     \captionof{listing}{Valid.}
-%     \label{fig:non-violated}
-%   \end{minipage}
-%   \hspace{0.5cm}
-%   \begin{minipage}[t]{0.30\linewidth}
-%    \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-% proc A ()
-%  bus b {
-%   chan: i16 range 0 to 30717;
-%  };
-%  var c: i10;
-% {
-%  c = b.chan;
-% }
-%    \end{minted}
-%     \captionof{listing}{Invalid.}
-%     \label{fig:violated}
-%   \end{minipage}
-%    \captionof{listing}{Shows a process entering the simulator with an unconstrained type (a)
-%      and examples of two possible resulting programs (b, c). The type changing
-%      between the examples is underlined.}
-%    \label{fig:simtyping}
-%    \vspace{1cm}
-% \end{minipage}
+\begin{minipage}[t]{.98\linewidth}
+    % \centering
+  \begin{minipage}[t]{0.30\linewidth}
+    \begin{minted}{smeil_lexer.py:SMEILLexer -x}
+proc A ()
+ bus b {
+  chan: int;
+ };
+ var c: i10;
+{
+  c = b.chan;
+}
+    \end{minted}
+    \captionof{listing}{Unconstrained types.}
+    \label{fig:oktype}
+  \end{minipage}
+  \hspace{0.5cm}
+  \begin{minipage}[t]{0.30\linewidth}
+    \begin{minted}{smeil_lexer.py:SMEILLexer -x}
+proc A ()
+ bus b {
+  chan: i6 range 0 to 29;
+ };
+ var c: i10;
+{
+ c = b.chan;
+}
+    \end{minted}
+    \captionof{listing}{Valid.}
+    \label{fig:non-violated}
+  \end{minipage}
+  \hspace{0.5cm}
+  \begin{minipage}[t]{0.30\linewidth}
+   \begin{minted}{smeil_lexer.py:SMEILLexer -x}
+proc A ()
+ bus b {
+  chan: i16 range 0 to 30717;
+ };
+ var c: i10;
+{
+ c = b.chan;
+}
+   \end{minted}
+    \captionof{listing}{Invalid.}
+    \label{fig:violated}
+  \end{minipage}
+   \captionof{listing}{Shows a process entering the simulator with an unconstrained type (a)
+     and examples of two possible resulting programs (b, c). The type changing
+     between the examples is underlined.}
+   \label{fig:simtyping}
+   \vspace{1cm}
+\end{minipage}
 
 
-% It is taken from Truls article and I should change the captions and also mention where I got it from.
-% Maybe it is not necessary to have the invalid version in this example? It is necessary for Truls, but maybe not for me.
+It is taken from Truls article and I should change the captions and also mention where I got it from.
+Maybe it is not necessary to have the invalid version in this example? It is necessary for Truls, but maybe not for me.
 
-% In Figure \ref{fig:smeil_restricted_types_and_ranges} the two last programs, showed in Figure x and y, will be the result of the re-typing of the program after simulation. That is, the programs resulting from the simulation of the program in Figure z.
+In Figure \ref{fig:smeil_restricted_types_and_ranges} the two last programs, showed in Figure x and y, will be the result of the re-typing of the program after simulation. That is, the programs resulting from the simulation of the program in Figure z.
+
+---------------------------------------------------
 
 
 \subsubsection{Co-simulation}

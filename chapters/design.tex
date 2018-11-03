@@ -43,7 +43,7 @@ In this section we describe the main design decisions included in creating TAPS 
 In order to translate an SMEIL process to a \cspm{} process I had to create a general process structure in \cspm{}. I know that the SME model enforce that each process reads, execute, and writes, in that order, for each clock cycle, so I needed to create a \cspm{} structure that could support this. First of all I wanted to attempt to have one \cspm{} process per SMEIL process, since it would simplify the translation and a simpler solution typically results in a less errornous solution.
 
 What first comes to mind in \cspm{} when a process must read and then write, is a very simple process structure using prefix and communication operators.
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 Proc = c ? x -> d ! x-> SKIP
 \end{minted}
 This is one of the simplest \cspm{} process that match the SME model, however with this structure it is not simple to include all the possible calculations that SMEIL support. It turned out that the tricky part of translating a general SMEIL process to \cspm{} was to be able to include the executions properly.
@@ -51,7 +51,7 @@ This is one of the simplest \cspm{} process that match the SME model, however wi
 By using the \texttt{let within} structure in \cspm{} it is possible to keep the communication together with the arithmetics in one \cspm{} process while keeping a simple structure. All arithmetics are performed inside the \texttt{let} clause while the writing will be put in the \texttt{within} clause.
 In Listing~\ref{lst:cspm_let_within_example}, an example of the \texttt{let within} structure can be seen. This structure will work as a general translation structure from SMEIL processes to \cspm{} processes. Since I know that all reads and calculations must be done before writing, this structure should always work for a well-structured SMEIL process.
 \begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel c : {0..100}
 
 P(input) =
@@ -96,7 +96,7 @@ Currently TAPS only support generating an input channel from the SMEIL network.
 Listing \ref{lst:clock_data_generation_example_cspm} is the translated version of the SMEIL network from Listing \ref{lst:clock_data_generation_example_smeil}. Here it can be seen that the \texttt{clock} process from the SMEIL network, is translated into an input channel \texttt{clock} in \cspm{}.
 The translation of the range values defined for each channel are described later in this section.
 \begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel clock : ...
 channel minutes_output_val : ...
 
@@ -146,7 +146,7 @@ In Listing \ref{lst:cspm_input_values_examples} we can see three \cspm{} example
 \begin{minipage}[t]{.98\linewidth}
     \centering
 \begin{minipage}[t]{0.45\linewidth}
-  \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+  \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc a (in input)
     bus abus {
         val: uint;};
@@ -159,7 +159,7 @@ proc a (in input)
 \end{minipage}
 \hspace{0.6cm}
 \begin{minipage}[t]{0.45\linewidth}
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 
 A(input_val) =
     let
@@ -175,7 +175,7 @@ A(input_val) =
 \vspace{0.5cm}
 \newline
 \begin{minipage}[t]{0.45\linewidth}
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 A() =
     b_bbus_val ? value ->
     let
@@ -189,7 +189,7 @@ A() =
 \end{minipage}
 \hspace{0.6cm}
 \begin{minipage}[t]{0.45\linewidth}
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 A(input_bus_channel) =
 input_bus_channel ? value ->
     let
@@ -253,7 +253,7 @@ In Figure~\ref{fig:assertion_process} the outline of the monitor process structu
 \end{figure}
 
 For FDR4 to actually perform any refinement checking, an assertion must be added to the network by using the \texttt{assert} keyword. The assertion I wish to make is to check if the entire network terminates successfully. This is done by using the \texttt{SKIP} process as the specification process of a refinement check as well as the network to verify.
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 assert SKIP [F= Network \ Events
 \end{minted}
 The example seen above shows a \cspm{} assertion which informs FDR4 what kind of refinement checking to do.
@@ -272,7 +272,8 @@ So the meta information that I am using to create the assertions on each channel
 When translating networks in SMEIL to \cspm{} it is crucial that the composition of the network are kept intact. The SMEIL network are seperated into instances that each instantiates a single process its parameters. As mentioned in Chapter \ref{chap:analysis} the equivalence to the SMEIL network in \cspm{}, are the parallel operators. To create a similar network in \cspm{} TAPS will synchronise the processes together with the channels they are communicating on.
 This is the only way in \cspm{} to enforce synchronised communication on channels which is the essential part of the synchronised network in SMEIL.
 
-An example of a simple network in \cspm{} can be seen below where the process \texttt{A} are synchronised with the process \texttt{B} over the channel \texttt{c}.
+An example of a simple network in \cspm{} can be seen in Listing \ref{lst:general_parallel_operator} where the process \texttt{A} are synchronised with the process \texttt{B} over the channel \texttt{c}.
+\begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel c : {0..10}
 
@@ -281,10 +282,14 @@ B = c ? x -> SKIP
 
 Network = A [|{| c |}|] B
 \end{minted}
+\caption{Example of synchronisation using the generalised parallel operator.}
+\label{lst:general_parallel_operator}
+\end{listing}
 This example use the generalised parallel operator, since both processes communicate on the channel \texttt{c} and no other channels.
 
-Two processes that must synchronise on the same channels but also must communicate on other channels can be synchronised using the alphabetised parallel operator. An example can be seen below where process \texttt{A} communicates both on channel \texttt{c} and \texttt{d}. If the generalised parallel operator was used in this case including channel \texttt{d} in the synchronisation, then process \texttt{B} would also have to agree on communication on channel \texttt{d}, which would never happen since it does not communicate on channel \texttt{d}.
+Two processes that must synchronise on the same channels but also must communicate on other channels can be synchronised using the alphabetised parallel operator. An example can be seen in Listing \ref{lst:alphabetised_parallel_operator} where process \texttt{A} communicates both on channel \texttt{c} and \texttt{d}. If the generalised parallel operator was used in this case including channel \texttt{d} in the synchronisation, then process \texttt{B} would also have to agree on communication on channel \texttt{d}, which would never happen since it does not communicate on channel \texttt{d}.
 In this example the alphabetised parallel operator express that process \texttt{A} is allowed to perform events from the set on the left hand side of the operater, which contains both channel \texttt{c} and \texttt{d} and process \texttt{B} is only allowed to perform events on channel \texttt{c}, defined on the right hand side.
+\begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel c : {0..10}
 channel d : {0..100}
@@ -294,6 +299,10 @@ B = c ? x -> SKIP
 
 Network = A [{| c, d |} || {| c |}] B
 \end{minted}
+\caption{Example of synchronisation using the alphabetised parallel operator.}
+\label{lst:alphabetised_parallel_operator}
+\end{listing}
+
 
 The challenge, when translating the network from SMEIL to \cspm{}, is to ensure that all processes connect with the other processes on the correct channels.
 Since it is only possible to synchronise two processes at a time in \cspm{} it is a challenge to generate an entire network. The syncronisation of two processes becomes a new process which can then be synchronised with another process. This will continue for every process in the network and therefore, it quickly becomes very complex. It is an advantage that the \cspm{} networks are automatically generated, since it quickly becomes too large for easy hand translation, even for smaller examples.
@@ -304,12 +313,13 @@ The monitor process must always be synchronised with the writing process and not
 Since the monitor processes are currently only asserting one channel the synchronisation is simple but crucial to the assertions in FDR4.\\
 
 If there are several output channels from a process the synchronisation of the monitor processes will be nested together. A structure like this can be seen in the excample below.
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 Process_A_monitor_network = (A [|{| c1 |}|] monitor1) [|{| c2 |}|] monitor2
 \end{minted}
 As mentioned above, if the process contains an input parameter the read must happen outside of the process itself. This is also included in this proces monitor network before the processes are synchronised.
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-Process_A_monitor_network = channel ? x -> (A(x) [|{| c1 |}|] monitor1) [|{| c2 |}|] monitor2
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
+Process_A_monitor_network =
+    channel ? x -> (A(x) [|{| c1 |}|] monitor1) [|{| c2 |}|] monitor2
 \end{minted}
 This design structure ensures that the monitor processes are included correctly in the network and also that each read for the processes are defined without too much complexity. This process monitor network can be considered a \texttt{shell} around the process, only containing process relevant information. Because of the structure of this process monitor network, TAPS is able to use this as was it a single process that reads and writes to other processes.
 

@@ -25,10 +25,10 @@ Since we are syncronising the processes on the events in the channels, it seems 
 After some time working with the problem and trying to understand the reason for FDR4s error message, we found that if we simply add a guard or an if-then-else statement that tests the value to be written, FDR4 will gladly verify the system and when using Probe on the network, it is clear that FDR4 does not consider the trace with the wrong values. \\
 
 So the suggested solution, or fix, to this problem, is to add an if-then-else before all writes in a program. The statement then tests the value to be written against the max value of the range of the channel and if the value is not within the range, then the process behaves as the \texttt{SKIP} process, otherwise, it continues with write.
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}[escapeinside=&&, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 channel c : {0..20}
 
-|$\vdots$|
+&$\vdots$&
 
     if (i+1) > 20  -- Check the upper limit of the channel
         then SKIP  -- SKIP if the value is above

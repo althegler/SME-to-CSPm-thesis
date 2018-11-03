@@ -60,7 +60,7 @@ When writing hardware models in pure SMEIL, the one the the possible ways to gen
 The result is communicated on the process output bus, where the three \texttt{time} processes are listening. These \texttt{time} processes receive the number and by the use of simple integer arithmetic, calculate the hours, minutes, and seconds since midnight respectively. It is obvious that at some point in time, each \texttt{time} process will calculate a two-digit result, for example at 12 hours or 42 seconds. However, a single seven segment display can only show one digit between 0 and 9. Therefore we need two seven segment displays for each \texttt{time} process in order to show the correct time in a 24-hour interval. Each \texttt{time} process has an output bus with two individual channels that represent the communication to each different display. The number representing either hours, minutes, or seconds are separated into first and second digit, by $\lfloor \frac{x}{10} \rfloor$ and $(x \text{ mod } 10)$. These six different results are then communicated onto the six different channels which represent the six different seven segment displays.
 The outline of this network can be seen in Figure~\ref{fig:smeil_network}.
 \begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{python}
+\begin{minted}{python}
 from math import floor
 
 def time(time_since_midnight):
@@ -142,7 +142,7 @@ The behaviour of the single process in the SMEIL program is the base of the func
 
 % %%%% SMEIL processes %%%%
 An SMEIL process is defined by the \texttt{proc} keyword and consists of an identifier, process parameters, bus and variable declarations. The body of the process, or the process statements, consists of sequential statements such as communications and calculations that are to be evaluated once for each clock cycle. A small example of a SMEIL process can be seen below. The process \texttt{add} takes an input bus, \texttt{input}, and writes on its own output bus \texttt{addbus}.
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
     proc add (in input)
         bus addbus {
             val: uint;
@@ -163,14 +163,14 @@ a structure to the \cspm{} network, that simulates the synchronous structure of 
 In an SMEIL process, the declarative part of the process can consists of different variables and constants as well as bus definitions. In this next part we introduce variables and constants, whereas buses are described in section \ref{sec:analysis_structural}.
 \paragraph{Constants}
 Constants are used when declaring named constant values and consists of an identifier, a type and an optional expression. The expression could be simply an integer assigned to the constant, for instance:
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
 const hours: uint = 24;
 \end{minted}
 
 \paragraph{Variables}
 Variables are very similar to constants but simply hold mutable values within the process. In SMEIL variables preserve their values in between clock cycles, which mean that it is possible for a process to save a value or results and reuse it in the next clock cycle.
 The only grammatically difference between variable and constants in SMEIL, is that variables can also take a range of values, for example:
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
 var minutes: u6 = 0 range 0 to 59;
 \end{minted}
 The assignment of \texttt{= 0} is simply to give an initial value of the variable, but both initial values and ranges are optional. The range provide a range of expected values of the variable.
@@ -179,15 +179,15 @@ In SMEIL, the types of variable and constants must always be defined which also 
 The unlimited bit size \texttt{int} and \texttt{uint} are not realistic to have in \cspm{} since, when verifying a program, FDR4 will look at the entire possible statespace, and with unlimited integers the statespace will be enormous. FDR4 restricts its integer types to signed 32-bit~\cite{UniversityofOxford}.
 \cspm{} does not include types to its variables and constants the same way as SMEIL does. \cspm{} also does not support all the different types that SMEIL support.
 Because of the type-system of SMEIL the libsme compiler will provide a warning if the values of a constant or variable are above or below what the type can represent. In the example below the number 59 cannot be represented by 4 bits and therefore it would cause a warning from the compiler.
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
 var minutes: u4 = 0 range 0 to 59;
 \end{minted}
 In \cspm, constants can be declared as we know it from many other languages;
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 N = 5
 \end{minted}
 Variables can be used without declaring them first, for example in a process declaration with a local definition.
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 Proc(x) =
     let
         m = x % 60
@@ -195,7 +195,7 @@ Proc(x) =
         channel ! m -> SKIP
 \end{minted}
 A variable is also defined when communication specific values over channels in \cspm. For example in the example below, the received value is assigned to the variable $x$ which is then used when writing the value to the \texttt{output} channel.
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 P = input ? x -> output ! x -> STOP
 \end{minted}
 
@@ -228,7 +228,7 @@ The trace statement in SMEIL is not affecting the behaviour of the process, but 
 In \cspm it is possible to add a print statement, but this will appear in the right hand side of the FDR4 session window for easy evaluation, and it does not support printing out text, but rather calculations. Thus the trace statements in SMEIL is not compatible with \cspm so either the trace statements should be thrown away or kept as a comment in the generated code.\\
 
 The assert statements are used internally in SMEIL and evaluated during program execution. If the assert statement is not valid, then the execution is halted and the error message, defined in the assert statement, is printed, for instance
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
 assert(hour < 23, "hours cannot be greater than 23");
 \end{minted}
 
@@ -258,7 +258,7 @@ The presedence of the above mentioned operators are not entirely identical acros
 As mentioned above, processes in SMEIL can be defined with parameters which represents input and output buses as well as constants. In \cspm{} processes can also be defined with parameters that can be variables, channels or similar.
 In \cspm the processs behaviour also represents functionality, but the behaviour is often more focused on communicative behaviour between other processes. A typical process in \cspm could look like the one in Listing \ref{dining_philosopher_cspm} which represents a philosopher process from the dining philosophers problem. The process behaviour shows a philosophers actions in communicating with other processes. As can be seen, the process also conduct some simple calculations, but the main structure consists of communication, which is the main purpose of \cspm, to be able to describe communication between processes.
 \begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 PHIL(i) = thinks.i -> sits!i -> picks!i!i -> picks!i!((i+1)%N) ->
           eats!i -> putsdown!i!((i+1)%N) -> putsdown!i!i -> getsup!i -> PHIL(i)
 
@@ -277,7 +277,7 @@ One way of initialising the network is by instantiating the processes with const
 Listing \ref{lst:addone_data_generation_example} shows an example of a process being instantiated with a constant. the \texttt{Addone} network is a simple SMEIL network with two processes. The \texttt{add} process receives an input value, add the constant and the input values together and writes it out on the outbus bus. The \texttt{id} process receives an input and writes it to the output bus imediately. Networks in SMEIL are introduced further in Section \ref{sec:analysis_structural}, but the network in this example is simple and it is defining the input bus of the \texttt{add} process to be the output bus of the \texttt{id} process, as well as defining that the constant value in the \texttt{add} process is 1. \\
 
 \begin{listing}
-    \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+    \begin{minted}{smeil_lexer.py:SMEILLexer -x}
     proc addone (in input, const constant)
         bus output {
             val: uint;
@@ -305,7 +305,7 @@ Listing \ref{lst:addone_data_generation_example} shows an example of a process b
 \end{listing}
 Listing \ref{lst:clock_data_generation_example_smeil} shows another way to instantiate the SMEIL network. Here the process \texttt{clock} is a data generator process. It does not receive data from any input bus, so it can only generate data for the network. This example is only to show the data generator process concept, so the \texttt{minutes} process is simple and is just calculating how many minutes have passed since the simulation started by dividing the input with 60.
 \begin{listing}
-    \begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+    \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc clock()
     bus output {
         val: uint;
@@ -355,7 +355,7 @@ In an SMEIL network, processes are instantiated using the \texttt{instance} keyw
 Defining the network out of process instances also have the advantage that one process can be instantiated with different parameters several times within the same network, providing the possibility of reusing the processes for different purposes.
 An example of an SMEIL network can be seen in Listing \ref{lst:smeil_two_instantiations_example}, where the \texttt{add} process is instantiated twice with different constant values.
 \begin{listing}
-    \begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+    \begin{minted}{smeil_lexer.py:SMEILLexer -x}
     proc clock ()
         bus output {
             val: uint;
@@ -398,7 +398,7 @@ Since buses in an SMEIL network is simply shells containing one or more channels
 
 The SMEIL process receives the bus as a parameter and therefore all channels within the bus are connected to the process at the same time. It is then up to the developer to call the correct channel within the bus to either read or write.
 Below an example of a bus definition in SMEIL can be seen. The bus is identified with the name \texttt{day} and it consists of three channels, \texttt{hours}, \texttt{minutes}, and \texttt{seconds}. Each channel are defined with a type, \texttt{u5} and \texttt{u6} and a range of 0 through 23 and 0 through 59.
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
 bus day {
     hours:   u5 range 0 to 23;
     minutes: u6 range 0 to 59;
@@ -409,7 +409,7 @@ bus day {
 A single SMEIL channel corresponds to a single \cspm{} channel and therefore the translation of these should be simple.
 \paragraph{SMEIL input bus}
 The input bus for each SMEIL process can be defined in different ways. The input bus can be defined as a process parameter which can be seen in the example below. Here the process reads the data from the bus \texttt{input} and writes the date out on the \texttt{a\_bus} bus.
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
     proc A (in input)
         bus a_bus {
             val: uint;
@@ -418,24 +418,29 @@ The input bus for each SMEIL process can be defined in different ways. The input
         a_bus.val = input.val;
     }
 \end{minted}
-It is also possible to use the formal identifier of the bus in the process body, thereby not accessing it through the input parameter. An example of this can be seen below. Here the proces \texttt{A} reads the input by asccessing the hierarchical name of the bus channel \texttt{val} within the bus \texttt{b\_bus} defined in process \texttt{B}. However, as a result of this, the process can be instantiated several times in the network but it will always read from \texttt{B.b\_bus.val}.
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-    proc A ()
-        bus a_bus {
-            val: uint;
-        }
-    {
-        a_bus.val = B.b_bus.val;
+It is also possible to use the formal identifier of the bus in the process body, thereby not accessing it through the input parameter. An example of this can be seen in Listing \ref{lst:SMEIL_example_formal_channel_name}. Here the proces \texttt{A} reads the input by asccessing the hierarchical name of the bus channel \texttt{val} within the bus \texttt{b\_bus} defined in process \texttt{B}. However, as a result of this, the process can be instantiated several times in the network but it will always read from \texttt{B.b\_bus.val}.
+\begin{listing}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
+proc A ()
+    bus a_bus {
+        val: uint;
     }
+{
+    a_bus.val = B.b_bus.val;
+}
 
-    proc B ()
-        bus b_bus {
-            val: uint;
-        }
-    {
-        |$\vdots$|
+proc B ()
+    bus b_bus {
+        val: uint;
     }
+{
+    |$\vdots$|
+}
 \end{minted}
+\caption{Example showing how a process can read from a channel using its formal identifier.}
+\label{lst:SMEIL_example_formal_channel_name}
+\end{listing}
+
 
 \paragraph{SMEIL output bus}
 The output bus can also be defined in several different ways.
@@ -443,9 +448,10 @@ As seen in the previous examples, the output bus can be defined inside the proce
 
 As with input buses, it is also possible to reference the hierarchical name of the channel directly inside the process body the same way as in the example above.
 
-It it also possible to give the output bus as a process parameter. An example of this can be seen below where the process \texttt{addone} reads from its \texttt{input} bus and writes to its \texttt{output} bus, both defined as parameters.
+It it also possible to give the output bus as a process parameter. An example of this can be seen in Listing \ref{lst:smeil_example_output_parameter} where the process \texttt{addone} reads from its \texttt{input} bus and writes to its \texttt{output} bus, both defined as parameters.
 As can be seen in the network, the input bus for process \texttt{addone} is the \texttt{constant\_bus} defined in process \texttt{constant}. The output bus of process \texttt{addone} is a bus defined in the network called \texttt{net\_bus}. In this example the network simply calculates \texttt{1 + 1} for each clock cyles.
-\begin{minted}[linenos=false, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+\begin{listing}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc constant ()
     bus constant_bus {
         val: uint;
@@ -468,13 +474,17 @@ network net() {
 
 }
 \end{minted}
+\caption{SMEIL example of a process \texttt{addone} having both input and output bus as parameters.}
+\label{lst:smeil_example_output_parameter}
+\end{listing}
+
 SMEIL have been designed so that the creation of a circuit is very flexible. Each process can have any number and combinations of input buses, output buses, and constants as parameters and the communication is not restricted to what is defined as parameters. Therefore TAPS will have to be able to handle several different ways of defining these in \cspm{}.
 
 \paragraph{\cspm{} channels}
 In \cspm{} the processes can communicate on channels both through process parameters and by using the global names. Therefore it should be possible to translate both of these situations in TAPS. It is of course important that TAPS can recognise the two different situations, since it might affect how the process is translated. Since all channel definitions are defined outside of processes in \cspm{} the bus definition, inside the process in SMEIL, would simply translate to a channel definition outside of the process in \cspm{}.
 
 An example of a \cspm{} process, communicating both via its process parameter channel and via a global name can be seen below. The process \texttt{P} reads a value from the \texttt{input} channel, which is the channel \texttt{d}. The process then writes the value on the \texttt{c} channel and terminates.
-\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel c : {0..10}
 channel d : {0..10}
 
