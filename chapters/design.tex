@@ -132,11 +132,6 @@ If there are several data generation processes in the SMEIL program, TAPS will n
 \subsection{Translating Buses and Channels}
 % TODO: Here might be some interesting design stuff. How do I handle if bus channels are used directly in the process without being used as a parameter. In that case I would have to be sure I defined it in cspm{}, but this should be solved by simply taking all bus definitions and create a channel for all of the channels within those. Since no bus channel can be used without haveing be declared somewhere in the system, this would ensure that we translate all of them.
 
-
-% TODO: What if I need to translate a bus with letters, or something else? what kind of channel does that become?
-
-% TODO: Figure out where this is mentioned before, and maybe rewrite it?
-% As explained earlier, the input for the \cspm{} processes is the value read from the input channel which is included as a parameter of the process.
 When translating the SMEIL process to \cspm{} it is important to design a well-formed structure to handle the input bus parameters of the SMEIL processes.
 In SMEIL the parameters for each process can be input or output buses as well as constant values. The bus channel are then directly referenced in the expression within the SMEIL process body to access the value from the bus channel. The name used in the parameters of the process, is not the formal name of the bus, but simply a placeholder for the formal name which is defined in the network when instantiating the process. \\
 
@@ -263,9 +258,6 @@ I am using the \textit{failures} model described in Chapter \ref{chap:background
 
 
 So the meta information that I am using to create the assertions on each channel are meta information within the SMEIL program. TAPS use the observed range of values for each channel to define the range of acceptable values in the assertions. TAPS then translates these values, not into meta data in \cspm{} but as an actual process with actual real semantics which is included as a part of the topology of the \cspm{} network.
-
-% %%%% Monitor processes: monitor something else that ranges
-
 \subsection{Translating Network}
 \label{sec:design_translating_network}
 % write here about how the design of the network came to be. To synchronise the process with the monitor processes which could then be syncronised together with other processes if needed. This means that we generate small structures which together creates a larger structure.

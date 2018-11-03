@@ -72,7 +72,7 @@ The simple way of translating the SMEIL channels into \cspm{} chanels are to use
 There is however one situation where this naming might cause troubles. If a process is reused and instantiated twice in the network, the bus channels defined in the two processes would have the same name in SMEIL, but because of the instance declarations in the SMEIL network, the channels are seperated. This is important to handle in \cspm{} so there does not occur problems with having identical channel names.
 
 \begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
 network net() {
     instance c of clock();
     instance a of A(c.output, val: 1);
@@ -93,7 +93,6 @@ If the instance has an anonymous instance name, the \cspm{} channel name will no
 The restrictions to identical process instances in SMEIL ensures that even if there are channels without instance names in the SMEIL program there will never be two identical named \cspm{} channels in the generated code. This however does mean that the naming of each channel quickly becomes long and chaotic, but it is still more readable than random generated names.
 % NOTE! Currently TAPS does not support the naming of identical process busses.
 
-%%% Calling the channel in the bus
 In SMEIL it is also possible to have bus declarations within the network declaration. These bus channels will be named in the same manner as the other channels in \cspm{}, however without a potential instance name appended.
 
 \subsection{\cspm{} Channel Ranges}
@@ -177,7 +176,7 @@ When generating the process monitor network as described in Section \ref{sec:des
 
 The process monitor network cosists of three parts. Firstly if the process takes an input value, the value must be read from the channel. From the instance parameters defined in SMEIL, TAPS receive the name of the actual SMEIL process and bus that provides the input bus. Then within the process itself, TAPS get the information of which channel within the input bus it is reading from. All this information is gathered to clarify which \cspm{} channel the process monitor network should read from. If there are more input values, this is of course done several times, using prefixing to include more reads.
 
-% TODO: TAPS does not currently support more than one input channel
+% NOTE: TAPS does not currently support more than one input channel
 The second part is to add the process name with the expected parameters, both input values, output channels as well as constants and internal values.
 
 In the last part, TAPS will have to synchronise the process with the monitor processes connected to its output buses.

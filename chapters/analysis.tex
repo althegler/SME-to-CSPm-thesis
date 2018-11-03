@@ -56,7 +56,7 @@ In this example, we wish to model a typical digital clock that is able to calcul
 Like \texttt{time\_since\_midnight} in Listing~\ref{lst:python}, the network must have some input of data. The input value represents seconds since midnight, and in order to calculate hours, minutes, and seconds we model three different processes, called the \texttt{time} processes in this example.
 
 When writing hardware models in pure SMEIL, the one the the possible ways to generate input for the network is to create a data generator process. This process, called the \texttt{clock} process in our example, is instantiated with a start time and is incremented by 1 for each simulation cycle, representing a one second increase.
-% TODO: Do I need to move this further down? It might be that SMEIL have not been introduced properly so they wont understand it yet. It is an option to move it after Meta..
+
 The result is communicated on the process output bus, where the three \texttt{time} processes are listening. These \texttt{time} processes receive the number and by the use of simple integer arithmetic, calculate the hours, minutes, and seconds since midnight respectively. It is obvious that at some point in time, each \texttt{time} process will calculate a two-digit result, for example at 12 hours or 42 seconds. However, a single seven segment display can only show one digit between 0 and 9. Therefore we need two seven segment displays for each \texttt{time} process in order to show the correct time in a 24-hour interval. Each \texttt{time} process has an output bus with two individual channels that represent the communication to each different display. The number representing either hours, minutes, or seconds are separated into first and second digit, by $\lfloor \frac{x}{10} \rfloor$ and $(x \text{ mod } 10)$. These six different results are then communicated onto the six different channels which represent the six different seven segment displays.
 The outline of this network can be seen in Figure~\ref{fig:smeil_network}.
 \begin{listing}
@@ -120,38 +120,19 @@ From the introduction to both SMEIL and \cspm it is clear that the main intentio
 
 
 % Vigtigt at have de tre dele adskilt i afsnittet. Brug figuren fra side 107 i bujo til at henvise til at jeg har en Magic 8-ball (Mit system) og jeg skal fra SMEIL til FDR og henvise til at det er det flow jeg har brug for.
-
-
-% I SMEIL har jeg et prædefineret konsistent navnerum. Jeg skal ikke lave en symboltabel. Jeg arver direkte fra SMEIL til CSPm. Så her kan jeg snakke om at hvis jeg gjorde det på en anden måde ville jeg ikke kunne gøre det sådan. Det skal jeg skrive om her. TODO: Make a decision about where this belongs. It does not seem to be fitting in with the analysis, but on the other hand this was what Brian told me. But is he right?
-
-
 When analysing the general structure of SMEIL programs, there are three structures that are particular interestingin terms of translating from SMEIL to \cspm{}. These three structures are:
 \begin{enumerate}
     \item \textbf{Behavioral:} The general behavior of each process and function.
     \item \textbf{Structural:} How the circuit is connected, i.e which buses connects to which processes.
     \item \textbf{Verification data} All data from the SMEIL network that could be beneficial for our translation to \cspm{} and the verification.
 \end{enumerate}
-
-% TODO: Should I add the clock problem to the list, so it becomes four parts?
-
 \subsection{Behavioral}
 %% - Behavioral description - hvad den enkelte funktion gør. det oversættes ret nemt. Jeg bekymre mig ikke om variable og sådan nogle ting. Det er allerede gjort før det gøres til SMEIL, og dem kan jeg genbruge i min code generation.  Funktionel indhold af processer/ opførsel af den enkelte process - det er rimelig nemt oversat direkte til CSPm. Her kan man beskrive hvis der er nogle sproglige udfordringer, fx hvis CSPm ikke har loops eller lign.
 The behaviour of the single process in the SMEIL program is the base of the functionality in an SMEIL program. By analysing the different structures of processes in SMEIL, we can get a sense of how it could be created in \cspm.
 \subsubsection{Processes}
-% TODO: Maybe I only need to introduce SMEIL stuff that TAPS support?
-
 % %%%% SMEIL processes %%%%
-An SMEIL process is defined by the \texttt{proc} keyword and consists of an identifier, process parameters, bus and variable declarations. The body of the process, or the process statements, consists of sequential statements such as communications and calculations that are to be evaluated once for each clock cycle. A small example of a SMEIL process can be seen below. The process \texttt{add} takes an input bus, \texttt{input}, and writes on its own output bus \texttt{addbus}.
-\begin{minted}{smeil_lexer.py:SMEILLexer -x}
-    proc add (in input)
-        bus addbus {
-            val: uint;
-        }
-    {
-        addbus.val = input.val + 1;
-    }
-\end{minted}
-% TODO: This example is the same as listing lst:smeil_input_parameter in implementation
+An SMEIL process is defined by the \texttt{proc} keyword and consists of an identifier, process parameters, bus and variable declarations. The body of the process, or the process statements, consists of sequential statements such as communications and calculations that are to be evaluated once for each clock cycle. A small example of a SMEIL process has been presented in Listing \ref{lst:smeil_small_syntax_example} in Chapter \ref{chap:background}.\\
+
 It is not possible to declare variables inside the process statements and therefore all variable and communications must be declared in the declarative part of the process. This attribute should simplify the translation to \cspm, since TAPS will only have to search the declarative part of the process to find all variable and bus definitions.
 A process can be instantiated with a set of parameters. These parameters can be a mix of input and output buses and constants. A process is initiated in the network of a SMEIL program which will be explained later.\\
 
@@ -204,7 +185,7 @@ A potential challenge lies in deciding how to define a variable that has been de
 % \paragraph{Enumerations}
 % In SMEIL it is also possible to declare enumerations within a process or a network declaration. Emumerations can be used to referencing symbolic constants instead of its numerical constants which can improve the readability of the program.
 % Currently enumerations are not implemented in TAPS.
-% TODO: Enummerations are not implemented in TAPS, so should I even write about it here?
+% NOTE: Enummerations are not implemented in TAPS, so should I even write about it here?
 
 
 % TODO: Should I say something about Generators?
@@ -345,10 +326,8 @@ TAPS will of course have to recognise these different approaches in SMEIL and di
 \subsection{Structural}
 \label{sec:analysis_structural}
 % - Strukturel information: hvilke proceser er der og hvilke buser er de limet sammen med. hvordan hænger tingene sammen. Det er også forholdsvis nemt fordi FDR har processer på samme måde som SMEIL har. de har en historisk afhængighed ift. SME og CSP.
-% TODO: Write something here!
 The communication between processes are the back bone of an SMEIL network. By analysing the different ways to define the communication and how it resembles communication in \cspm{} we will get a better understanding of how to design the code generation.
 \subsubsection{Network}
-% TODO: Write something about how instances can be defined with an instance name or without and how that also impacts how the channels are defined as parameters for the processes and how one process can be instantiated several times but must have a instance name, otherwise it will fuck up. I think truls writes that only one instance can be wildcard in one network.
 The network in SMEIL is the crucial part which ties all the processes together with the buses.
 
 In an SMEIL network, processes are instantiated using the \texttt{instance} keyword within the network declaration. This instance declaration instantiates the process with a set of parameters defined for the specific process.
@@ -532,4 +511,4 @@ This data is crucial to gather in order for FDR4 to be able to verify the values
 
 As we mentioned in Chapter \ref{chap:background} FDR4 is a refinement checking tool and all assertions in FDR4 must be to assert that an implemented process refines a specification process.
 The challenge lies in creating a structure in \cspm{} that can provide a simple assertion of the values communicated on the channels while being able to fit into one of the CSP refinement models.
-% TODO: Maybe I am supposed to add more here. But right now I cant think of what to add other than the stuff from "version 2 of the thesis", which I am waiting with for now.
+
