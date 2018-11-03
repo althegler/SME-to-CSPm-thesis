@@ -68,8 +68,6 @@ P(input) =
 %%% Generator processes
 It is important to make sure that TAPS can translate all the different ways of data generation. The first problem is to recognise the data generator process in SMEIL. We know that a data generator process in SMEIL does not read any input value, no matter if it is through a process parameter or by using the channels hierarchical name. Therefore TAPS can look through the process body and if the process does not contain input communication, then it will assume that the process is a data generator process. \\
 
-In \cspm it is necessary to define the space of data that FDR4 will search through when running the refinement checking. It this space becomes unecessarily large, the runtime of the verification will also become unecessarily long, and therefore it is important to be carefull when defining the space of input values for the generated system.
-
 It is possible to create a process in \cspm with the same functionality as the SMEIL data generator process. However, in that case, it would be necessary to syncronise the data process with all the processes receiving the data. Otherwise FDR4 would evaluate all values within the defined range of the channel instead of what was actually communicated on the channel, making the data generator process obsolete. This extra syncronisation will increase the complexity of the \cspm{} network, and it might also increase the runtime of the verification since the \cspm{} network would include more states.
 
 \begin{figure}

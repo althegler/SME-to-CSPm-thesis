@@ -499,7 +499,7 @@ Each channel definition contains a type and a range. The range for the first dig
 
 As explained before, the displays can only display digits from 0 through 9, but in this case, the simulation of the system results in a more restricted version. As explained in Section \ref{sec:analysis_verification}, seconds will not be able to display above 59, which is also the result from the simulation.
 \begin{listing}
-\begin{minted}[escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc seconds (in seconds_in)
     bus seconds_out {first_digit: u3 range 0 to 5;
                      second_digit: u4 range 0 to 9;};
