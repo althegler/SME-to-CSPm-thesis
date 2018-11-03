@@ -1,3 +1,23 @@
+
+\section{Usability of TAPS}
+
+
+\section{Clocked or Unclocked \cspm{} Systems}
+
+
+\section{From Pure SMEIL to Co-Simulation}
+Co-simulation is a big feature of SMEIL and yet I focused the work in this thesis only on pure SMEIL support. The reason behind only working with pure SMEIL was simply to have a simple base to start with so that I could ensure that the translation would be as accurate as possible. Since pure SMEIL does not allow for a lot of functionality, the examples also quickly became small enough for easy inspection of the resulting \cspm{} program. When translating from a language like SMEIL to \cspm{} it very quickly becomes overwhelming. The FDR4 traces very quickly became too complex to understand exactly what was going on and why. Because of this I believe that the decicion to only focus on pure SMEIL structures was a good one.
+With the current version of TAPS it would be possible to simulate the input from the exposed buses in a co-simulated program so that it is actually a pure SMEIL program but the input is the same as the co-simulated program would input to the SMEIL part.\\
+
+When TAPS become more advanced it should definitely be extended to also include co-simulated programs. TAPS will not have any real value to the industry or adademia before this happens. However I do believe that the extension to support co-simulated programs is possible. A huge benefit lies in the fact that the SME model is a general model which spans all the different SME implementations. The way TAPS translate the processes into three different sections will always fit the SME model, no matter which language TAPS translate from.
+There will of course be a lot of challenges in handling the data and communication that spans across the SME implementations in co-simulation, and even more so, the general network in \cspm{} will also be a great challenge. However, since it is very precisely defined which buses communicate across the two implementations, it might help with generating the \cspm{} network in a co-simulated environment.\\
+
+Focusing on pure SMEIL programs have definitely led to a more manageable set of problems and extending this to co-simulated problems seems like the perfect next step. 
+\section{Input data}
+% Here I want to write something about input data as a data generator process or as a input channel. Not sure it is grand enough for a discussion section, but here goes.
+
+
+
 % (from analysis)
 % In the SME model, processes never terminate, but when simulating an SMEIL program, it is necessary to terminate the simulation at some point, but it should simply be seen as a snapshot of the process and not that the process terminates when the simulation ends.
 % The number of clock cycles, the simulation is run for, is specified via the command line tool.
