@@ -221,7 +221,7 @@ Even though we wish to assert properties in FDR4, the properties that FDR4 can v
 Expressions in SMEIL and their precedence rules are similar to C-like languages and we will therefore not introduce them further. Expressions are used for defining operations and naming in SMEIL.
 
 In \cspm the standard binary operators like \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, and \texttt{\%} all take two arguments of type \texttt{Int} and return a value of type \texttt{Int}. It is important to notice that in \cspm, the \texttt{/} operator returns the quotient and rounds towards negative infinity. The \texttt{\%} operator in \cspm returns the modulus.
-Floating point number are, not supported by FDR4\cite{Scattergood2011} which is also clear from the fact that the binary operators take only \texttt{Int} as their inputs.
+Floating point number are, not supported by \cspm{}\cite{Scattergood2011} which is also clear from the fact that the binary operators take only \texttt{Int} as their inputs.
 As mentioned in Section \ref{sec:background_smeil}, SMEIL supports floating point numbers in the simulator, but it has not been extensively tested.
 
 The unary \texttt{-} operator, representing a negation of an integer and the unary \texttt{!} operator, representing logical negation are both represented in the FDR4 syntax. The relational operators \texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}, \texttt{==} and \texttt{!=} returns boolean values both in SMEIL and in \cspm. The logical conjunction and disjunction operators \texttt{\&\&} and \texttt{||} are also represented in both SMEIL and \cspm and both only accepting boolean values.
