@@ -34,6 +34,8 @@ An overview of the system can be seen in Figure \ref{fig:TAPS_network}. The gene
   \label{fig:TAPS_network}
 \end{figure}
 
+It is rarely possible to get the same structure and complexity in code when it is automatically generated than when humans have developed it. This means that we should not expect the generated code to be pretty or well formed. The auto generated code comply with a set of pre defined structures which is used to transform the specific program into a specific solution, using general structures. Because generated code use these standard structures the resulting source code would often become large and sometimes inefficient. This is one of the disadvantages of using automatically generated code. However, these standard structures are also why automatically generated code is perfect for translating between SMEIL and \cspm{}. The work that lies in translating the hardware model to a specification model takes a lot of time, specificly if the developer is not used to working with languages like CSP. Since the generated code will mostly be used by FDR4 to run refinement checks, it is not important how complex or inefficient the structure of the code is. \\
+
 In this section we describe the main design decisions included in creating TAPS and address the challenges that lies in translating SMEIL to \cspm{}.
 \section{Translating Processes}
 In order to translate an SMEIL process to a \cspm{} process I had to create a general process structure in \cspm{}. I know that the SME model enforce that each process reads, execute, and writes, in that order, for each clock cycle, so I needed to create a \cspm{} structure that could support this. First of all I wanted to attempt to have one \cspm{} process per SMEIL process, since it would simplify the translation and a simpler solution typically results in a less errornous solution.
@@ -106,7 +108,7 @@ within
 \caption{Example of the translated \texttt{Minutes} process defined in Listing \ref{lst:clock_data_generation_example_smeil}.}
 \label{lst:clock_data_generation_example_cspm}
 \end{listing}
-In the case where the SMEIL network does not have a data generator process but are instantiated with constants or internal values, the \cspm processes would also have to be instantiated with these values as parameters. This means that the the \cspm{} network would not necessarily contain an input channel, but that the processes that are instantiated with a constant or internal value, must be translated to contain this information as well.
+In the case where the SMEIL network does not have a data generator process but are instantiated with constants as parameters or internal values, the \cspm processes would also have to be instantiated with these values as parameters. This means that the the \cspm{} network would not necessarily contain an input channel, but that the processes that are instantiated with a constant or internal value, must be translated to contain this information as well.
 
 If there are several data generation processes in the SMEIL program, TAPS will not handle the processes different than if there were one data generator process. The processes will be translated into a \cspm channels for each data generator process, and the comunication to the rest of the network will still be kept intact since all the communication are specified by the SMEIL network structure.
 
