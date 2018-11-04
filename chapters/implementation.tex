@@ -213,12 +213,11 @@ The only situation where seveal networks can become a problem for TAPS are if th
 This is a corner case, and the current version of TAPS does not support this, but this is definitely a possible solution.
 
 
-\section{The Technologies og TAPS}
-The system TAPS consist of two parts, the parser and the code generator. The parser is created with ANTLR4~\cite{antlr}, which is described further below and the data transformation and code generation is developed in Python 2.7 along with the templating language Jinja2~\cite{jinja2}.\\
+\section{The Technologies of TAPS}
+The system TAPS consist of two parts, the parser and the code generator. The parser is created with ANTLR4~\cite{antlr}, which is described further below. The data transformation and code generation has been developed in Python 2.7 while also utilising the templating language Jinja2~\cite{jinja2}.\\
 
 Usually when doing any form of translation either by a compiler or interpreter, the use of a symbol table is often needed in order to keep information about variable names, function names, classes, communication ect. Usually the translation, when reaching a symbol in the translation, use the symbol table to look up a symbol and retrieve its context if it has any information about said symbol. This can be to check that a variable have been declared or for type checking or similar. The symbol table is usually generated in the analysis section and are used for look ups througout the compilation or interpretation. When walking the parse tree, TAPS gathers all relevant information from the code, and since TAPS expect the SMEIL program to be well-formed, it does not need a symbol table to check if variables have been declared in the process declaration before being used in the body of the process.
 \subsection{ANTLR4}
-% TODO: The reason for choosing ANTLR?
 For the transpiling between SMEIL source code and \cspm{} source code, I decided to use a parser generator to create a parser for the SMEIL language.
 
 The reason I choosed a parser generator libary was to simplify the parsing process so I could focus more on the development of correct code generation. Parser generators are tools that provides an automatically generated parser, interpreter or compiler from a specified grammar. Using a parser generator was an obvious choice since the SMEIL grammar was already in a well defined and simple EBNF format. It would also have been possible to create a parser from scratch but since I did not have many specific requirements for the parser, there seemed to be no reason to spend the time writing and debugging my own parser when I could generate it directly.
@@ -232,7 +231,7 @@ After parsing the code with ANTLR4, one can decide to traverse the parse tree it
 
 After TAPS have walked the parse tree and collected all relevant information, the data is transformed to match the requirements of the \cspm{} code. For example, the names of a bus channel in SMEIL it transformed into a combined name for a \cspm{} channel. I have defined templates in Jinja2 that match these generalised structures in \cspm{} that I can use to represent the SMEIL code. These templates are then used together with the transformed data to generate the \cspm{} code.
 
-Because TAPS only collect data during the tree walk it does not matter how the SMEIL code is structured. With this solution, the network can be defined first or last in the program without any difference to the translation. 
+Because TAPS only collect data during the tree walk it does not matter how the SMEIL code is structured. With this solution, the network can be defined first or last in the program without any difference to the translation.
 
 %
 % With the visitor we gain the advantage that we decide which part of the parse tree we traverse, instead of having to traverse the entire parse tree as with the listener method. With the visitor, for each parser we have to explicitly call \texttt{visit()} on the children that we wish to visit, which, in some cases can make a tree traversal more complex, but in our case we wish to seperate concerns and this is done by having three different tree traversals which collect three differet pieces of data for the code generation.
