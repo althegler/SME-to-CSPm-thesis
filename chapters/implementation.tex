@@ -1,29 +1,38 @@
-% TODO: Write something here
+In this chapter I introduce some of the main challenges in translating from SMEIL to \cspm{} and how I solved this with TAPS.
+
+Since SMEIL is a language with a lot of flexibility, as desribed in the previous chapters, the requirements for TAPS are considerable. The initial goal was to implement a version of TAPS that could translate simple examples like the seven segments example. The implementation have been prioritised according to what was needed for specific examples. Due to time restrictions on this thesis, TAPS does not support the entire SMEIL grammar.
+
+Because of the flexibility of SMEIL, a lot of the functionality can be achieved in several different ways, and in some cases TAPS do not support all of these possibilities.
 \section{Transpiling SMEIL statements}
-% TODO: Read through and correct
-% Constants are simply defined in the \cspm program, seperate from the process. Since the SMEIL programs must be well-formed, we know that only the processes that define the constant will use it, and therefore it is not a problem that
+When translating the SMEIL statements into \cspm{} TAPS put all non-communication into the \texttt{let} part of the \texttt{let within} declaration. In SMEIL all variables and constants must be defined in the declarative part of an SMEIL process but this is not the case with \cspm{}.
+
+Constants, translated to \cspm{}, are added to the \cspm{} program seperately from the process they where defined within. Since the SMEIL programs must be well-formed, we know that only the processes that define the constant will access it, and therefore it is not a problem to have the constants define outside of the processes.
+
+Constants that are a process parameter in the SMEIL program will be translated as an initial value for the process and not as a seperate \cspm{} constant.
 % NOTE Constants are currently not implemented in TAPS
-% TODO: How to handle variables with predefined values
 
-The types and ranges of variables are not translated unless TAPS need the information for verification. It is, however, necessary that TAPS looks through to check if any of the internal variables are instantiated with a value, since TAPS will have to keep this information for the translation. If the variables are not instantiated with a predefined value, TAPS simply ignore the variable declaration. We can only do this because we know the SMEIL program must be well-formed and since the variables are not used for verification, it does not matter what types and values the SMEIL program expects of these.
+Variables can be instantiated with an initial value within the SMEIL processes and therefore TAPS must search through the declarative part of the SMEIL process and if a variable is defined with an initial value, this information is gathered so that the information can be added to the generated \cspm{} process. If the variables are not instantiated with a predefined value, TAPS simply ignore the variable declarations. With the current version of TAPS only values comunicated on channels are verified and therefore the range and type of a variable have no purpose within the generated \cspm{} code. It would, however, be simple to gather this information too if needed.\\
 
-All assignments are translated directly into \cspm{} without much change, however if the assignment is to or from a bus, TAPS have to differentiate and handle these assignments differently, which will be explained later in this section.
+All assignments in SMEIL are translated directly into \cspm{} without much change, however if the assignment is consisting of communication either in or out TAPS must to recognise and handle these assignments differently, which will be explained later in this section.\\
 
-%
-% If-satements are translated into the \cspm{} version of an if-statement, which is very similar to the SMEIL version. However, since \cspm{} does not support \texttt{elif}, the \cspm{} if-statements can be nested to form these expressions. This quickly becomes very complex and hard to read, but since it is auto generated, it is not a problem to create.
-% % NOTE: If-statements are currently not implemented in TAPS
+If-satements are translated into the \cspm{} version of an if-statement, which is very similar to the SMEIL version. As explained in Chapter \ref{chap:analysis} \cspm{} does not support \texttt{elif} and therefore the \cspm{} if-statements must be nested to form these expressions. This quickly becomes very complex and hard to read, but it is not a big problem to generate.\\
+% NOTE: If-statements are currently not implemented in TAPS
 
-
-Traces and assertions are, as explained in Chapter \ref{chap:analysis} not useful in the \cspm{} program and therefore we either throw them away or keep them as comments for the sake of understanding the generated code. Currently TAPS throw them away, but it would be a simple task to change this and add them as comments in the generated \cspm{} code.
+Traces and assertions are, as explained in Chapter \ref{chap:analysis} not useful in the \cspm{} program and therefore we either throw them away or keep them as comments for the sake of understanding the generated code. Currently TAPS throw them away, but it would be a simple task to change this and add them as comments in the generated \cspm{} code.\\
 % NOTE: Assertions are not curently implemented in TAPS. Trace is.
 
-Most expressions of SMEIL can be directly translated, like \texttt{+}, \texttt{-}, \texttt{/} and \texttt{\%} etc. however there are a few differences in the presendence. The unary \texttt{not} operator does not have the same presedence in the SMEIL as in \cspm{}. This means that the programmer needs to be aware of this, and include parentheses when using the operator to ensure the correct translation. The programmar also needs to be aware of the fact that in \cspm{} the equality comparison operators and comparison operators have the same presedence, but they are seperated in the SMEIL grammar.
+Most expressions of SMEIL can be directly translated, like \texttt{+} and \texttt{-}, however there are a few differences in presendence for some of the operators. The unary \texttt{not} operator does not have the same presedence in the SMEIL as in \cspm{} and the equality comparison operators and comparison operators have the same presedence in \cspm{}, but they are seperated in the SMEIL grammar. Because of these small differences, TAPS must add parentheses around all nested expression to ensure the correct translations.
+
 Bitwise operations does not exist in \cspm{}, so these would have to be transformed to standard arithmetics. % TODO: This is currently not implemented.
 % TODO: Write more about how this could be done.
+
 % TODO: Write more when I have more implemented for the processes (like arrays and stuff)
-% -------------------------------------
+
+% TODO: Finish writing this when I have talked with Brian about what I should say
+% As mentioned in Chapter \ref{chap:analysis}, floating point numbers are not supported by \cspm{} and the implementation of it in SMEIL have not been thoroughly tested. Technically TAPS does not distinguish between floating point or integer, but the verification in FDR4 will not be accurate. 
 
 \section{Transpiling Channels}
+% TODO: What happens if an SMEIL channel have been defined with an initial value?
 In SMEIL when a process is reading from a bus channel, it is referencing the bus and channelname within the normal expression. Since the bus parameters for a SMEIL process is the bus name, the process itself must reference the specific channel within that bus. This is applied whether it is reads or writes.
 An example of this can be seen in Listing \ref{lst:smeil_input_parameter}, where \texttt{input.val} indicates a read from the bus \texttt{input} and the channel \texttt{val} within that bus.
 
@@ -86,12 +95,12 @@ network net() {
 In the example in Listing \ref{lst:Instance_variations} we see a network consisting of four instances where two of the instances are the same process with different constant parameter.
 All but one instance is defined by an instance name which can be used for referencing in the instance parameters. It is also possible to have instances without an instance name. However, it is defined in SMEIL that two instances of the same process, cannot both be without an instance name.\\
 
-% NOTE: Does not support!!
-With two instances of the same process, the \cspm{} channels generated from the buses of these processes, would have identical names. It is, of course, important that TAPS are nameing the channels so that no \cspm{} channels are identical. Therefore TAPS can look at the instances and append the instance name to the \cspm{} channel name. This, of course, means that we expect the developer to not give the two identical process instances the same instance name. Technically this is possible, but would not make sense.
+% NOTE: Does not support adding instance names to the cspm channel name
+With two instances of the same process, the \cspm{} channels generated from the buses of these processes, would have identical names. It is, of course, important that TAPS are nameing the channels so that no \cspm{} channels are identical. Therefore TAPS can look at the instances and append the instance name to the \cspm{} channel name. I also expect that the developer do not give the two identical process instances the same instance name. Technically this is possible, but would not make sense.
+
 If the instance has an anonymous instance name, the \cspm{} channel name will not include this.
 
 The restrictions to identical process instances in SMEIL ensures that even if there are channels without instance names in the SMEIL program there will never be two identical named \cspm{} channels in the generated code. This however does mean that the naming of each channel quickly becomes long and chaotic, but it is still more readable than random generated names.
-% NOTE! Currently TAPS does not support the naming of identical process busses.
 
 In SMEIL it is also possible to have bus declarations within the network declaration. These bus channels will be named in the same manner as the other channels in \cspm{}, however without a potential instance name appended.
 
@@ -166,12 +175,7 @@ Seconds_out_second_digit_monitor(c) =
 The naming of the monitor processes are the name of the channel they are asserting concatinated with \texttt{\_monitor}. This is very simple but very usefull since it means we can automatically find the name of the monitor process when we have the channel name, and vice versa. We also know that no two channel names will ever be equal in the generated \cspm{} code and therefore the monitor processes will also not have any duplicates when using this name scheme. \\
 
 This monitor process structure is a simple but general solution which can be reused in many situations and due to the requirement of opserved ranges, TAPS can always provide a monitor process with this structure for a channel.
-% TODO: Make sure that examples of the failure in the seven segment example are included somewhere, as well as a working example.
-
-
-
-\section{Transpiling Networks}
-% TODO: This headline is almost the same at it is in design chapter
+\section{Generating a \cspm{} Network}
 When generating the process monitor network as described in Section \ref{sec:design_translating_network}, TAPS first search through all writes within each process and generate a monitor processes for each channel.\\
 
 The process monitor network cosists of three parts. Firstly if the process takes an input value, the value must be read from the channel. From the instance parameters defined in SMEIL, TAPS receive the name of the actual SMEIL process and bus that provides the input bus. Then within the process itself, TAPS get the information of which channel within the input bus it is reading from. All this information is gathered to clarify which \cspm{} channel the process monitor network should read from. If there are more input values, this is of course done several times, using prefixing to include more reads.
@@ -187,8 +191,7 @@ This is quite easy to auto generate since TAPS can simply loop over the list of 
 In Listing \ref{lst:channel_range_cspm} the translated \texttt{Seconds} process is defined, and in Listing \ref{lst:monitor_range_cspm} the two monitor processes for the \texttt{Seconds} process are shown.
 In Listing \ref{lst:network_example_cspm} the network generated from these two listing is shown where it is easy to see how the read is performed first in the process before the \texttt{first digit} monitor process is synchronised together with the \texttt{Seconds} process. Adding a parentheses around the first synhronisation to keep the structure, the \texttt{second digit} monitor process is synchronised on the \texttt{second digit} channel which completes the process monitor network.
 
-Lastly the \texttt{assert} operator is used to specify to FDR4 that it should create a refinement check against the specification process \texttt{SKIP} and the implementation process \texttt{N\_seconds} and also that it should use the Failure model.
-
+Lastly the \texttt{assert} operator is used to specify to FDR4 that it should create a refinement check against the specification process \texttt{SKIP} and the implementation process \texttt{N\_seconds} and also that it should use the Failure model.\\
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 N_seconds = clock_out_val ? variable ->
@@ -204,11 +207,11 @@ assert SKIP [F= N_seconds \ Events
 \label{lst:network_example_cspm}
 \end{listing}
 
+In SMEIL it is possible to create several networks within the same SMEIL program. This is not a problem for TAPS to translate as long as the program is still a well-formed SMEIL program. Each instance define a process and potentially communication. This communication will always refer to a specifc bus, defined in either a process or a network. This will not change no matter how many networks are defined within the program, since communication cannot span accross the networks.
+In theory it is possible to create nested networks where a network can instantiate other networks, and thereby allowing communication across networks, but this has not yet been implemented in SMEIL and therefore TAPS also do not handle this case.
+The only situation where seveal networks can become a problem for TAPS are if the networks have instances with the same instance names. As mentioned above, there might be cases where it is necessary to add the instance names to the generated \cspm{} channel names in order to tell the difference between to instanced of the same bus channels. Now if this is the case and there are more than one network using the same instance name for this specific process TAPS could add the network name to the generated \cspm{} channel name for another layer of seperation.
 
-% TODO: This might just belong in the new version!
-% When the smaller process monitor networks have been created TAPS will then be able to synhronise other smaller monitor networks where there is shared communication. TAPS controls that all communication are handled within this new network. (Maybe it makes sense to generate smaller network which can then be synhronised. I mean where each smaller network is a process with a name, so it does not become so large nested.. )
-% % TODO: Figure out how to make sure that all data are synchronised. It might be something about needing to have a linked list or something to keep all the data together. both stuff defined as parameter and communication defined by using the formal names.
-
+This is a corner case, and the current version of TAPS does not support this, but this is definitely a possible solution.
 
 \section{Technologies}
 
@@ -218,12 +221,7 @@ For the actual gode generation the templating language Jinja2~\cite{jinja2} have
 
 \subsection{ANTLR4}
 For the transpiling between SMEIL source code and \cspm{} source code, I decided to use ANTLR4 for creating a parser and a lexer. ANTLR4 is a Java-based parser generator library that, based on a grammar, can generate parsers in Java or another target language. ANTLR is a well used tool with a lot of documentation and which have been updated to a new and improved version 4 recently. By using ANTLR4 I could easily transform the SMEIL grammar into a parser and lexer that could then immediately be used to transform into \cspm{}.
-ANTLR4 supports Extended BNF (EBNF) and it must be defined in \texttt{.g4} file format, which is very similar to other standard grammars. The SMEIL grammar have been changed slightly either because it was more efficient to parse the programs if a grammar rule was removed. For instance the SMEIL grammar does not have a short way of representing "one or more" but only "zero or more". In ANTLR4 it is possible to define the rules as "one or more", and some of these SMEIL rules have been simplified to this. The grammar have also been changes in a few places, simply because there are things within the SMEIL grammar that TAPS does not allow, such as optional ranges, as described earlier.
-
-% A lexical analysis, which is what a lexer , is a process of converting a string of characters into tokens, which is also called tokenization. Each token represents a lexer rule in the grammer, for instance, if the string is "123" and there is a lexer rule "INT: {0-9}+" which means one or more of 0-9 digits. Then the token would be an INT.
-%
-% A parser...%TODO: write more here
-% Should I write something about what a lexer and a parser is? I am pretty sure Brian said no, that it is not a part of the job. The job is to describe how I generate the code, not how I parse it with an automatic parse generator. But I should explain what ANTLR do and how it is an advantage to me.
+ANTLR4 supports Extended BNF (EBNF) and it must be defined in \texttt{.g4} file format, which is very similar to other standard grammars. The SMEIL grammar have been changed slightly either because it was more efficient to parse the programs if a grammar rule was removed. For instance the SMEIL grammar does not have a short way of representing "one or more" but only "zero or more". In ANTLR4 it is possible to define the rules as "one or more", and some of these SMEIL rules have been simplified to this. The grammar have also been changes in a few places, simply because there are things within the SMEIL grammar that TAPS does not allow, such as optional ranges, as described earlier.\\
 
 After parsing the code with ANTLR4, one can decide to traverse the parse tree itself or use either the listener or the visitor methods that ANTLR4 provides. The main difference between the listener and the visitor is that the listener provides methods which are called by the walker object directly, and the visitor methods must call its children explicitly to walk them. Both methods can provide the same results, and it often depends on preference. In my implemenation of TAPS I first tried the listener method, but realising that I do not need data from all parse rules, it was not necessary to walk the entire tree and therefore I shifted to the visitor method where I can be specific about which rules ANTLR4 should walk.
 
