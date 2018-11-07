@@ -6,15 +6,16 @@
 % Tegne et billede af måden jeg gerne vil løse det her problem på.
 
 
-As explained in Chapter \ref{chap:related_work} there exists several attempts to translate programs written in CSP into a hardware description language. But even a good implementation of this require that the programmer creates the specification of the network, which can be very tedious especially for a novice within the CSP world. The fact that the developer need to be able to understand enough CSP to be able to specify the exact network in a language like \cspm{} will most likely lead to less developers utilising the functionalities and advantages of a process algebra like CSP.\\
+As explained in Chapter \ref{chap:related_work} several attempts have been made to translate programs written in CSP into a hardware description language. But even a good implementation of this require that the developer models the specification of the \cspm{} network, which can be very tedious especially for a novice.
+The complexity of CSP is most likely leading to less developers utilising the functionalities and advantages of the CSP process algebra.\\
 
-What I wish to do is to reverse the structure. I wish to provide a solution where the developer can model the network first and then automatically generate the specification for that exact network. On top of this, I want to be able to formally verify specific properties of this specification model. This can provide valuable insight into the possible pitfalls of the hardware model which a standard test bench cannot.\\
+What I aimed to achieve is to create a translation reversed from what have previously been done. I wish to provide a solution where the developer can model the network first and then, using the system, automatically generate the specification for that exact network. On top of this, I want to be able to formally verify specific properties of this specification model. This can provide valuable insights into the possible pitfalls of the hardware model that a standard test bench cannot provide.\\
 
-In this thesis I introduce the system \texttt{TAPS}, a transpiler that provides translation from hardware models to specification models while also including specific properties for verification.\\
+In this thesis I introduce the system TAPS, a transpiler that provides translation from hardware models to specification models while also introducing specific properties for verification within the generated specification model.\\
 
-The language used to model the hardware model is called SME Interpretation Language (SMEIL) and is based on a model called Synchronous Message Exchage (SME). SMEIL resembles a standard high level programming languages while still providing all the necessary elements of hardware modeling. The high level programming structure of SMEIL enables the traditional developer to model hardware models without much trouble. \\
+The language used to model the hardware is the SME Interpretation Language (SMEIL) and is based on the Synchronous Message Exchage (SME) model. SMEIL resembles a standard general-purpose programming language while still providing all the necessary elements of hardware modeling. The programming structure of SMEIL enables the traditional developer to model hardware models in a simple but efficient manner.\\
 
-TAPS provides translation to the machine-readable version of the CSP process algebra, \cspm{}. The generated \cspm{} code will be including the assertion statements to formally verify properties within the hardware model described in the \cspm{} program. These properties can then be verified with the \cspm{} refinement checker tool FDR4, described in Chapter \ref{chap:related_work}.
+TAPS provides translation to the machine-readable version of the CSP process algebra, \cspm{}. The generated \cspm{} code will not only be equivalent to the SMEIL code, it will also include assertion statements to formally verify properties within the hardware model. These properties can be verified with the \cspm{} refinement checker tool FDR4, described in Chapter \ref{chap:related_work}.
 
 
 % TODO: Maybe I should write something about why I chose sme and cspm and FDR?
