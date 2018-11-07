@@ -122,17 +122,16 @@ within
 \label{lst:channel_range_cspm}
 \end{listing}
 
-It might seem redundant to create \cspm{} channels with a limited range when TAPS is also asserting the widths of the channels. FDR4 will always only perform refinement checks using the values defined for each channel in \cspm{} and therefore there seems to be no point in asserting if the values go beyond this range.
+It might seem redundant to create \cspm{} channels with a limited range when TAPS is also asserting the widths of the channels. FDR4 will always only perform refinement checks using the values defined for each channel in \cspm{} and therefore there seems to be no point in asserting if the values go beyond this range. The way to perform usable refinement checks are to use both the type and the range of observed values, defined for each simulated SMEIL channel. The range of observed values are used within the monitor process to ensure that no values outside the range are communicated on the channel and because the range of the bit size can only be equal or larger than the range of the observed values, the assertions becomes valuable. \\
 
-After simulating the SMEIL network, the compiler provides us with both a type and a range of observed values. The type, as explained above, is used to create the restricted range for each \cspm{} channel and the observed values are used for the FDR4 assertions. The range of values that the types represent will always be equal or larger than the range of observed values, and by using these values the assertions becomes valuable.\\
-
-When it comes to transpiling the data generator process into a \cspm{} channel, TAPS also use the type of the bus channel to define the data input channel for the network in \cspm{}. TAPS use this instead of the observed values because it is not possible to guarantee the precise input values of the system. If TAPS used the observed values, the assertions will pass every time, since it will test the values already used to generate the rest of the observed values.
-
+As explained previously, an SMEIL data generator process will be translated into a \cspm{} channel. In this case it is important to use the bit size range for the \cspm{} channel because it is not possible to guarantee the precise input values in the network. If TAPS were to use the range of observed values instead, the monitor process assertions will always pass because the input values are the exact values used for the simulation. These input values are the base of all the observed values for all SMEIL channels and so the assertions would never fail. It is therefore necessary to have a range of input that goes beyond the range of observed values to verify that the model can handle a larger range of input without failures.
 \section{Generating Monitor Processes}
-When generating the monitor processes in the \cspm{} program we use the observed values for each channel, as described above.
-In the SMEIL grammar defined in \cite{Asheim2018} it is optional to include a range to each bus channel definitions. In Listing \ref{lst:smeil_bus_grammar} the relevant grammar rules from \cite{Asheim2018} can be seen. The square brackets indicates optional parts.
 
-As explained in Chapter \ref{chap:design}, all channels except the input channels are verified in FDR4. This means that there will be a monitor process for almost every channel and since TAPS use the observed values for each channel for the verification, I had to change the original grammar of SMEIL to suppport this. Therefore the grammar shown in Listing \ref{lst:smeil_bus_grammar} is changed to the grammar defined in Listing \ref{lst:smeil_bus_grammar_no_option}. The only difference is that ranges are no longer optional and that the keywork \texttt{exposed} are no longer allowed, since TAPS are not supporting co-simulation, which is what this keyword indicates. As a consequence hereof, the output bus within the data generator process must be defined with a range even though it is not necessary. This is a result of the data processes not being different from other processes in SMEIL.\\
+It is clear that all channels except input channels must be verified with FDR4 and thus TAPS must generate a monitor process for all channels except the input channels.
+
+
+As explained above, the observed values for each SMEIL channel are used within the monitor processes to verify the values communicated on the channels. For TAPS to be able to generate the monitor process, it is essential that all the channels are defined with observed values. In the original SMEIL grammar, defined in \cite{Asheim2018}, it is optional to include a range in a bus channel definition as can be seen in in Listing \ref{lst:smeil_bus_grammar}.
+In order to restrict the SMEIL network to include ranges for each SMEIL bus channel before translating with TAPS, I changed the original grmmar of SMEIL. The grammar shown in Listing \ref{lst:smeil_bus_grammar} is slightly changed compared to the grammar defined in Listing \ref{lst:smeil_bus_grammar_no_option}. The difference is that a range is no longer optional and that the keyword \texttt{exposed} is no longer allowed. The keyword \texttt{exposed} can be defined for a bus in SMEIL to indicate buses that communicates with another SME implementation using co-simulation, but since TAPS is not supporting co-simulation, the keyword is not needed. A consequence of this change in the grammar is that the output bus channels within the data generator process must be defined with a range even though the range is not needed for the translation. Because the data generator processes are not defined differently in SMEIL, the same grammar rules applies to it.
 \begin{listing}
     \begin{grammar}
     <bus-decl> ::= [ `exposed' ] `bus' <ident> `\{' <bus-signal-decls> `\}'  `;'
@@ -141,7 +140,7 @@ As explained in Chapter \ref{chap:design}, all channels except the input channel
 
     <bus-signal-decl> ::= <ident> `:' <type> [ `=' <expression> ] [ <range> ] `;'
     \end{grammar}
-    \caption{The bus grammar defined in \cite{Asheim2018}}
+    \caption{The bus grammar defined in \cite{Asheim2018}. The square brackets indicates an optional nonterminal and curly brackets indicates zero or more nonterminals.}
     \label{lst:smeil_bus_grammar}
 \end{listing}
 \begin{listing}
@@ -155,7 +154,7 @@ As explained in Chapter \ref{chap:design}, all channels except the input channel
     \caption{The bus grammar defined in \cite{Asheim2018} changed to match the demands of the translation.}
     \label{lst:smeil_bus_grammar_no_option}
 \end{listing}
-The monitor process asserts that the observed values of the \cspm{} channels are actually what is communicated on the channels. In Listing~\ref{lst:monitor_range_cspm} the two monitor processes for the \texttt{Seconds} process from the seven segment example can be seen. The values used for these statements are 0 through 5 for the first digit and 0 through 9 for the second which can be seen defined for each channel in Listing~\ref{lst:range_smeil}.
+The monitor process asserts that the observed values from the SMEIL simulation are the only values communicated on the channels. The two monitors of the \texttt{Seconds} process from the seven segments example can be seen in Listing~\ref{lst:monitor_range_cspm}. The values used for these monitors are 0 through 5 for the first digit monitor and 0 through 9 for the second digit monitor. These values have been defined each channel in the simulated SMEIL program in Listing~\ref{lst:range_smeil}.
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 Seconds_out_first_digit_monitor(c) =
@@ -163,29 +162,37 @@ Seconds_out_first_digit_monitor(c) =
 Seconds_out_second_digit_monitor(c) =
     c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
 \end{minted}
-\caption{Example of the \texttt{Seconds} monitor processes from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
+\caption{Example of the two generated \texttt{Seconds} monitor processes from the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
 \label{lst:monitor_range_cspm}
 \end{listing}
-The naming of the monitor processes are the name of the channel they are asserting concatinated with \texttt{\_monitor}. This is very simple but very usefull since it means we can automatically find the name of the monitor process when we have the channel name, and vice versa. We also know that no two channel names will ever be equal in the generated \cspm{} code and therefore the monitor processes will also not have any duplicates when using this name scheme. \\
+Each monitor asserts values on one channel and thus the name of the monitor process is the channel name with \texttt{\_monitor} appended. This is a very simple solution but very useful because it means that TAPS can easily find the name of the monitor process from the channel name, and vice versa. It is clear that no \cspm{} channels will have identical names and so by using this naming method for the monitor processes I also ensure that no monitor processes will be identical.\\
 
-This monitor process structure is a simple but general solution which can be reused in many situations and due to the requirement of opserved ranges, TAPS can always provide a monitor process with this structure for a channel.
+This monitor process structure is a simple solution but it is a general structure that can be reused with different assertion properties.
 \section{Generating a \cspm{} Network}
-When generating the process monitor network as described in Section \ref{sec:design_translating_network}, TAPS first search through all writes within each process and generate a monitor processes for each channel.\\
-
-The process monitor network cosists of three parts. Firstly if the process takes an input value, the value must be read from the channel. From the instance parameters defined in SMEIL, TAPS receive the name of the actual SMEIL process and bus that provides the input bus. Then within the process itself, TAPS get the information of which channel within the input bus it is reading from. All this information is gathered to clarify which \cspm{} channel the process monitor network should read from. If there are more input values, this is of course done several times, using prefixing to include more reads.
-
+The process monitor network cosists of three parts. The first part consists of reading input values for the process. As explained previously all reads will be performed outside the process itself. From the instance parameters, defined in SMEIL, TAPS will lookup the name of the SMEIL process where the input is defined. The read within the SMEIL process defines the specific channel to read from. This information is gathered to clarify which \cspm{} channel the process monitor network should read from. Each read is added using prefixing, so it would also work if there are more than one input values for the process. An example of the first part of the network can be seen in Listing \ref{lst:network_first_part}.
+\begin{listing}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
+N_seconds = clock_out_val ? variable -> ...
+\end{minted}
+\caption{First part of the network generation where an input value is read from the channel \texttt{clock\_out\_val}.}
+\label{lst:network_first_part}
+\end{listing}
 % NOTE: TAPS does not currently support more than one input channel
-The second part is to add the process name with the expected parameters, both input values, output channels as well as constants and internal values.
+The second part is to add the process name with the expected parameters, both input values, output channels as well as constants and internal values. The example in Listing \ref{lst:network_second_part} is a continuation of the example in Listing \ref{lst:network_first_part}.
+\begin{listing}
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
+N_seconds = clock_out_val ? variable -> Seconds(variable) ...
+\end{minted}
+\caption{The second part added to the network generation.}
+\label{lst:network_second_part}
+\end{listing}
 
-In the last part, TAPS will have to synchronise the process with the monitor processes connected to its output buses.
-TAPS synhronise the process together with each monitor process over the channel it is asserting.
-TAPS adds an extra layer around the structure for each extra monitor processes.
-This is quite easy to auto generate since TAPS can simply loop over the list of monitor processes or writes for the process. \\
+In the last part, TAPS will synchronise the process with the monitor processes  over the channels they are asserting.
+For each monitor process TAPS builds a new layer of synchronisation around the network. This is straightforward to auto generate since TAPS can loop over the list of monitor processes or writes for the process. \\
 
-In Listing \ref{lst:channel_range_cspm} the translated \texttt{Seconds} process is defined, and in Listing \ref{lst:monitor_range_cspm} the two monitor processes for the \texttt{Seconds} process are shown.
-In Listing \ref{lst:network_example_cspm} the network generated from these two listing is shown where it is easy to see how the read is performed first in the process before the \texttt{first digit} monitor process is synchronised together with the \texttt{Seconds} process. Adding a parentheses around the first synhronisation to keep the structure, the \texttt{second digit} monitor process is synchronised on the \texttt{second digit} channel which completes the process monitor network.
+Listing \ref{lst:network_example_cspm} shows the network generated from the translated \texttt{Seconds} process in Listing \ref{lst:channel_range_cspm} and the corresponding monitor processes in Listing \ref{lst:monitor_range_cspm}. Adding parentheses around each synhronisation, the \texttt{first digit} monitor process is synchronised on the \texttt{first digit} channel and the \texttt{second digit} monitor process is synchronised on the \texttt{second digit} channel which completes the process monitor network.
 
-Lastly the \texttt{assert} operator is used to specify to FDR4 that it should create a refinement check against the specification process \texttt{SKIP} and the implementation process \texttt{N\_seconds} and also that it should use the Failure model.\\
+Lastly the \cspm{} \texttt{assert} operator is used to specify the refinement check for FDR4. The assertion defines a refinement check from the specification process \texttt{SKIP} and the implementation process \texttt{N\_seconds} and that the refinement check should be done using the Failures model.\\
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 N_seconds = clock_out_val ? variable ->
@@ -201,32 +208,33 @@ assert SKIP [F= N_seconds \ Events
 \label{lst:network_example_cspm}
 \end{listing}
 
-In SMEIL it is possible to create several networks within the same SMEIL program. This is not a problem for TAPS to translate as long as the program is still a well-formed SMEIL program. Each instance define a process and potentially communication. This communication will always refer to a specifc bus, defined in either a process or a network. This will not change no matter how many networks are defined within the program, since communication cannot span accross the networks.
-In theory it is possible to create nested networks where a network can instantiate other networks, and thereby allowing communication across networks, but this has not yet been implemented in SMEIL and therefore TAPS also do not handle this case.
-The only situation where seveal networks can become a problem for TAPS are if the networks have instances with the same instance names. As mentioned above, there might be cases where it is necessary to add the instance names to the generated \cspm{} channel names in order to tell the difference between to instanced of the same bus channels. Now if this is the case and there are more than one network using the same instance name for this specific process TAPS could add the network name to the generated \cspm{} channel name for another layer of seperation.
-
-This is a corner case, and the current version of TAPS does not support this, but this is definitely a possible solution.
-
+In SMEIL it is possible to defined more than one network within the same SMEIL program. This is not a problem for TAPS to translate as long as the program is still a well-formed SMEIL program. Each instance defines a process and its parameters. This communication will always refer to a specifc bus, defined in either a process or a network. This will not change no matter how many networks are defined within the program because communication cannot span accross the networks.
+In theory it is possible to create nested networks where a network can instantiate other networks, and thereby allowing communication across networks, but this has not yet been implemented in SMEIL and therefore TAPS do not handle this case.
+The only situation where seveal networks can become a problem for TAPS are if the networks have instance names in common. As mentioned above, it is necessary to include the instance name to the name of a generated \cspm{} channel in order to tell the difference between two \cspm{} channels. If there are more than one network using the same instance name for a specific process the generated code would have identical channel names in one \cspm{} program. To solve this, TAPS could include the network name to the generated \cspm{} channel name to add another layer of seperation. This is a corner case, and the current version of TAPS does not support this solution, but since it is a potential problem it is important to address.
 
 \section{The Technologies of TAPS}
-The system TAPS consist of two parts, the parser and the code generator. The parser is created with ANTLR4~\cite{antlr}, which is described further below. The data transformation and code generation has been developed in Python 2.7 while also utilising the templating language Jinja2~\cite{jinja2}.\\
+The system TAPS consist of two parts, the parser and the code generator. The parser is created with ANTLR4~\cite{antlr}, which is described further below. The data transformation and code generation have been developed in Python 2.7 while also utilising the templating language Jinja2~\cite{jinja2}.\\
 
-Usually when doing any form of translation either by a compiler or interpreter, the use of a symbol table is often needed in order to keep information about variable names, function names, classes, communication ect. Usually the translation, when reaching a symbol in the translation, use the symbol table to look up a symbol and retrieve its context if it has any information about said symbol. This can be to check that a variable have been declared or for type checking or similar. The symbol table is usually generated in the analysis section and are used for look ups througout the compilation or interpretation. When walking the parse tree, TAPS gathers all relevant information from the code, and since TAPS expect the SMEIL program to be well-formed, it does not need a symbol table to check if variables have been declared in the process declaration before being used in the body of the process.
+Often when developing any form of translation either by a compiler or interpreter, the use of a symbol table is often necessary in order to keep information about variable names, function names, classes, communication ect. During the translation when reaching a symbol the system will use the symbol table to look up the symbol and to retrieve its context. The symbol table is usually generated in the analysis section and is used for lookups througout the compilation or interpretation. \\
+
+When walking the parse tree after the parsing, TAPS gathers all relevant information from the SMEIL code. TAPS expect the SMEIL program to be well-formed and does not provide any checking of the SMEIL code and therefore it is not necessary for TAPS to include a symbol table to check if variables have been properly declared in the process declaration before being used in the body of the process.
 \subsection{ANTLR4}
-For the transpiling between SMEIL source code and \cspm{} source code, I decided to use a parser generator to create a parser for the SMEIL language.
+For the transpiling from SMEIL to \cspm{}, I decided to use a parser generator tool to generate a parser for the SMEIL language.
 
-The reason I choosed a parser generator libary was to simplify the parsing process so I could focus more on the development of correct code generation. Parser generators are tools that provides an automatically generated parser, interpreter or compiler from a specified grammar. Using a parser generator was an obvious choice since the SMEIL grammar was already in a well defined and simple EBNF format. It would also have been possible to create a parser from scratch but since I did not have many specific requirements for the parser, there seemed to be no reason to spend the time writing and debugging my own parser when I could generate it directly.
+I choose a parser generator libary because it would simplify the parsing process so I could focus more on the development of correct code generation. Parser generators are tools that provides an automatically generated parser, interpreter or compiler from a specified grammar. Using a parser generator was an obvious choice since the SMEIL grammar was already in a well defined and simple EBNF format. It was also possible to create a parser from scratch but there seemed to be no reason to spend the time writing and debugging my own parser when I could generate it directly. \\
 
-I decided to use the tool ANTLR4 for creating the parser and lexer. ANTLR4 is a Java-based parser generator library that, based on a grammar, can generate parsers in Java or another target language. ANTLR is a well used tool with a lot of documentation and have recently been used several times within the industry. ANTLR have recently been updated to a new and improved version 4. Other parser generators exists, one of the most known are probably Yacc or Bison. These tools did not seem to be very user friendly or intuitive and some had not been updated in years. ANTLR can also be used to generate tree parsers which can be used to walk the parse tree, which lessens the time working on the parser even more. ANTLR4 seemed to be the best choice in terms of usability and simplicity.
+I decided to use the ANTLR4 tool after having looking at several other parser generator tools. ANTLR4 is a Java-based parser generator library that, based on a grammar, can generate parsers in Java or another target language. ANTLR is a well used tool which have recently been updated to the new and improved ANTLR4 version. Companies like Twitter and Oracle are using ANTLR\ref{Parr2012} for different parse tasks. ANTLR4 also has an active user base and there is plenty of documentation and guides for the new ANTLR4 online. A lot of parser generator tools exists today and some of the most known parser generators are Yacc or Bison but unfortunately a lot of these tools seemed to be a bit outdated and not very user friendly in terms of error messages or simplicity in the grammar structure. ANTLR4 seemed to be the right choice for this simple grammar.
 
-By using ANTLR4 I could easily transform the SMEIL grammar into a parser and lexer that could then immediately be used to transform into \cspm{}.
-ANTLR4 supports Extended BNF (EBNF) and it must be defined in \texttt{.g4} file format, which is very similar to other standard grammars. The SMEIL grammar have been changed slightly either because it was more efficient to parse the programs if a grammar rule was removed. For instance the SMEIL grammar does not have a short way of representing "one or more" but only "zero or more". In ANTLR4 it is possible to define the rules as "one or more", and some of these SMEIL rules have been simplified to this. The grammar have also been changes in a few places, simply because there are things within the SMEIL grammar that TAPS does not allow, such as optional ranges, as described earlier.\\
+By using ANTLR4 it was simple to transform the SMEIL grammar into a parser and lexer using the already defined SMEIL grammar. ANTLR4 supports Extended BNF (EBNF) grammers which must be defined in \texttt{.g4} file format. This is quite similar to other standard grammars. ANTLR4 also provides the posibility of generating a tree walker which can be used to traverse the parse tree. There are three options for tree traversal, either using the listener or visitor method provided by ANTLR4 or manually traversing the parse tree.
+The listener methods are called directly by the walker object and are analogous to XML document handler objects because they respond to SAX events triggered by XML parsers. The visitor method in ANTLR are similar to the standard visitor patterns seen in other parser structures. In ANTLR each visitor must call \texttt{visit()} on its children to walk the sub trees. ANTLR4 also provides the posibility of adding labels to alternatives in grammar rules which creates a visitor methods for each labeled alternative. This ensures a more manageable parsing and less complex visitor functions. \\
 
-After parsing the code with ANTLR4, one can decide to traverse the parse tree itself or use either the listener or the visitor methods that ANTLR4 provides. The main difference between the listener and the visitor is that the listener provides methods which are called by the walker object directly, and the visitor methods must call its children explicitly to walk them. Both methods can provide the same results, and it often depends on preference. In my implemenation of TAPS I first tried the listener method, but realising that I do not need data from all parse rules, it was not necessary to walk the entire tree and therefore I shifted to the visitor method where I can be specific about which rules ANTLR4 should walk.
+Both the visitor method and the listener method can provide the same results. In the first version of TAPS I used the listener method, but I realised that it is not necessary to traverse the entire parse tree in every parse and therefore TAPS was rewritten to use the visitor method that only visits the subtree needed.\\
 
-After TAPS have walked the parse tree and collected all relevant information, the data is transformed to match the requirements of the \cspm{} code. For example, the names of a bus channel in SMEIL it transformed into a combined name for a \cspm{} channel. I have defined templates in Jinja2 that match these generalised structures in \cspm{} that I can use to represent the SMEIL code. These templates are then used together with the transformed data to generate the \cspm{} code.
+After TAPS have walked the parse tree and collected all relevant information from the SMEIL program, the data is transformed to match the requirements of the \cspm{} code. For example, the name of a bus and its channels in SMEIL is transformed into combined names for the \cspm{} channels. Because TAPS only collect data during the tree walk and not performing direct translation, it does not matter how the SMEIL code is structured. With this solution, the SMEIL network declaration can be defined first or last in the program without any difference to the translation.\\
 
-Because TAPS only collect data during the tree walk it does not matter how the SMEIL code is structured. With this solution, the network can be defined first or last in the program without any difference to the translation.
+The templating language Jinja2 have been used to define the standard \cspm{} structures which the SMEIL program will be translated into. Together with the transformed data the templates are used to generate the \cspm{} code.
+
+
 
 %
 % With the visitor we gain the advantage that we decide which part of the parse tree we traverse, instead of having to traverse the entire parse tree as with the listener method. With the visitor, for each parser we have to explicitly call \texttt{visit()} on the children that we wish to visit, which, in some cases can make a tree traversal more complex, but in our case we wish to seperate concerns and this is done by having three different tree traversals which collect three differet pieces of data for the code generation.
