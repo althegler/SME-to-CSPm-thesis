@@ -194,12 +194,12 @@ A potential challenge lies in deciding how to define a variable that has been de
 
 
 The other part of an SMEIL process is the statement part where the actual behaviour of the process is defined. The semantics of statements in SMEIL corresponds to what we typically see in C-like languages, some are mentioned here below.
-\paragraph{Assignments}
+\paragraph{Assignments} % Maybe this entire section belongs in implementation instead?
 An assignment in SMEIL consists of a name and an expression. It can be used in two different ways within the SMEIL process statements: assigning to a variable and assigning to a bus channel. In SMEIL, the compiler will always be able to recognise what is being assigned by looking at the type of the object and therefore SMEIL do not differentiate between these two assignments.
 This property will cause a challenge when translating to \cspm{}, since communication and variable assignments are two different things in a \cspm program. Thus TAPS will have to be able to recognise what type of assignment it is, in order to create the correct translation.
 \paragraph{if-statements}
-If-statements are structured like we know from other languages with the keywords \texttt{if}, \texttt{then}, \texttt{elif} and \texttt{else}.
-These kinds of statements can also be defined in \cspm, but \cspm does not support elif-expressions within the if-statement, so the translation would have to restructure the elif-expression to a nested \texttt{if then} expression.
+If-statements in SMEIL are structured similar to other languages with the keywords \texttt{if}, \texttt{then}, \texttt{elif} and \texttt{else}.
+If-statements can also be defined in \cspm, but \cspm does not support the \texttt{elif}-expressions, so the translation will restructure the elif-expression to a nested \texttt{if then} expression. These \texttt{if}-statements can quickly become quite complex, but it is not difficult to auto generate.\\
 
 % \paragraph{Loops}
 % TODO: Write something here when I am sure how loops work in CSPm.
@@ -214,6 +214,8 @@ assert(hour < 23, "hours cannot be greater than 23");
 \end{minted}
 
 Even though we wish to assert properties in FDR4, the properties that FDR4 can verify are not similar to the properties that the assert statements in SMEIL can assert. As was introduced in Section \ref{sec:background_fdr}, FDR4 is a refinement checker and the assert statements in FDR4 are asserting the refinement check. In the \cspm language, assertions like \texttt{assert 4 + 4 == 8} is possible, however FDR4 does not support this. The two types of assert statement are therefore not equivalent. However, it would also not be of any interest to translate the SMEIL assert statements, since a potential error found via an SMEIL assertion, might as well be found and corrected in SMEIL than in FDR4.
+% (from implementation)
+% Traces and assertions are, as explained in Chapter \ref{chap:analysis} not useful in the \cspm{} program and therefore we either throw them away or keep them as comments for the sake of understanding the generated code. Currently TAPS throw them away, but it would be a simple task to change this and add them as comments in the generated \cspm{} code.\\
 % \paragraph{Switch statements}
 % TODO: Write something about switch statements when I know more.
 
@@ -372,6 +374,10 @@ This translation step is a great challenge and will require carefully planning i
 \subsubsection{Buses and Channels}
 % %%%% SMEIL buses and channels %%%%
 In SMEIL buses are the glue between the processes and no communication happens outside of a bus. A bus consist of one or more channels, and each channel have a type describing the data that can be communicated on it.
+% -------------
+The syntax of a read or write in SMEIL is \texttt{c.x} where the \texttt{c} specifies the bus and \texttt{x} specifies the channel within the bus.
+(from implementaion)
+% ------------
 % NOTE: This does not belong here, but I like the wording so maybe I can use it somewhere else. "Buses may form many-to-many relationships between processes and thus creating a similar situation as consists in hardware buses with physical wires where several different components can be connected to the same physical wire."
 Since buses in an SMEIL network is simply shells containing one or more channels, in itself it does not have a type or values. All channels within a bus have an identifier, types, and values, but the same types does not have to apply to all channels in a single bus. An SMEIL bus does have an identifier which is used to referencing the specific bus, aswell as when referencing the channels within the bus.
 
