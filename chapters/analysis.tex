@@ -169,36 +169,36 @@ One way of initialising the data in the SMEIL network is by instantiating the pr
 
 Listing \ref{lst:addone_data_generation_example} shows an example of the network \texttt{addone\_network} with two instantiated processes. The \texttt{add} process reads an input value and a constant, add the two values together, and writes it out onto the outbus bus. The \texttt{id} process reads an input and writes it to the output bus imediately. Networks in SMEIL are introduced further in Section \ref{sec:analysis_structural}, but the network in this example is defining the input bus of the \texttt{add} process to be the output bus of the \texttt{id} process, as well as defining that the constant value in the \texttt{add} process is 1.
 \begin{listing}
-    \begin{minted}{smeil_lexer.py:SMEILLexer -x}
-    proc add (in input, const constant)
-        bus output {
-            val: uint;
-        };
-    {
-        output.val = input.val + constant;
-    }
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
+proc add (in input, const constant)
+    bus output {
+        val: uint;
+    };
+{
+    output.val = input.val + constant;
+}
 
-    pric id (in input)
-        bus output {
-            val: uint;
-        }
-        var from_add : uint;
-    {
-        from_add = input.val;
-        output.val = from_add;
+pric id (in input)
+    bus output {
+        val: uint;
     }
-    network addone_network() {
-        instance add of add(id.output, val: 1);
-        instance id of id(add.output)
-    }
-    \end{minted}
-    \caption{The SMEIL network \texttt{addone\_network} with two processes. The \texttt{add} process is instantiated with a value \texttt{constant} which is constant and used once for each clock cycle. The example is similar to the Addone example in \cite{smeil}.}
-    \label{lst:addone_data_generation_example}
+    var from_add : uint;
+{
+    from_add = input.val;
+    output.val = from_add;
+}
+network addone_network() {
+    instance add of add(id.output, val: 1);
+    instance id of id(add.output)
+}
+\end{minted}
+\caption{The SMEIL network \texttt{addone\_network} with two processes. The \texttt{add} process is instantiated with a value \texttt{constant} which is constant and used once for each clock cycle. The example is similar to the Addone example in \cite{smeil}.}
+\label{lst:addone_data_generation_example}
 \end{listing}
 Listing \ref{lst:clock_data_generation_example_smeil} shows another way to instantiate data into the SMEIL network. Here the process \texttt{clock} is a data generator process. It does not read data from any input bus, so it can only generate data to write to the network. The example is simple and shows the \texttt{minutes} process calculating the number of minutes that have passed since the simulation started by dividing the input with 60.\\
 
 \begin{listing}
-    \begin{minted}{smeil_lexer.py:SMEILLexer -x}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc clock()
     bus output {
         val: uint;
@@ -224,9 +224,9 @@ network net() {
     instance c of clock();
     instance s of minutes(c.output)
 }
-    \end{minted}
-    \caption{The SMEIL network \texttt{minutes}, with a data generator process and a calculation process that calculates minutes since simulation start.}
-    \label{lst:clock_data_generation_example_smeil}
+\end{minted}
+\caption{The SMEIL network \texttt{minutes}, with a data generator process and a calculation process that calculates minutes since simulation start.}
+\label{lst:clock_data_generation_example_smeil}
 \end{listing}
 
 The data generator process has the same structure as any other process in SMEIL and it is therefore crucial that TAPS can recognise a data generator process from other processes. An SMEIL process that does not read any input is obviously a data generation process, however, in SMEIL it is possible to communicate to or from buses directly in the process body without defining them as input parameters. This will be explained further in Section \ref{bus_and_channels}. \\
