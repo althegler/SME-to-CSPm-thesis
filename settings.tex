@@ -30,7 +30,7 @@
 \usepackage{listings}
 \usepackage[outputdir=.tmp]{minted}
 % \usepackage[cache=false]{minted}
-\setminted{frame=lines,linenos,framesep=2mm,fontsize=\small}
+\setminted{frame=lines,linenos=true,framesep=2mm,fontsize=\small}
 
 
 % \usepackage[outputdir=.tmp,chapter,newfloat=true,cache=true]{minted}
@@ -228,7 +228,16 @@
   minimum size=.7cm,
   inner sep=7pt,
   font=\footnotesize
-  }
+  },
+  mythinsquare/.style={
+  draw=black,
+  shape=rectangle,
+  rounded corners,
+  align=center,
+  inner sep=4pt,
+  % inner ysep=7pt,
+  font=\footnotesize
+  },
 }
 
 \pgfplotsset{
