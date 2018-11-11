@@ -183,7 +183,6 @@ In Figure \ref{fig:addone_clocked} a clocked version of the \texttt{addone} netw
    \node[main node, text width=.5cm] (id) [right = 4cm of add] {\texttt{id}};
    \node[mythinsquare] (bufd) at (2.7, 1.7) {$Buf_d$};
    \node[mythinsquare] (bufc) at (2.7, -1.5) {$Buf_c$};
-   % \draw[fill] (0.7,0) circle [radius=0.07];
 
    \path[draw,thick, ->, bend right=25]
    (add) edge node {} (bufc);
@@ -201,7 +200,6 @@ In Figure \ref{fig:addone_clocked} a clocked version of the \texttt{addone} netw
    \node[align=center, below, font=\scriptsize] at (3.9,1.3){\texttt{d\_read}};
    \node[align=center, below, font=\scriptsize] at (1.5,-0.8){\texttt{c\_write}};
    \node[align=center, below, font=\scriptsize] at (3.9,-0.8){\texttt{c\_read}};
-   % \node[align=center, below, text width=1.7cm] at (2.3,-0.9){\footnotesize\texttt{channel c}};
 \end{tikzpicture}
 \caption{The clocked \texttt{addone} network. The network have two proceses and two buffers which ensure the global synchronicity.}
 \label{fig:addone_clocked}
