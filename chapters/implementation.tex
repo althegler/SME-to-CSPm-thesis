@@ -73,7 +73,7 @@ When translating an SMEIL bus channel to a \cspm{} channel, TAPS must define \cs
 
 The simplest way of translating the SMEIL channels into \cspm{} channels is to use the already defined formal name of the SMEIL bus channel. By concatenating the channel name, bus name, and process name into a single channel name in \cspm{}, the naming becomes unique.
 This means that all reads and writes using the syntax \texttt{bus.channel} from the process \texttt{A} in SMEIL, will be translated to \texttt{A\_bus\_channel} in \cspm{}.
-It is also possible to use randomly generated strings instead of using the original SMEIL names, but to manually validate correct translation in TAPS it is better to have recognisable names for the \cspm{} channels.\\
+It is also possible to use randomly generated strings instead of using the original SMEIL names, but to ensure the readability of the generated code, it is necessary to have recognisable names for the \cspm{} channels.\\
 
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
@@ -96,7 +96,7 @@ It is also possible to have bus declarations within the network declaration in S
 
 The naming of each channel quickly becomes long and chaotic, which is one of the compromises of generated code.
 \subsection{\cspm{} Channel Range}
-When defining channels in \cspm{} it is important to define a restricted range of acceptable communication for each channel. If the channel is defined with an unbounded range of integers, FDR4 would search through all possible integers which would result in a state space explosion and FDR4 would run out of space. These restricted ranges must of course represent relevant values.\\
+When defining channels in \cspm{} it is important to define a restricted range of acceptable values for each channel. If the channel is defined with an unbounded range of integers, FDR4 would search through all possible integers which would result in a state space explosion and FDR4 would run out of space. These restricted ranges must of course represent relevant values.\\
 
 As explained in Chapter~\ref{chap:analysis}, all simulated SMEIL channels and variables are defined with a range of observed values and a restricted type.
 Because FDR4 only supports integers, only signed and unsigned types are supported in TAPS. The integer following the type defines the bit size of the observed values. This bit size is used to generate a restricted range for the \cspm{} channel, and thereby avoid having a seemingly endless runtime in FDR4.\\

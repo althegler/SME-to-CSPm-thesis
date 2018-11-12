@@ -37,13 +37,13 @@ It can be difficult to generate code while still retaining the clean structure a
 
 In this chapter, I describe the main design decisions behind TAPS and address the challenges that lie in translating SMEIL to \cspm{}.
 \section{Translating Processes}
-In order to translate an SMEIL process into a \cspm{} process, it is necessary to create a general process structure in \cspm{}. The SME model enforces that each process reads, execute, and writes, in that order, for each clock cycle, so the \cspm{} structure must support this. To reduce complexity, it is preferable to have one \cspm{} process per SMEIL process, since it would simplify the translation. A simpler solution typically results in a less erroneous solution.\\
+In order to translate an SMEIL process into a \cspm{} process, it is necessary to create a general process structure in \cspm{}. The SME model enforces that each process reads, executes, and writes, in that order, for each clock cycle, so the \cspm{} structure must support this. To reduce complexity, it is preferable to have one \cspm{} process per SMEIL process, since it would simplify the translation. A simpler solution typically results in a less erroneous solution.\\
 
 What first comes to mind in \cspm{} when a process must read and then write, is the simplest possible process structure using prefix and communication operators.
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 Proc = c ? x -> d ! x-> SKIP
 \end{minted}
-This is one of the simplest \cspm{} processes that match the SME model, however with this structure it is not simple to include all the possible computations that SMEIL support. By instead using the \texttt{let within} structure in \cspm{}, it is possible to keep the communication together with the computations in one \cspm{} process, while keeping a simple structure. All computations are performed inside the \texttt{let} clause which can be referenced to inside the \texttt{within} clause where each write is performed.
+This is one of the simplest \cspm{} processes that match the SME model, however with this structure it is not possible to include all the possible computations that SMEIL support. By instead using the \texttt{let within} structure in \cspm{}, it is possible to keep the communication together with the computations in one \cspm{} process, while keeping a simple structure. All computations are performed inside the \texttt{let} clause which can be referenced to inside the \texttt{within} clause where each write is performed.
 In Listing~\ref{lst:cspm_let_within_example}, an example of the \texttt{let within} structure can be seen. This structure will work as a general translation structure from SMEIL processes to \cspm{} processes. Since all reads and computations must be performed before writing, this structure should always work for a well-structured SMEIL process.
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
@@ -62,7 +62,7 @@ P(input) =
 \section{Translating Data Generation}
 It is important to make sure that TAPS can translate all the different methods of generating data in SMEIL, and it is therefore essential that TAPS can recognise a data generator process in SMEIL. As previously explained, a data generator process in SMEIL does not read any input value, neither through a process parameter nor by using the channels hierarchical name. Therefore TAPS must examine the process body, and if the process does not contain input communication, then TAPS will conclude that the process is a data generator process. \\
 
-In \cspm{}, it is possible to create a process with the same functionality as the SMEIL data generator process. However, in that case, it would be necessary to synchronise the data generator process with all the processes reading the data. Otherwise, FDR4 would evaluate all values in the defined range of the channel, instead of what was actually communicated on the channel. This would make the data generator process obsolete. This extra synchronisation and process added to the \cspm{} network will increase the complexity, and it might also increase the runtime of the verification.
+In \cspm{}, it is possible to create a process with the same functionality as the SMEIL data generator process. However, in that case, it would be necessary to synchronise the data generator process with all the processes reading the data. Otherwise, FDR4 would evaluate all values in the defined range of the channel, instead of what was actually communicated on the channel. This would make the data generator process redundant. This extra synchronisation and process added to the \cspm{} network will increase the complexity, and it might also increase the runtime of the verification.
 \begin{figure}
     \centering
     \begin{tikzpicture}
@@ -107,19 +107,6 @@ within
 In the case where the SMEIL network does not have a data generator process but is instantiated with constants as parameters or internal values, the \cspm{} processes would also be instantiated with these values as parameters.\\
 
 If there are several data generation processes in the SMEIL program, TAPS will not handle the processes any differently than if there was only one data generator process. Each data generator process will be translated into a \cspm{} channel, and the communication to the rest of the network will be kept intact because of the communication specified in the SMEIL network structure.
-
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%
-% NOTE: The problem is that in the unclocked version there are two ways of defining the read. Either the network reads and the process gets the value as a parameter or the process reads itself.
-% The advantage of the network reading is that I avoid having to transform the data a lot. I can simply use the name from the parameter. However, since I am already transforming the data, I should be able to find the data that gives what channel name that is. The disadvantage of the network reading is that in other problems it might not work well in that way. Maybe the network suddenly have to read a bunch of times because all different processes have to read different channels. It works for the seven segment example but not necessarily for others.
-% The advantage of the process reading itself, it that we get a cleaner structure and separation of concerns. The reading does not really belong with the network but within the process. However, as mentioned above, the problem is that I have to transform the data more. But in the clocked version, I would have to do that no matter what.
-
-% It would be possible to introduce both solutions and then discuss why I chose the other one. Or if I decide to only write about the new version of the system I can write something about why the reading was done differently in the paper than in the report.
-
-% The second problem is if I should even write about the "first" version at all. Even though I havent implemented it yet, a lot of the things can be reused in the code and even more so, in the report. A lot of the stuff that I have written about the "first version" is also applicable for this new version and I would be able to reuse this text. It will also cut down the length of the report if I dont have to write a lot about it. And I would be able to write a lot before I start implementing, because the design process is not necessarily implementation, so I can design it and then implement it.
-% On the other hand it seems weird to have written a paper about it, and then do something completely different in the report. However, it is not all of it that is changed, and it is all a process. I would be able to write in the report that I have published a paper which represents an early version of the system (and the advantage of that version is that i did not have to transform the data a lot) and that I since then have updated it to be able to do clock cycles and therefore I am writing about this, but that a lot of the basics in the paper are the same as in this version. It would also shorten the length of the report emensely.
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 \section{Translating Buses and Channels}
 As has previously been introduced, the SMEIL bus channel and the \cspm{} channel are equivalent, and can therefore be translated almost directly. However, when the bus is defined as a process parameter within the SMEIL process, the translation becomes more complex, because the parameter name, used inside the process, is a placeholder for the formal bus channel name. It is therefore not possible to translate the channel without either knowing the formal name of the bus channel or changing the structure of the SMEIL process.
@@ -272,7 +259,7 @@ Network = A [{| c, d |} || {| c |}] B
 \end{listing}
 
 The challenge when translating the network from SMEIL to \cspm{}, is to ensure that all processes are connected with the other processes on the correct channels.
-Since it is only possible to synchronise two processes at a time in \cspm{}, it is a challenge to generate an entire network. The synchronisation of two processes becomes a new process which can then be synchronised with another process. This will result in a lot of nested synchronisations, one for each process in the network, which quickly becomes very complex. It is an advantage that the \cspm{} networks are automatically generated, since even smaller networks quickly become too large for easy hand translation.\\
+Since it is only possible to synchronise two processes at a time in \cspm{}, it is a challenge to generate an entire network. The synchronisation of two processes becomes a new process which can then be synchronised with another process. This results in a lot of nested synchronisations, one for each process in the network, which quickly becomes very complex. However, since the \cspm{} code is generated automatically, this is not a problem.\\
 
 Not only is it important that the network is generated to be equivalent to the original SMEIL network, but the monitor processes generated for each of the \cspm{} processes must also be included in the network. Since the monitor processes are only listening in on one specific channel, TAPS starts out by synchronising the monitor with the process by using the generalised parallel operator on the channel. The monitor process is synchronised with the writing process, since a potential erroneous value will emerge at the write end of the channel.\\
 
@@ -293,3 +280,14 @@ Process_A_monitor_network =
 \end{minted}
 
 Translating the SMEIL network into an equivalent \cspm{} network is difficult and will quickly become very complex. Adding extra monitor processes increase the complexity of the network, and it is crucial that it does not affect the functionality of the network, but by using the structure introduced above, TAPS can include the monitor processes without affecting the original SMEIL network.
+
+
+\section{Translating the SME Clock}
+CSP was not initially developed for hardware modeling, and therefore it is not evident how to handle the clock cycle in the translation. However, clock cycles is an essential part of hardware modeling and therefore it is crucial to design a solution that represents the simulated clock cycles from the SMEIL program. The observed values of the SMEIL simulation represents all values communicated through all the simulated clock cycles. By using these observed values within the generated \cspm{} code, FDR4 will verify all possible communication combinations within these observed values. For example, if a small system %TODO: create a figure like the one on page 122 in bujo
+
+Therefore, even though there the translation is between an SME model, where the clock is crucial, and a \cspm{} model, which do not have a clock structure, the translation will still represent the correct state space for FDR4 to verify.
+
+
+
+
+
