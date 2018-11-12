@@ -13,9 +13,26 @@ What I aim to achieve is to create a translation reversed from what has previous
 
 In this thesis, I introduce the system TAPS, a transpiler that provides translation from hardware models to specification models, while also introducing specific properties for verification within the generated specification model.\\
 
-The language used to model the hardware is the SME Interpretation Language (SMEIL) and is based on the Synchronous Message Exchange (SME) model. SMEIL resembles a standard general-purpose programming language, while still providing all the necessary elements of hardware modeling. The programming structure of SMEIL enables the traditional developer to model hardware models in a simple but efficient manner.\\
+The language used to model the hardware is the SME Implementation Language (SMEIL) and is based on the Synchronous Message Exchange (SME) model. SMEIL resembles a standard general-purpose programming language, while still providing all the necessary elements of hardware modeling. The programming structure of SMEIL enables the traditional developer to model hardware models in a simple but efficient manner.\\
 
 TAPS provides translation to the machine-readable version of the CSP process algebra, \cspm{}. The generated \cspm{} code will not only be equivalent to the SMEIL code, but it will also include assertion statements to formally verify properties within the hardware model. These properties can be verified with the \cspm{} refinement checker tool FDR4, described in Chapter \ref{chap:related_work}.
+
+% TODO: Add something about this figure. I need to reference it.
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}
+    \node [mysquare] (HM) at (0, 0) {Hardware model};
+
+    \node [mysquare] (TAPS) at (2, -1.3) {TAPS};
+    \draw [myarrow, smooth] (HM) to[out=270, in=180] (TAPS);
+
+    \node [mysquare] (spec) at (4, 0) {Specification model};
+    \draw [myarrow, smooth] (TAPS) to[out=0, in=270] (spec);
+
+  \end{tikzpicture}
+  \caption{Overall system structure of TAPS.}
+  \label{fig:simple_TAPS_network}
+\end{figure}
 
 
 % TODO: Maybe I should write something about why I chose sme and cspm and FDR?

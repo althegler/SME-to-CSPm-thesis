@@ -222,12 +222,12 @@ proc minutes (in input)
 }
 
 
-network net() {
+network minutes_net() {
     instance c of clock();
     instance s of minutes(c.output)
 }
 \end{minted}
-\caption{The SMEIL network \texttt{minutes}, with a data generator process and a calculation process that calculates minutes since simulation start.}
+\caption{The SMEIL network \texttt{minutes\_net}, with a data generator process and a calculation process that calculates minutes since simulation start.}
 \label{lst:clock_data_generation_example_smeil}
 \end{listing}
 
@@ -302,7 +302,7 @@ proc addone (in input)
 It is also possible to use the formal identifier of the bus in the process body, thereby not accessing it through the input parameter. An example of this can be seen in Listing \ref{lst:smeil_example_formal_channel_name}. Here the \texttt{add} process reads the input by accessing the hierarchical name of the bus channel \texttt{val} within the bus \texttt{idbus} defined in process \texttt{id}. As a result of this, the process can be instantiated several times in the network but it will always read from the channel \texttt{id.idbus.val}.
 \begin{listing}
 \begin{minted}[escapeinside=&&, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-proc Add ()
+proc add ()
     bus addbus {
         val: uint;
     }
@@ -315,10 +315,15 @@ proc id ()
         val: uint;
     }
 {
-    &$\vdots$&
+    idbus.val = add.addbus.val;
+}
+
+network net ()
+{ instance _ of add();
+  instance _ of id();
 }
 \end{minted}
-\caption{Example showing how a process can read from a channel using its formal identifier.}
+\caption{Example showing how processes can read from a channel using its formal identifier.}
 \label{lst:smeil_example_formal_channel_name}
 \end{listing}
 \paragraph{SMEIL Output Bus}

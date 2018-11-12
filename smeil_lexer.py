@@ -30,7 +30,7 @@ class SMEILLexer(RegexLexer):
 
             (r'\.|,|:|;|\{|\}|\(|\)', Punctuation),
 
-            (r'(?:[a-zA-Z][a-zA-Z0-9_-]*)', Name.Variable),
+            (r'(?:[a-zA-Z_][a-zA-Z0-9_-]*)', Name.Variable),
         ],
         'string': [
             (r'"', String, '#pop'),
