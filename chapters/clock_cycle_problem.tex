@@ -227,7 +227,7 @@ Read_buf = sync -> ((r ? x -> (r ? x -> STOP [] Write_buf(x))
 \label{lst:buffer}
 \end{listing}
 
-\section{The Bounds Problem}
+\section{The Out Of Bounds Problem}
 In an attempt to verify the clocked \texttt{addone} network in FDR4, an unexpected compilation error occurred. The error message from FDR4 was that the system was trying to communicate a value that was not a part of the set of values defined for the channel. All channels in the network are defined for a specific range. \\
 
 The reason for the compilation error is because the \texttt{add} process in the \texttt{addone} example has to read, compute and write before it can terminate. Because of the standard structure of a process, the last action it can perform, before terminating, is always to write a value. In the \texttt{add} process, this value is incremented with a defined constant.\\
@@ -272,7 +272,7 @@ In the \texttt{Addone} network, there is only a problem with the upper limit of 
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 (0 <= value and value <= 500) & channel ! value
 \end{minted}
-\section{Generating Data for Clocked Networks}
+\section{Generating Data for Clocked Network}
 As in the initial version of TAPS, the clocked version must translate an SMEIL data generator process into a \cspm{} data generator channel instead of a separate process. In a clocked network the number of clock cycles makes it possible to represent the different internal states in the circuit.\\
 
 A data generator channel in \cspm{} the represents the entire range defined for the original SMEIL channel. As with the initial version of TAPS, FDR4 will check all possible inputs to the network.
@@ -292,7 +292,7 @@ A channel is not required to have both a write and a read end, but the values co
 
 The monitor processes are not part of the clocked network and do not synchronise together with the other processes. It would not be a problem to have them clocked, but there is no reason for it. The process reads a value when one is written to the channel and so it will verify all values no matter if it is clocked or not.
 
-\section{Clocked Network}
+\section{Generating Clocked Network}
 The structure of a clocked network is far more complex than the network structure presented in the initial version of TAPS. However, a lot of the added complexity is easy to auto-generate and therefore it does not pose a problem. A network will be generated the same way as in the initial version of TAPS. The monitor processes are synchronised with the processes first while leaving out the read which is now performed inside the process itself. The buffer processes are added to the network similarly ass the monitor processes. \\
 
 After the process monitor networks have been created TAPS can synchronise the network together into an overall network.
