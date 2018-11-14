@@ -1,14 +1,21 @@
-With this work, we have taken a small step towards creating a simpler method for software developers to model hardware as well as verify properties within this model. In future work, we would like to extend this to software-hardware co-design, with which we would be able to assert deadlocks.
+%!TEX root = ../main.tex
 
-It would be desirable to be able to automatically create a human-readable report on the ranges and communications that are used within the system. This could become a standard addition to the documentation of the system, which would give a programmer an easy overview of a complicated system and would also allow for easier contemplation over the system.
+Different SME implementations is in active development and so the SMEIL language will be extended and improved to match the new features of the different SME implementations. As the SMEIL language becomes more comprehensive and supports more features, TAPS should be kept in line with the advancements of SMEIL.\\
+The automatic verification provided by TAPS, decrease a mayor workload in testing and verifying hardware models in the SME model and therefore, it is also relevant to structure the SMEIL implementation towards better FDR4 results, while still maintaining the basic SME model structure. \\
 
-Another, more complex idea for future work, is to implement support for multi-channel invariants. This is not something that can easily be simulated and therefore it would require some work, but it would provide the ability to express more complex assertions.
+The extended version of TAPS provides an extended verification of the different internal states within a hardware model. It was introduced rather late in the project and therefore the development have not been as extensive as the initial version of TAPS. A substantial groundwork have been laid in providing the design structures for the extended version, making further development more straightforward. It is, however, obvious that future work should include providing a full implementation of the extended TAPS system. \\
+
+Besides further development of the extended version of TAPS, more advanced and in-depth examples should be developed in SMEIL in order to understand the limitations of the translation as well as FDR4.\\
+
+FDR4 also provides the possibility of integration with other tools using the FDR4 API which is currently available for C++, Java and Python. The FDR4 API is currently not used in TAPS, but it is an obvious choice to extend TAPS to use the FDR4 API to provide a more clean workflow. Because TAPS have been developed for FDR4 specifically, no other verification tool will match the current translation structures and therfore the current version of TAPS would benefit from the available API.\\
+
+As described in Chapter \ref{chap:background}, SMEIL was mainly developed to provide co-simulation with other SME implementations. TAPS should be augmented to support co-simulation. The optimal solution would be for TAPS to provide translations from other SME implementations as well as SMEIL, in order to translate the entire co-simulated network into \cspm{}. A simpler solution would be to translate the SMEIL code of the co-simulation along with the data representing the communication between the different SME implementations. This solution would not provide verification for the total network but it is very similar to the pure SMEIL translation that TAPS can currently provide.\\
 
 
-% "Hardware-software co-design is an area that is actively researched. The idea is that
-% specialized hardware is designed in parallel with the corresponding software such that
-% each part of the design can be implemented on either hardware or software depending
-% on what is best suited. Such heterogeneous designs require code for setting up the
-% communication between the hardware and software parts. We should therefore extend
-% our co-simulation approach to also allow SME networks to be distributed across several
-% devices." (From Truls thesis)
+Another point for future work is to extend the different assertion possibilities within TAPS. Currently only channel communication can be verified, but as described in Chapter \ref{chap:implementation} %TODO: Make sure I have written this!
+these monitor processes does have its limitations because each monitor process can verify a value, but it is not currently possible to verify the combination of values. Therfore it would be an advantage to extend TAPS to define more advanced assertions to verify values over multiple channels. \\
+
+In future work, it would be an advantage to extend TAPS to support software-hardware co-design. The idea behind software-hardware co-design is that hardware and software is designed in parallel so that both can be implemented on either hardware or software depending on what is most suited. If SMEIL and TAPS was extended to support this, then the communication between software and hardware would be possible to verify with FDR4. \\
+
+When verifying a system in FDR4, it can be crucial for the developer to know what values and states have been verified. It is therefore desirable to have TAPS generate a human-readable report on the ranges and communications that are verified with TAPS. This would also give the developer a possibility of better evaluating the number of clock cycles to verify in FDR4.
+This report could become a standard addition to the documentation of the developed system, which would give a programmer an easy overview of a complicated system and would also allow for easier contemplation over the system.
