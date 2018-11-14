@@ -1,15 +1,5 @@
-When we create programs, we wish to verify that it is also correct. There are several ways to do this, one commenly used is \texttt{testing} which require that the programmer creates several different scenarios and its expected output, or that the programmer programs a test-generator to create the scenarios and expected output. This, however, is not adequate for critical systems since it is never a 100\% accurate. Therefore it is of high interest to create a formal verification of the system or program.\\
-%Talk about how verification was first created and how it became to be used for concurrent systems. Then write about how it works and then write about the different systems and formal languages that is used for it. \\\\
-
-
-In this thesis we look at model checking, that is, verifying that a specific property will always hold for a piece of code.
-\\\\
-
-Formal verification is the process of checking whether a program satisfies specific properties. Different methods have evolved, all having different advantages and disadvantages. FDR is sometimes referred to as a model checker however is it actually a refinement checker.
-\\\\
-
 The Internet of Things, computerized medical implants, and the omnipresent growth in robotics, brings with them an increased demand for programmers to develop software for those devices. While this observation may not in itself appear to present a new challenge, many other areas have previously presented a need for more programmers. The new challenge is that these new growth areas are all focused on small size, low power consumption, and high reliability. This means that traditional software engineering methods, and thus traditionally trained programmers, are often not sufficiently qualified to develop these technologies.
-In previous decades such systems have been developed by electronic engineers that apply far more rigid development approaches. Especially for hardware solutions like VLSI\footnote{Very-large-scale integration.} and FPGA\footnote{Field-Programmable Gate Array.}, correctness has always been favored over productivity.
+In previous decades such systems have been developed by electronic engineers that apply far more rigid development approaches. Especially for hardware solutions like Very-large-scale integration (VLSI) and Field-Programmable Gate Array (FPGA), correctness has always been favored over productivity.
 While tools have obviously improved and methods refined, the VLSI process is still mostly the same as presented in~\cite{Agrawal:1985:VDP:320599.322570}. The primary workflow from~\cite{Agrawal:1985:VDP:320599.322570} is shown in Figure~\ref{fig:Agrawal}; note the focus on verification in each step.
 \begin{figure}[!ht]
   \centering
@@ -49,6 +39,9 @@ While tools have obviously improved and methods refined, the VLSI process is sti
 
 While the VLSI community is fundamentally following this 1980's design approach, more high-level tools and abstractions have been introduced. Philippe et al.~\cite{ coussy2009introduction} show a workflow (reproduced in Figure~\ref{fig:coussy}) where the important part is the verification that has been partly automated by basing the development on a formal specification of the solution.
 
+There is no denying that the subjectively slow and rigid development process in the VLSI world~\cite{kepner2004hpc} is highly successful in producing correct and reliable circuits. At the same time, conventional software development is highly focused on productivity and time-to-market, for example, smartphone applications are often developed for continuous release, where bug patches and new features are rolled out daily. This is of course not possible with hardware.
+
+Thus, a growing chasm exists between the way most programmers are trained and the competencies that are needed to support the growth in mission critical embedded devices.\\
 \begin{figure}[!ht]
   \centering
   \begin{tikzpicture}[auto]
@@ -78,122 +71,40 @@ While the VLSI community is fundamentally following this 1980's design approach,
   \label{fig:coussy}
 \end{figure}
 
-There is no denying that the subjectively slow and rigid development process in the VLSI world~\cite{kepner2004hpc} is highly successful in producing correct and reliable circuits. At the same time, conventional software development is highly focused on productivity and time-to-market, for example, smartphone applications are often developed for continuous release, where bug patches and new features are rolled out daily. This is of course not possible with hardware.
 
-Thus, the authors argue that there is a growing chasm between the way most programmers are trained and the competencies that are needed to support the growth in mission critical embedded devices.
-\\
+In this thesis I propose a tool to help bridge the gap between available programmer profiles and the required competencies for embedded devices. My approach is based on building a specification from a software implementation and test-suite observations. The overarching goal is to reach a level where a conventional software programmer can write a solution in Synchronous Message Exchange (SME)~\cite{Vinter2014, Vinter2015, Skovhede}, and develop a conventional test suite in the software engineering tradition. By combining the implementation with the \emph{observed} values of internal states in an SME based system implementation, we can produce a formal specification of the system. This specification can be fed into a formal verification tool and thus improve the correctness guarantees from what is covered by the individual test vectors to the entire space that is spawned by the set of test vectors.\\
 
-In this work, we propose a tool to help bridge the gap between available programmer profiles and the required competencies for embedded devices. Our approach is based on building a specification from a software implementation and test-suite observations. The overarching goal is to reach a level where a conventional software programmer can write a solution in Synchronous Message Exchange (SME)~\cite{Vinter2014, Vinter2015}, and develop a conventional test suite in the software engineering tradition. By combining the implementation with the \emph{observed} values of internal states in an SME based system implementation, we can produce a formal specification of the system. This specification can be fed into a formal verification tool and thus improve the correctness guarantees from only what is covered by the individual test vectors to the entire space that is spawned by the set of test vectors. We approach the task by transpiling\footnote{Source-to-source compile.} the new SME Implementation Language (SMEIL)~\cite{smeil} for SME into \cspm{}~\cite{Scattergood1998} and verify the formal properties of this version with a tool like FDR4~\cite{fdr}.
-\\
-
-This paper builds on the SME model, which have been covered in papers~\cite{Vinter2014, Vinter2015, Skovhede}. In this paper we only include a brief description of the elements required to understand the setup we have developed, and encourage readers to seek out more information in the mentioned papers.
-\\\\
-
-
-\textit{"Matematicians tend to reject proofs by exhaustive checking of all cases as being less satisfying than deductive proofs, and with good reason. First, they are not applicable for proving theorems about integers and real numbers, which are infinite domains so that the number of interpretations is infinite and they cannot be exhaustively checked. Second, they offer no insight into why a theorem is true. But computer scientists have more practical concerns. If they can check all computations of a program and show that they all satisfy a correctness property, we will be willing to forego elegance and be more than satisfied that our program has been proven correct."} from "A primer on model checking af Ben-Ari" \cite{Ben-ari2010}
-
-
-% (previously written)
-% The gap between hardware description languages and formal verification such as
-%
-% the problem lies in providing a solution that brings the traditional trained programmer closer to the area of expertice needed to develop software for mission critical embedded devices. \\
-
-
-
-% ----------------------------------------
-% "Traditional hardware design workflows utilize Hardware Description languages (HDLs) such as VHSIC Hardware description language (VHDL) or verilog which require the programmar to specify the hardware design at very low level."
-
-% "Additionally, all aspects
-% of a hardware design are often written in a HDL, including code for testing and veri-
-% fication. Traditional HDLs are fundamentally unfit for performing tasks commonly
-% needed for simulating input for a design, such as reading and decoding an image file."
-
-% "Hardware is inherently parallel, and utilizing this parallelism is imperative for achiev-
-% ing good performance."
-
-
-
-
-% 2.2
-% Motivations for custom hardware
-% Digital circuits are fundamentally a collection of logic gates which are connected in a
-% specific configuration to fulfill a particular purpose. In Integrated Circuits (ICs), this
-% configuration is hard-wired – etched into silicon using a lithographic process. An ex-
-% ample of a hard-wired IC is the common CPU. CPUs are highly versatile devices, ca-
-% pable of computing anything computable. However, in addition to their low price, this
-% versatility is their main advantage and they excel at nothing else. Since the advent of the
-% first microprocessor, almost  decades ago, this problem has been widely recognized.
-% Therefore, a steadily increasing amount of special-purpose hardware is being added in
-% order to relieve the main CPU pipeline of common and computationally intensive tasks.
-% An early, and highly successful, example of this is the introduction of co-processors for
-% performing floating-point calculations. As personal computers were increasingly being
-% used for tasks relying heavily on floating-point arithmetic, emulating this in software
-% increasingly became a limiting factor for performance. To solve this, specialized hard-
-% ware units, known as Floating Point Units (FPU) were added to significantly speed up
-% floating point calculations compared to what was possible using software emulation.
-% Numerous similar examples exist, for example, the AES-NI instruction set built into
-% recent CPUs, providing access to specialized circuitry for performing encryption and
-% decryption using the ubiquitous Advanced Encryption Standard (AES) algorithm.
-% The current use of specialized hardware only scratches the surface of applications
-% for which it would be beneficial. For example, by offering a significantly improved
-% performance-per-watt ratio []. This is especially important in the light of the ever-
-% increasing power consumption of data centers [] which counter global efforts to de-
-% crease emissions. In an ideal world, everyone would have cheap and easy access to cre-
-% ating hardware specialized for their particular application. Unfortunately, such hard-
-% ware, known as Application Specific Integrated Circuits (ASICs), is extremely expen-
-% sive and time-consuming to design and put into production. Furthermore, a very large
-% number of units has to be ordered before achieving a reasonable cost-per-unit. Finally,
-% mistakes are expensive since once the hardware is made it can never be changed.
-
-
-% Field-Programmable Gate Arrays (FPGAs)
-% Reprogrammable computing, of which Field Programmable Gate Arrays (FPGAs) are
-% the only prominent example, offers an attractive compromise between ASICs and more
-% general devices such as CPUs or GPGPUs. While not nearly as good as ASICs [], they
-% can provide significant improvements in both performance and power consumption at
-% a much lower cost.
-% FPGAs are ICs which allow their circuits to be changed after manufacture (hence,
-% they are programmable in the field) and can, therefore, be reconfigured to fulfill any
-% purpose. Of course, the circuitry on the chip cannot be physically changed, so FPGAs
-% consists of an array of logic blocks which has configurable interconnects. The repro-
-% gramming of an FPGA happens by reconfiguring switches which determines the signal
-% path. Since the individual components on an FPGA are fine-grained, they can be re-
-% configured for any computational purpose by rewiring signal paths.
-
-% - from Truls thesis
-
-
-% ----------------------------------------
-
-
-
-
-% (from design)
-%
-% So the meta information that I am using to create the assertions on each channel are meta information within the SMEIL program. TAPS use the observed range of values for each channel to define the range of acceptable values in the assertions. TAPS then translates these values, not into meta data in \cspm{} but as an actual process with actual real semantics which is included as a part of the topology of the \cspm{} network.
-
+We approach the task by transpiling\footnote{Source-to-source compile.} the new SME Implementation Language (SMEIL)~\cite{smeil} for SME into \cspm{}~\cite{Scattergood1998} and verify the formal properties of this version with a tool like FDR4~\cite{fdr}.
 \section{Motivation}
+As explained, hardware testing is not as simple and reusable as software testing and it is not possible to provide bug patches for physical hardware. Therefore, it is cheaper for the hardware companies to have their newly developed hardware model tested as extensively as possible before production than having physical hardware with a critical error. Allthough the testing is extensive it is not possible to test a system 100\%. Hardware testing is very time consuming and unfortunately not all errors are caught during the testing phase.
 \subsection{Ariane 501 failure}
-The Ariane 5 space rocket\cite{InquiryBoard1996} was a rocket designed to launch large payloads into Earths orbit, such as communications satelites, etc. It was owned by The European Space Agency (ESA) and the French spatial agency Centre national d'\'etudes spatiales (CNES) was manufactured by Airbus Defence and Space.\\ Ariane 5 was the follow-up on the sucessful Ariane 4 launchers and on june 4th, 1996, the Ariane 5 rocket had its first test flight. At about 30 seconds after successful lift-off, the rocket exploded midair, costing approximately 500 million dollars and huge losses for ESA and CNES. \\ The reason for the failure was an error which could have been avoided if there had been more focus on verification or simulation within the systems of Ariane 5. Luckily the rocket was unmanned, but this kind of error could happen in any other space rocket. This launch failure is acknowledged as one of the most expensive failures in history. \\
+The Ariane 5 space rocket\cite{InquiryBoard1996} was designed to launch large payloads into Earths orbit, such as communications satelites, etc. It was owned by The European Space Agency (ESA) and the French spatial agency Centre national d'\'etudes spatiales (CNES) and was manufactured by Airbus Defence and Space.\\
 
-The failure of Ariane 5 was partially caused by a bug in the Inertial Reference System (SRI). The SRI system measues the attitude of the launcher and its movements in space and has its own internal computer where angles and velocities are calculated.
-The failure occurred due to an unexpected high value of an internal alignment function result called BH, Horizontal Bias, represented as a 64-bit floating point number. This BH value was converted to 16-bit signed integer in the SRI and send to the On-Board Computer (OBC) which use the data from the SRI to, amonst others, adjust the nozzles of the solid boosters.
-The same calculations had been used in Ariane 4 but the value of BH on Ariane 5 was much higher than expected because the trajectory of Ariane 5 was considerably different than that of Ariane 4 and therefore resulted in higher horizontal velocity values. Due to this high BH value, 64-bit floating point number had a value greater than what could be represented in by a 16-bit signed integer which caused an Operand Error. The data conversion was not protected from causing an Operand Error, even though it was protected against other types of errors. The code was written in Ada, a language that other Hardware Description Languages (HDLs) have later been based on.\\ The OBC interpreted the data as flight data even though part of the data was not actual flight data due to the Operand Error. The specifications of the exception-handling mechanism of the SRI stated that in the event of any kind of exception, the failure should be indicated on the databus, stored in an EEPROM memory and then the SRI processor should be shut down. The decision to shut down the SRI also had a large part in the devestating result of the Ariane 501 failure. A restart was not feasible since the calculations in the SRI was too difficult after system restart. This caused the SRI to become useless and therefore not being able to correct the Operand Error. \\
-The OBC misinterpreted the data as true flight-data, and to counteract what seemed as data that the rocket was at a wrong angle, the engines thrusted to change course and a few seconds later the forces of aerodynamics ripped the solid boosters appart from the core stage. This caused the self-destruct mechanism to trigger and the rocket self-destructed in a giant explosion shortly afterwards. The backup SRI, that should take over when errors occur in the active SRI, was based on the same software and hardware and had failed and shutdown, for the same reasons, just before the active SRI failed.\\
-The error occurred in a part of the SRI that only performed meningful data before lift-off. On the Ariane 4 rocket, the data was necessary after lift-off as well, but this was not the case with Ariane 5 and the functionality had been kept on Ariane 5 even though it was not crucial for the rocket. If this functionality and the new trajectory had been considered once again for the Ariane 5 rocket, this failure might have been avoided.
+Ariane 5 was the follow-up on the sucessful Ariane 4 launchers. On june 4th, 1996, the Ariane 5 rocket had its first test flight. At about 30 seconds after successful lift-off, the rocket exploded midair, resulting in am approximately 500 million dollars loss for ESA and CNES. The reason for the failure could have been avoided if there had been more focus on verification or simulation within the systems of Ariane 5. Luckily the rocket was unmanned, but this type of fsilure could happen in any other critical system. This launch failure is acknowledged as one of the most expensive failures in history. \\
 
+The failure of Ariane 5 was partially caused by a bug in the Inertial Reference System (SRI) that measues the attitude of the launcher and its movements in space. The SRI comprises an internal computer which calculate angles and velocities.
+The failure occurred due to an unexpected high value of an internal alignment function result called Horizontal Bias (BH). The BH value is related to the horizontal velocity and was represented as a 64-bit floating point number. This value was converted to a 16-bit signed integer within the SRI and send to the On-Board Computer (OBC) which controls the nozzles of the solid boosters.\\
 
+The BH value had also been calculated in the Ariane 4 systems and so it was not thought of as unsecure. However, because the trajectory of Ariane 5 was considerably different than that of Ariane 4, the value was much higher than expected. Due to this high BH value, the 64-bit floating point number could not be represented by a 16-bit signed integer and so the conversion caused an overflow.
+The result of the overflow was interpreted as actual flight data by the OBC and according to this misinterpreted flight data, the rocket was off course. The OBC counteracted what it thought was a wrong angle of the rocket by trusting the engines to change course. Within a few seconds the forces of aerodynamics ripped the solid boosters appart from the core stage. This caused the self-destruct mechanism to trigger and the rocket self-destructed in a giant explosion shortly afterwards. The backup SRI, that should take over when errors occur in the active SRI, was executing the same code as the active SRI and had failed, for the same reasons, just before the active SRI.\\
+
+On the Ariane 4 rocket, the BH value was necessary after lift-off, but this had been changed in the Ariane 5 where the data was only crucial to the rocket at lift-off. Afterwards the data should not have had any influence on the rocket. but unfortunately it had not been predicted that the conversion could overflow and so the functionality of the BH value had been kept. If this functionality and the consequences of a different trajectory had been properly considered for the Ariane 5 rocket, this failure might have been avoided.
 \subsection{Therac-25 failure}
-In the 80's the company Atomic Energy of Canada Limited (AECL) manufactured a revolutionary radiation therapy machine, the Therac-25\cite{Leveson1993}, which could provide two different kinds of treatment. At that time, hospitals would typically have two different machines for the two different treatments that the Therac-25 machine could provide in one machine. The two treatments consisted of a beam of low-energy electrons which used scanning magnets to spread the electron beam, and a beam of higher-energy X-Ray photons which worked by rotating four components into the beam. The Therac-25 was build based on the previous Therac-20 and Therac-6 and some code from the Therac-20 was reused in the Therac-25. Unfortunately, there were no independent protective circuits for monitoring the electron beam or any interlocks to ensure safety with the Therac-25, which had been in the previous versions. AECL put more faith on software reliability than on hardware. \\ After the Therac-25 had been operational for a couple of years on several different hospitals, a series of incidents happened where patients were exposed to too much radiation and that led to six patients being seriously injured or killed. Friz Hager, the staff physicist at East Texas Cancer Center, tried to reproduce the errors they had experienced on the Therac-25, and was successful. When the user selected the X-Ray mode on the Therac-25, the machine began setting up for high-powered X-rays, which took about 8 seconds. If the user switched to Electron mode before the machine finished setting up for X-ray mode, i.e within 8 seconds, the turntable would not switch to the correct position causing an enormous amount of radiation to reach the patient.\\
-After solving the problem and releasing a new version of the Therac-25, another problem emerged where a patient was overdosed. This time it turned out to be a counter overflow. If a command was sent at the exact moment the counter overflowed, the machine would not set op properly and again, resulting in an overdose of radiation for the patient. \\
-After this incident with the Therac-25, it was found that some of the same software problems was found in Therac-20, but due to the hardware precautions on the Therac-20, the problems never occurred.
-\\ This example shows how important it is for critical systems to be well designed as well as well tested or verified.
+In the 80's the company Atomic Energy of Canada Limited (AECL) manufactured a revolutionary radiation therapy machine, the Therac-25\cite{Leveson1993}, which could provide two different kinds of radiation treatment. At that time, hospitals would typically have two different machines to be able to perform both of the treatments that the Therac-25 machine could perform.\\
+Radiation is used to kill cancer cells and so a patient is exposed to a beam of particles, or radiation, in specific doses that are designed to kill the specific type of cancer cells. Because cancer cells are more sensitive to radiation than normal cells, the radiation will kill the cancer cells but cause relatively minor damage to the normal tissue. However, radiation is damaging to normal tissue as well and it is therefore essential to specify the exact amount of radiation needed in a specific area to minimise the damage to the healthy cells.
+The first type of treatment was a electrons treatment, which kills shallow tissue, like skin cancer. The second treatment option of the Therac-25 was a beam of higher-energy X-ray photons which travels further into the tissue and are therefore better suited for cancer in deeper laying tissue. \\
+
+The Therac-25 was build based on the previous Therac-20 and Therac-6 which had been very successful. The Therac-20 and Therac-6 had both hardware safety interlocks to avoid failures but unfortunately this had been removed in the Therac-25 in favor of software based security. AECL put more faith on software reliability than on hardware. \\
+
+After the Therac-25 had been operational for a couple of years, a series of incidents happened where patients were over exposed to radiation which led to six patients being seriously injured or killed. Friz Hager, a physicist at East Texas Cancer Center, tested the Therac-25 rigorously to reproduce the errors they had experienced. He was able to demonstrate the error showing that if user selected the X-Ray mode on the Therac-25, the machine began setting up for high-powered X-rays, which took about 8 seconds. If the user switched to Electron mode before the machine finished setting up for X-ray mode, i.e within 8 seconds, the turntable that controlled the amount of radiation, would not switch to the correct position causing an enormous amount of radiation to reach the patient.\\
+After solving the problem and releasing a new version of the Therac-25, another problem emerged where a patient was overdosed. This time it turned out to be a counter overflow within the system and if a command was sent at the exact moment the counter overflowed, the machine would not set op properly and again, resulting in an overdose of radiation for the patient. \\
+After this incident with the Therac-25, it was found that some of the same software problems was found in Therac-20, but due to the hardware precautions the problems never occurred.
+This example shows how important it is for critical systems to be well designed as well as well tested or verified.
 
 \subsection{The patriot misile failure}
-During the Persian Gulf war on February 25, 1991, an American Patriot Misile failed to intercept an incomming Iraqi Scud misile which caused the Scud to hit an American Army barracks which injured around 100 people and killed 28 soldiers. The Patriot Misile failed due to an error when converting an interger, representing time since last boot, to a real number using a 24-bit register. As time since last boot increased, the chopping error increased due to the fact that the conversion was fixed to a 24-bit range. At the time of the incident, the Patriod Misile Battery had been up for approximately 100 hours, which caused the chopping inaccuracy to be around 0.34 seconds. The Scud travels at around 1.676 meters per second, and therefore in the 0.34 seconds it travels more than a half kilometer. The consequences of this restriction in  registers caused the precision to be inacurate and so the Patriot Misile did not struck the Scud as it was meant to.
+During the Persian Gulf war on February 25, 1991, an American Patriot Misile failed to intercept an incomming Iraqi Scud misile which caused the Scud to hit an American Army barracks injuring around 100 people and killing 28 soldiers.\\
 
-\section{Contributions} %TODO: Is this too much like the approach part?
-
+The Patriot Misile failed due to an error in converting an interger, representing time since last boot, to a real number using a 24-bit register. As time since last boot increased, the limited 24-bit register did not represent enough precision and so the chopping error increased. At the time of the incident, the Patriod Misile Battery had been on for approximately 100 hours, which caused the chopping inaccuracy to be around 0.34 seconds. The Scud travels at around 1.676 meters per second, and therefore in the 0.34 seconds it travels more than a half kilometer. The inaccuracy of the 24-bit representation caused the Patriot misile to perform inaccurate calculations and the consequences of this was that the Patriot misile missed its target Scud misile.
 %Intels-division bug \\
 %Toyota bremse-fejl\\
 \section{Learning goals}
