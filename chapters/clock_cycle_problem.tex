@@ -6,17 +6,16 @@ However, the original TAPS system was unable to generate semantically equivalent
 % TODO: remember to remove the addone example in the analysis chapter. Both the original one and the other ones that are using the names. Use something from seven segment example instead.
 The \texttt{addone} network is a simple cyclic network that consists of two processes communicating with eachother. The SMEIL code for this example can be seen in Listing \ref{lst:addone_smeil_example}. The \texttt{add} process receives a value and increments it by a constant parameter. The \texttt{id} process receives the value and passes it along on its output bus.
 An illustration of the network can be seen in Figure \ref{fig:addone_unclocked}.\\
-
 \begin{figure}
     \centering
     \begin{tikzpicture}
-       \node[main node, text width=.5cm] (1) {\small \texttt{add}};
-       \node[main node, text width=.5cm] (2) [right = 3cm of 1] {\texttt{id}};
+       \node[mycircle] (add) {$add$};
+       \node[mycircle] (id) [right = 3cm of add] {$id$};
 
-       \path[draw,thick, ->, bend right=30]
-       (1) edge node {} (2);
-       \path[draw,thick, ->, bend right=30]
-       (2) edge node {} (1);
+       \path[myarrow, smooth, bend right=30]
+       (add) edge node {} (id);
+       \path[myarrow, smooth, bend right=30]
+       (id) edge node {} (add);
 
        \node[align=center, below, text width=1.7cm] at (2.2,1.3){\footnotesize\texttt{channel d}};
        \node[align=center, below, text width=1.7cm] at (2.2,-0.9){\footnotesize\texttt{channel c}};
@@ -24,6 +23,7 @@ An illustration of the network can be seen in Figure \ref{fig:addone_unclocked}.
     \caption{The \texttt{addone} network consists of two proceses that communicate to each other on channel \texttt{c} and \texttt{d}.}
     \label{fig:addone_unclocked}
 \end{figure}
+
 As presented in Chapter \ref{chap:design} all possible communication combinations are represented in the generated \cspm{} code, however, the generated \cspm{} processes are not recursing, and so only one cycle of the loop is simulated in the \texttt{addone} example. This means that if the network was provided with an input that, after several clock cycles, resulted in a failure, this would not be caught by FDR4 because the \cspm{} code only represents one clock cycle. It was, therefore, necessary to extend TAPS so that network with internal states can be verified.\\
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
@@ -125,7 +125,7 @@ The process synchronises twice in a row because it does not perform a read in th
 
 Simple calculations in SMEIL can be included on the same line as the read and the write. An example of this can be seen in the \texttt{add} process in Listing \ref{lst:addone_smeil_example} where \texttt{constant} is added to the input value and written to the output bus on the same line.
 Listing \ref{lst:cspm_computation} shows two examples of dividing simple computation in \cspm{}. However, to simplify its implementation, TAPS does not distinguish the generated code based on the complexity of expressions.
-Therefore, these type of SMEIL structures will have to be divided into a separate read and write with TAPS.
+Therefore, these types of SMEIL structures will have to be divided into a separate read and write with TAPS.
 This means that the example in Listing \ref{lst:cspm_computation_simple} will be fitted to the general solution that can be seen in Listing \ref{lst:cspm_computation_letwithin}, even though it is unnecessarily complex. As previously explained, this is one of the disadvantages of auto-generated code.\\
 \begin{minipage}[t]{.98\linewidth}
     \centering
@@ -174,27 +174,32 @@ A clocked version of the \texttt{addone} network can be seen in Figure \ref{fig:
 \begin{figure}
 \centering
 \begin{tikzpicture}
-   \node[main node, text width=.5cm] (add) {\small \texttt{add}};
-   \node[main node, text width=.5cm] (id) [right = 4cm of add] {\texttt{id}};
-   \node[mythinsquare] (bufd) at (2.7, 1.7) {$Buf_d$};
-   \node[mythinsquare] (bufc) at (2.7, -1.5) {$Buf_c$};
-
-   \path[draw,thick, ->, bend right=25]
-   (add) edge node {} (bufc);
-   \path[draw,thick, ->, bend right=25]
-   (bufc) edge node {} (id);
+\node[mycircle] (add) {$add$};
+\node[mycircle] (id) [right = 4cm of add] {$id$};
+\node[mycircle, semithick] (bufd) at (2.7, 1.7) {$Buf_d$};
+\node[mycircle, semithick] (bufc) at (2.7, -1.5) {$Buf_c$};
 
 
-   \path[draw,thick, ->, bend right=25]
-   (id) edge node {} (bufd);
-   \path[draw,thick, ->, bend right=25]
-   (bufd) edge node {} (add);
+\path[myarrow, smooth, bend right=25]
+(add) edge node {} (bufc);
 
 
-   \node[align=center, below, font=\scriptsize] at (1.5,1.3){\texttt{d\_write}};
-   \node[align=center, below, font=\scriptsize] at (3.9,1.3){\texttt{d\_read}};
-   \node[align=center, below, font=\scriptsize] at (1.5,-0.8){\texttt{c\_write}};
-   \node[align=center, below, font=\scriptsize] at (3.9,-0.8){\texttt{c\_read}};
+
+\path[myarrow, smooth, bend right=25]
+(bufc) edge node {} (id);
+\path[myarrow, smooth, bend right=25]
+(id) edge node {} (bufd);
+
+
+\path[myarrow, smooth, bend right=25]
+(bufd) edge node {} (add);
+
+
+\node[align=center, below, font=\footnotesize] at (1.5,1.2){\texttt{d\_write}};
+\node[align=center, below, font=\footnotesize] at (3.8,1.2){\texttt{d\_read}};
+\node[align=center, below, font=\footnotesize] at (1.5,-0.7){\texttt{c\_read}};
+\node[align=center, below, font=\footnotesize] at (3.8,-0.7){\texttt{c\_write}};
+
 \end{tikzpicture}
 \caption{The clocked \texttt{addone} network have two proceses and two buffers which ensure the global synchronicity.}
 \label{fig:addone_clocked}
@@ -295,7 +300,46 @@ The monitor should read the value from the same channel as the process writes to
 
 A channel is not required to have both a write and a read end, but the values communicated on the channel should still be verified. Therefore the monitor must be in the write end of the channel to ensure that the monitor will be added, no matter if there is a process to read from it. \\
 
-The monitor processes are not part of the clocked network and do not synchronise together with the other processes. It would not be a problem to have them clocked, but there is no reason for it. The process reads a value when one is written to the channel and so it will verify all values no matter if it is clocked or not.
+The monitor processes are not part of the clocked network and do not synchronise together with the other processes. It would not be a problem to have them clocked, but there is no reason for it. The process reads a value when one is written to the channel and so it will verify all values no matter if it is clocked or not.\\
+
+An illustration of the clocked \texttt{addone} network with monitor processes can be seen in Figure \ref{fig:addone_clocked_monitor}.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}
+\node[mycircle] (add) {$add$};
+\node[mycircle] (id) [right = 4cm of add] {$id$};
+\node[mycircle, semithick] (bufd) at (2.7, 1.7) {$Buf_d$};
+\node[mycircle, semithick] (bufc) at (2.7, -1.5) {$Buf_c$};
+
+\node [mycircle, below right=8ex and -2ex of add] (Mc) {$M_{add}$};
+\path[myarrow, smooth, bend right=25]
+(add) edge node {}  coordinate[midway, black!50, draw, shape=circle, inner sep=0pt, minimum size=5pt](add_p) (bufc);
+ \draw (Mc) -- (add_p)  [black!50];
+
+
+\path[myarrow, smooth, bend right=25]
+(bufc) edge node {} (id);
+
+\node [mycircle, above left=8.5ex and -3ex of id] (Md) {$M_{id}$};
+\path[myarrow, smooth, bend right=25]
+(id) edge node {} coordinate[midway, black!50, draw, shape=circle, inner sep=0pt, minimum size=5pt](id_p) (bufd);
+\draw (Md) -- (id_p)  [black!50];
+
+
+\path[myarrow, smooth, bend right=25]
+(bufd) edge node {} (add);
+
+
+\node[align=center, below, font=\footnotesize] at (1.5,1.2){\texttt{d\_write}};
+\node[align=center, below, font=\footnotesize] at (3.8,1.2){\texttt{d\_read}};
+\node[align=center, below, font=\footnotesize] at (1.5,-0.7){\texttt{c\_read}};
+\node[align=center, below, font=\footnotesize] at (3.8,-0.7){\texttt{c\_write}};
+
+\end{tikzpicture}
+\caption{The clocked \texttt{addone} network as in Figure \ref{fig:addone_clocked}. The two monitor processes are connected to the \texttt{read} channels.}
+\label{fig:addone_clocked_monitor}
+\end{figure}
 
 \section{Generating Clocked Network}
 The structure of a clocked network is far more complex than the network structure presented in the initial version of TAPS. However, a lot of the added complexity is easy to auto-generate and therefore it does not pose a problem. A network will be generated the same way as in the initial version of TAPS. The monitor processes are synchronised with the processes first while leaving out the read which is now performed inside the process itself. The buffer processes are added to the network in the same way as the monitor processes. \\

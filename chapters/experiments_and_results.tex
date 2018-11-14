@@ -1,18 +1,111 @@
-results in running FDR4
-also showing that all example showed in the thesis does work in FDR4
+%!TEX root = ../main.tex
+
+% TODO: Writes something here!
 
 \section{Validation}
-    % Tests that the examples actually work
+% TODO: Write something here
 
 \subsection{Seven Segments Display Example}
+The seven segments example have been presented in different parts throughout this thesis. An illustration of the translated unclocked seven segments network can be seen in Figure \ref{fig:cspm-network}.\\
+
+The unclocked \cspm{} network consists of 12 different processes, all created so that not only the network is simulated correctly, but also so the assertions we wish to make, are in place. The input is represented by a triangle, since it transpiles from an SME process to a \cspm{} channel. Each of the dotted squares represents the network of synchronizations for each \texttt{time} processes, which in itself is a process in \cspm{}. For each network, we have the \texttt{time} processes and two monitor processes, for example, $H$, $M_{H_1}$ and $M_{H_2}$.
+\\
+
+% Errornous example
+\begin{listing}
+\begin{minted}[escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+channel clock_out_val : {0..131071}
+
+channel hours_out_first_digit : {0..3}
+channel hours_out_second_digit : {0..15}
+    |$\vdots$|
+
+Hours(hours_in) =
+let
+    hours = hours_in / 3600
+    |$\vdots$|
+
+Hours_out_first_digit_monitor(c) =
+    c ? x -> if 0 <= x and x <= 2 then SKIP else STOP
+Hours_out_second_digit_monitor(c) =
+    c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+
+\end{minted}
+\caption{Example of an erroneous version of the \texttt{Hours} process from the \cspm{} seven segment display example seen in Listing~\ref{lst:smeil} and in Listing~\ref{lst:cspm} in the appendix.}
+\label{lst:cspm_error}
+\end{listing}
+
+In order to show that the verification is accurate, the example in Listing~\ref{lst:cspm_error} contains an error that results in FDR4 failing the verification. In Listing~\ref{lst:cspm_error} the example is only able to handle an input that is below 24 hours. This is because the calculation in the \texttt{Hours} process does not handle the wrap around at the 24\textsuperscript{th} hour. This means that if the input represents more than 24 hours, the assertions will fail in FDR4 because one seven segment display suddenly has to display two digits instead of one. An example of such could be the input \texttt{131071}, which represents 36 hours, 24 minutes and 31 seconds, or 1 day, 12 hours, 24 minutes and 31 seconds. When trying to assert the code from Listing~\ref{lst:cspm_error} in FDR4, the assertion fails. The counterexample shows that the number 3 is communicated on \texttt{hours\_out\_first\_digit}, which is not allowed according to the monitor process on lines 12 and 13 in Listing~\ref{lst:cspm_error}.\\
+
+This example of failure shows how verifying the solution with a tool like FDR4 actually catches errors that the programmer might have overseen. In this case, the error is simply corrected by adding \texttt{\% 24} on the end of line 9 in Listing~\ref{lst:cspm_error} and can be seen corrected in Listing~\ref{lst:cspm} in the appendix at line 15. Now when we try to assert the example in FDR4, it passes. By using modulo on the result, we ensure that we still get the accurate time of day, no matter how many full days the input represents.
+The full SMEIL and \cspm{} code for the unclocked seven segment display example can be seen in Listing~\ref{lst:smeil} and in Listing~\ref{lst:cspm} in the appendix.
+
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}
+    \node [mytriangle] (I) at (0, 0) {$I$};
+
+    %%%%
+
+    \node [mycircle, above right=25ex and 25ex of I] (H) {$H$};
+
+    \node [mysquare, above right=1.5ex and 25ex of H] (H_d1) {$D_{H_1}$};
+    \node [mysquare, below right=1.5ex and 25ex of H] (H_d2) {$D_{H_2}$};
+    \node [mycircle, above right=3ex and 7.5ex of H] (H_m1) {$M_{H_1}$};
+    \node [mycircle, below right=3ex and 7.5ex of H] (H_m2) {$M_{H_2}$};
+    \node [draw, red, thick, dotted, fit=(H)(H_m1)(H_m2), inner sep=0.5cm] {};
+    \node [right=15ex of H, red] {$N_{hours}$};
+
+    \draw [myarrow, smooth] (I) to[out=0, in=180] (H);
+
+    \draw [myarrow, smooth] (H) to[out=0, in=180] coordinate[midway, black!50, draw, shape=circle, inner sep=0pt, minimum size=5pt](H_mp1) (H_d1);
+    \draw (H_m1) -- (H_mp1)  [black!50];
+    \draw [myarrow, smooth] (H) to[out=0, in=180] coordinate[midway, black!50, draw, shape=circle, inner sep=0pt, minimum size=5pt](H_mp2) (H_d2);
+    \draw (H_m2) -- (H_mp2)  [black!50];
+
+    %%%%
+
+    \node [mycircle, right=23.2ex of I] (M) {$M$};
+
+    \node [mysquare, above right=1.5ex and 25ex of M] (M_d1) {$D_{M_1}$};
+    \node [mysquare, below right=1.5ex and 25ex of M] (M_d2) {$D_{M_2}$};
+    \node [mycircle, above right=3ex and 7.5ex of M] (M_m1) {$M_{M_1}$};
+    \node [mycircle, below right=3ex and 7.5ex of M] (M_m2) {$M_{M_2}$};
+    \node [draw, red, thick, dotted, fit=(M)(M_m1)(M_m2), inner sep=0.5cm] {};
+    \node [right=15ex of M, red] {$N_{minutes}$};
+
+    \draw [myarrow, smooth] (I) to[out=0, in=180] (M);
+
+    \draw [myarrow, smooth] (M) to[out=0, in=180] coordinate[midway, black!50, draw, shape=circle, inner sep=0pt, minimum size=5pt](M_mp1) (M_d1);
+    \draw (M_m1) -- (M_mp1)  [black!50];
+    \draw [myarrow, smooth] (M) to[out=0, in=180] coordinate[midway, black!50, draw, shape=circle, inner sep=0pt, minimum size=5pt](M_mp2) (M_d2);
+    \draw (M_m2) -- (M_mp2)  [black!50];
+
+    %%%%
+
+    \node [mycircle, below right=24.5ex and 24.5ex of I] (S) {$S$};
+
+    \node [mysquare, above right=1.5ex and 25ex of S] (S_d1) {$D_{S_1}$};
+    \node [mysquare, below right=1.5ex and 25ex of S] (S_d2) {$D_{S_2}$};
+    \node [mycircle, above right=3ex and 7.5ex of S] (S_m1) {$M_{S_1}$};
+    \node [mycircle, below right=3ex and 7.5ex of S] (S_m2) {$M_{S_2}$};
+    \node [draw, red, thick, dotted, fit=(S)(S_m1)(S_m2), inner sep=0.50cm, inner ysep=0.5cm] {};
+    \node [right=15ex of S, red] {$N_{seconds}$};
+
+    \draw [myarrow, smooth] (I) to[out=0, in=180] (S);
+
+    \draw [myarrow, smooth] (S) to[out=0, in=180] coordinate[midway, black!50, draw, shape=circle, inner sep=0pt, minimum size=5pt](S_mp1) (S_d1);
+    \draw (S_m1) -- (S_mp1)  [black!50];
+    \draw [myarrow, smooth] (S) to[out=0, in=180] coordinate[midway, black!50, draw, shape=circle, inner sep=0pt, minimum size=5pt](S_mp2) (S_d2);
+    \draw (S_m2) -- (S_mp2)  [black!50];
+  \end{tikzpicture}
+  \caption{A seven segment display clock network in \cspm{}. $I$ represents the input channel. $N_{hours}$, $N_{minutes}$ and $N_{seconds}$ represent the network processes with $H$, $M$ and $S$ as the \texttt{time} processes. The results from the \texttt{time} processes are communicated to the displays. The displays are represented by a square since they are not actual \cspm{} processes. Each display communication also has a monitor process which assert the legal communication values.}
+  \label{fig:cspm-network}
+\end{figure}
 
 
-% TODO: Maybe add the seven segments generated figure here.
-
-
-% TODO: Make sure that examples of the failure in the seven segment example are included somewhere, as well as a working example.
-
-
+\subsection{Addone Example}
+The \texttt{addone} example have been introduced in Chapter \ref{chap:clock} and as explained, it does not translate well in the initial version of TAPS. Illustrations of the clocked network with monitor processes can be seen in Figure \ref{fig:addone_clocked_monitor} in Chapter \ref{chap:clock}.
 
 \section{Problem Size Experiments}
 
@@ -21,16 +114,6 @@ also showing that all example showed in the thesis does work in FDR4
 \subsection{Clocked Experiment}
 
 \subsection{Results}
-
-
-
-
-
-\section{Input channel or Data Generator Process Experiment}
-
-\subsection{Clocked Seven Segment Example}
-
-\subsection{Clocked Linedetect Example}
 
 
 
