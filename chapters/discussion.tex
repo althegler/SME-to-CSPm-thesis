@@ -1,17 +1,11 @@
 
 \section{Usability of TAPS}
+TAPS is still in early development and more examples must be verified and corner cases must be handled. In spite of this, it presents the advantages gained from automatic translation from SMEIL to \cspm{}. To my knowledge, transpiling from a hardware description language to a specification language like CSP have not been done successfully before and the advantages of such a system are many. When using TAPS, it is not necessary to develop a test bench for the system and it is not necessary to develop the specification seperately from the hardware model. The workflow from hardware model to formal verification have been simplifies dramatically with TAPS. I believe that it will increase the usage of hardware description languages to be able to perform formal verification with no extra development steps. \\
 
-% Snak om at TAPS er super og at det er revolutionerende at man ikke skal til at lave de her testing selv og at man ikke skal lave specifikationerne selv. Snak om det brian sagde med at jeg automatisere at lave test hvilket også simplificere arbejdsgangen samtidigt med at det er meget mere sikkert at have det formelt verificeret end at have det testet.
-% Something about how TAPS can be used and the limitations in the simulation and clock cycles and such
+There are limitations to TAPS and it is possible for failures to happen with systems verifies with TAPS. The bottlenecks of the verification lies both in the simulation values as well as in the number of verified clock cycles. The values verified in FDR4 is based on the observed values from the simulation and so if the SMEIL simulation is not representing all possible values, the verification will not be able to verify these. It will be difficult to find a balance between how long to simulate the SMEIL network and how critical failures can be. In some systems it will not be possible to know if all corner cases have been found in the simulation but FDR4 might provide insight into some corner cases missing in the simulation. The same balance can be difficult to find between how many clock cycles to simulate and how devestating failures can be. The consequence of choosing too low a number of clock cycles to verify can be failures in the system that FDR4 was not able to verify because it never verified that specific state machine where the failure happens.
+The answer to this dilemma will be different in all cases and it will ultimately be up to the user to choose. \\
 
-% Noget med at det er kun fordi smeil er et subset af csp at det kan lade sig gøre, og at det er essentielt at der kan laves generelle strukture i cspm.
-
-The flexibility of SMEIL also increase the complexity for the system, but TAPS is able to recognise and take action of all the different SMEIL structures. T
-% (from analysis)
-% In the SME model, processes never terminate, but when simulating an SMEIL program, it is necessary to terminate the simulation at some point, but it should simply be seen as a snapshot of the process and not that the process terminates when the simulation ends.
-% The number of clock cycles, the simulation is run for, is specified via the command line tool.
-% There is, of course, limitations to the simulation, and it is important to note that the simulation is a simple tool to simulate the running system, however it does necessary provide all possible results of the system. If a system fails at a 1000 clock cycles, but the system is only simulated for 100 clock cycles, then we would not know about the failure. If the translation use the observed values from a simulation, the user need to know the limitations of the simulation.
-% % If the simulation is not passing through enough clock cycles, the verification might be inadequate. Since the verification builds on the observed values, the simulation needs to be long enough such that the whole possible range of input values is exhausted. %TODO: Where should I add this? Removed it from the background section
+The reason it is possible to create the relatively simple translations from SMEIl to \cspm{} lies in the fact that SME is defined from the CSP language and therefore, as previosuly mentioned, all SME models will have an equivalent CSP model. Having the same basis on both sides of the translation results in a much smoother translation.
 
 \section{Clocked or Unclocked \cspm{} Systems}
 The initial idea of the design of TAPS was to build a system which did not have to enforce a global synchronus clock structure since it would create a much more complex structure. As the implementation of the initial version of TAPS progressed it was clear that the design was too simple. The set of verifiable problems in the initial version of TAPS are too small to have an actual impact.\\
@@ -34,4 +28,7 @@ When TAPS become more advanced it should definitely be extended to also include 
 There will of course be a lot of challenges in handling the data and communication that spans across the SME implementations in co-simulation, and even more so, the general network in \cspm{} will also be a great challenge. However, since it is very precisely defined which buses communicate across the two implementations, it might help with generating the \cspm{} network in a co-simulated environment.\\
 
 Focusing on pure SMEIL programs have definitely led to a more manageable set of problems and extending this to co-simulated problems seems like the perfect next step.
+
+\section{Verification FDR4}
+FDR4 is a 
 
