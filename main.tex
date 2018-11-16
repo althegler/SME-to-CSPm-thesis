@@ -43,9 +43,28 @@
 \maketitle
 
 \pagenumbering{roman}
+
+
 \begin{abstract}
 \begin{doublespace}
-Abstract
+This thesis introduces a method to simplify hardware modeling and verification
+thereof in order for software programmers to, more easily, meet the demands of
+the growing embedded device industry. The system TAPS is presented, which is a
+system for transpiling from the new SME Implementation Language into the
+machine-readable CSP language, \cspm{}.
+The translated \cspm{} code is augmented with assertion statements using
+observed values from the SME model. Utilising the formal verification
+properties of the FDR4 refinement tool, the assertion statements of the
+translated \cspm{} code is formally verfied.
+An extension to the initial version of TAPS is introduced in the thesis. The
+extension provides the possibility of modeling a global synchronous clock in
+\cspm{}, providing the possibility of verifying the internal state of the
+\cspm{} code seperately for each clock cycle.
+A small example consisting of a
+seven segment display clock network is presented to introduce how to verify the
+widths of the channels in the network. A small cyclic network is presented to
+show the posibilities of verifying separate clock cycles with the extended
+version of TAPS.
 \end{doublespace}
 \end{abstract}
 
@@ -63,9 +82,9 @@ Abstract
 %%%%%%%%%%%%%%%%%%%
 
 % TODO: Add somewhere some stuff about referencing your own paper and what sectons use stuff from the paper.
-%
-% \chapter{Introduction}
-% \input{chapters/introduction}
+
+\chapter{Introduction}
+\input{chapters/introduction}
 %
 % % \chapter{Notations and Abbreviations}
 % % \input{chapters/conventions.tex}
@@ -97,18 +116,18 @@ Abstract
 % \label{chap:clock}
 % \input{chapters/clock_cycle_problem}
 %
-\chapter{Experiments and results}
-\label{chap:exp}
-\input{chapters/experiments_and_results}
+% \chapter{Experiments and results}
+% \label{chap:exp}
+% \input{chapters/experiments_and_results}
 %
-\chapter{Discussion}
-\input{chapters/discussion}
+% \chapter{Discussion}
+% \input{chapters/discussion}
 %
 % \chapter{Future work}
 % \input{chapters/future_work}
 %
-% \chapter{Conclusion}
-% \input{chapters/conclusion}
+\chapter{Conclusion}
+\input{chapters/conclusion}
 %
 % \chapter*{Acknowledgements}
 % % Thanks to Uwe Zimmermann who made the seven segment example in TikZ on \url{http://www.texample.net/tikz/examples/segment-display/}.
