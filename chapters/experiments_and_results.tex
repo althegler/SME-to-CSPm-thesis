@@ -214,31 +214,96 @@ For each verification, three assertions are performed within the seven segment d
 
 Figure \ref{fig:unclocked_states} presents the results of the \texttt{number of states} property. From this graph, it is very clear how the state space increases linearly with the input range. This result means that FDR4 is not able to compress the state space further with the increase of input. A reason for FDR4 not providing any additional state space compression could be that the example is too simple and since no input is repeated, the number of states remain the same. This does, however, show how a problem can quickly become very large within FDR4 which is something a user must consider when choosing the data to verify.
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/15-11-2018/unclocked_number_of_states.jpg}
-\caption{y}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/unclocked_number_of_states.jpg}
+\caption{Graph of the \texttt{number of states} property from the unclocked seven segments experiment.}
 \label{fig:unclocked_states}
 \end{figure}
 \paragraph{Verification time}
 In Figure \ref{fig:unclocked_verification} the \texttt{verification time} results can be seen. The graph represents the verification time in seconds for each increase in the input range. As can be seen the verification time increase exponentially with the input values. Since the number of states visited is increasing linearly it can seem odd that the verification time does not follow that same pattern. However, besides the refinement checking of the GLTS which will increase with the number of states, FDR4 must compile the network and generate the GLTS. It is reasonable to expect that the larger the state space, the more effort for FDR4 to complete all the steps of the verification. Therefore these results are consistent with what could be expected.
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/15-11-2018/unclocked_verification_time.jpg}
-\caption{x}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/unclocked_verification_time.jpg}
+\caption{Graph of the \texttt{verification time} property from the unclocked seven segments experiment.}
 \label{fig:unclocked_verification}
 \end{figure}
 \paragraph{Maximum resident set size}
 The result from this property can be seen in Figure \ref{fig:unclocked_resident_size}. These results are not fitted to a perfect line as well as the other two experiment properties. It is clear that the amount of memory used for the verification grows with an increase in the input range. It is also somewhat consistent until around 10000 in upper bound limit. This fluctuation could be caused by some internal structure in FDR4 or it could be a result of other requirements within the machine that is running the verification. Unfortunately, FDR4 does not provide a lot of information about the internal workings and so it can be very difficult to examine these results further. However, the results are overall consistent with the results from both \texttt{number of states} and \texttt{verification time}.
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/15-11-2018/unclocked_maximum_resident_set_size.jpg}
-\caption{y}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/unclocked_maximum_resident_set_size.jpg}
+\caption{Graph of the \texttt{maximum resident set size} property from the unclocked seven segments experiment.}
 \label{fig:unclocked_resident_size}
+\end{figure}
+
+\subsection{Clocked Experiment}
+The full code for the clocked seven segments display example can be seen in Listing \ref{lst:cspm} in Appendix. %TODO: Figure out how this should be presented. One appendix or several?
+As the unclocked seven segments display example the clocked example also consists of three \texttt{time} processes with associated monitor processes.
+In order to make the clocked seven segment experiment equivalent with the unclocked seven segments example, the \texttt{Clock} process in the clocked network only verifies one clock cycle and therefore the two network should be verifying equally.
+\paragraph{Number of states}
+In Figure \ref{fig:clocked_states}the results of the clocked \texttt{number of states} property can be seen for each \texttt{time} verification. As can be seen they differ quite a lot. \texttt{number of states} for \texttt{hour} seems to increase every 3600, and since there is 3600 seconds in one hour, this means that every time the input represents an extra hour, the number of states increase. The \texttt{number of states} for \texttt{minutes} increase linearly until exactly 5339 and then stays at 134 for the rest of the verifications. It is very clear from this result that the number of states reach its maximum when the input range represents the maximum amount of minutes. When the input range is \{0..5339\} the maximum of 59 minutes are represented. The \texttt{number of states} for minutes are constant at 134, however if the input range was decreased to \{0..59\} the same result could be seen. These results make it clear that FDR4 is able to decrease the number of states to the number of hours, minutes and seconds represented by the input.
+\begin{figure}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/clocked_number_of_states.jpg}
+\caption{Graphs of the three \texttt{number of states} properties from the clocked seven segments experiment.}
+\label{fig:clocked_states}
+\end{figure}
+\paragraph{Verification time}
+In Figure \ref{fig:clocked_verification} the clocked \texttt{verification time}
+results can be seen.
+This graph is very similar to the \texttt{verification time} results for the unclocked experiment but with a slightly different increase. However, values also increase exponentially with the input which, as explained above, is to be expected. What is important to notice is that even though the graph is similar to the unclocked \texttt{verification time} graph, the number of seconds are very different than in the first experiment. The reason for this is probably the decrease in \texttt{number of states} which will be dicussed further below.
+\begin{figure}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/clocked_verification_time.jpg}
+\caption{Graph of the \texttt{verification time} property from the clocked seven segments experiment.}
+\label{fig:clocked_verification}
+\end{figure}
+\paragraph{Maximum resident set size}
+Figure \ref{fig:clocked_resident_size} shows the clocked \texttt{maximum resident set size}. This graph shows the same situation as the \texttt{verification time} graph. The graph is similar to that of the unclocked \texttt{maximum resident set size} with a slightly more flattend increase and not nearly as much fluctuation. What differs with this graph is again the low values compared to the unclocked \texttt{maximum resident set size} values. This is also discussed further below.
+\begin{figure}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/clocked_maximum_resident_set_size.jpg}
+\caption{Graph of the \texttt{maximum resident set size} property from the clocked seven segments experiment.}
+\label{fig:clocked_resident_size}
+\end{figure}
+\subsection{Results}
+% TODO when I know I can use this example
+As explained above the \texttt{number of states} property from the unclocked seven segments experiment showed to be equal for all three \texttt{time} verifications whereas for the clocked experiment, the \texttt{number of states} varied between the three verifications. Figure \ref{fig:combined_states} represents all four graphs, however only two can be seen. %TODO: Make sure the actual graph used also looks like this.
+The reason for this is that the values of the clocked \texttt{number of states} are so much lower than the unclocked results that they cannot be represented seperately. In Figure \ref{fig:combined_verification} the combined \texttt{verfication time} graph can be seen, where it is also clear that the clocked experiment verifies much faster than the unclocked. Again it is not possible to display the actual values of the clocked version because they are too low to be displayed properly. The same case can be seen in Figure \ref{fig:combined_resident_size} which represents the combined \texttt{maximum resident set size}. Both \texttt{verification time} and \texttt{resident set size} seem to be affected by the \texttt{number of states} property. This is clear because the
+\texttt{number of states} is the only internal FDR4 property of the experiment. Unfortunately, it can be quite difficult to investigate why the clocked version performs so much better than the unclocked. It might be that the two networks where not equivalent and that the clocked system did not perform the same verification that the unclocked system did. However, when looking at the trace of both network within FDR4, both verifies the full input range, as expected. The visualiser ProBe also shows equivalent traces and the two network behave identically on failures. The only difference between the two networks are that the clocked system are clocked and so all processes synchronise together before continuing and they are recursive where the unclocked network terminates after one clock cycle, but since the clocked network only simulate one clock cycle, the two network should still be equivalent. These differences does not affect the actual values verified or the result of the verification. As previously explained when introducing the clocked version of TAPS in Chapter \ref{chap:clock} the increase in complexity might increase the verification time in FDR4, but in this case it is the opposite. \\
+
+As the two network seem equivalent in input range and verification, the reason for the difference in performance might lie in what the \texttt{number of states} propery shows. That FDR4 is able to compress the state space in the clocked experiment while not being able to perform the same compression in the unclocked experiment. FDR4 provides a machine structure viewer which can provide information about how FDR4 represents the processes and how effective the compression is. When looking at the two different results from FDR4 it is becomes clear why the clocked experiment performs so much better than the unclocked experiment. In Figure \ref{fig:unclocked_compression} and Figure \ref{fig:clocked_compression} the result of the machine structure viewer can be seen. In the unclocked result in Figure \ref{fig:unclocked_compression} the network
+\texttt{N\_hours} is represented by a high-level machine with 12 formats, 77 rules and 34 leaf machines. A high-level machine means a process with subprocesses. The only information we need about formats and rules are that the more there are, the more complex the machine. \\
+
+Because all events are hidden in the network the next machines are unknown but the second last line shows that the compression algorithm \texttt{sbisim} have been applied to \texttt{Hours(0)} but it also shows that it was not able to reduce the number of states or transitions. \\
+
+In Figure \ref{fig:clocked_compression} the \texttt{N\_hours} machine also includes compression information. It provides an estimate that the reduced machine is around 17\% the size of the original machine. And as can be seen on the second last line, the \texttt{sbisim} compression algorithm is not applied to \texttt{Hours(0)} but to \texttt{Hours(..)} where FDR4 is able to compress from 36 states to 6 states. This clearly shows that because of the compression FDR4 is able to perform on the clocked system, the performance also increase dramastically.
+It is quite surpricing that the clocked experiment have such a drastic different and that it actually performs better than the unclocked version. As the network increase in complexity the state space should also increase. It is not possible to learn exactly why FDR4 is able to perform compression on the clocked network and not on the unclocked. There is a lot of different aspects to compression and the way FDR4 structures the network and generate the GLTS. Somehow the clocked network is structured in a way that fits better into the compression algorithm and therefor the performance is better. 
+\begin{figure}
+    \includegraphics[width=0.98\textwidth]{./figures/unclocked_compression.jpg}
+\caption{Screen dump of the results of the unclocked network in the FDR4 machine structure viewer.}
+\label{fig:unclocked_compression}
+\end{figure}
+\begin{figure}
+    \includegraphics[width=0.98\textwidth]{./figures/clocked_compression.jpg}
+\caption{Screen dump of the results of the clocked network in the FDR4 machine structure viewer.}
+\label{fig:clocked_compression}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/combined_number_of_states.jpg}
+\caption{Graphs of the \texttt{number of states} properties combined from both the unclocked and clocked seven segments experiment.}
+\label{fig:combined_states}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/combined_verification_time.jpg}
+\caption{Graphs of the \texttt{verification time} properties combined from both the unclocked and clocked seven segments experiment.}
+\label{fig:combined_verification}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/combined_maximum_resident_set_size.jpg}
+\caption{Graphs of the \texttt{maximum resident size set} properties combined from both the unclocked and clocked seven segments experiment.}
+\label{fig:combined_resident_size}
 \end{figure}
 
 
 
-\subsection{Clocked Experiment}
-% TODO when I know if I can use this example
-\subsection{Results}
-% TODO when I know I can use this example
 
 % TODO: I should also still mention something about how the increase in number of processes was or was not feasible.
 
