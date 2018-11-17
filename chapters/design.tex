@@ -283,7 +283,11 @@ Translating the SMEIL network into an equivalent \cspm{} network is difficult an
 
 
 \section{Translating the SME Clock}
-CSP was not initially developed for hardware modeling, and therefore it is not evident how to handle the clock cycle in the translation. However, clock cycles is an essential part of hardware modeling and therefore it is crucial to design a solution that represents the simulated clock cycles from the SMEIL program. The observed values of the SMEIL simulation represents all values communicated through all the simulated clock cycles. By using these observed values within the generated \cspm{} code, FDR4 will verify all possible communication combinations within these observed values. For example, if a small system %TODO: create a figure like the one on page 122 in bujo
+CSP was not initially developed for hardware modeling, and therefore it is not evident how to handle the clock cycle in the translation. However, clock cycles is an essential part of hardware modeling and therefore it is crucial to design a solution that represents the simulated clock cycles from the SMEIL program. The observed values of the SMEIL simulation represents all values communicated through all the simulated clock cycles.
+
+% TODO: Omskrive det her så det giver mening. 
+By using these observed values within the generated \cspm{} code, FDR4 will verify input values for several clock cycles...
+all possible communication combinations within these observed values. For example, if a small system %TODO: create a figure like the one on page 122 in bujo
 
 Therefore, even though there the translation is between an SME model, where the clock is crucial, and a \cspm{} model, which do not have a clock structure, the translation will still represent the correct state space for FDR4 to verify.
 
