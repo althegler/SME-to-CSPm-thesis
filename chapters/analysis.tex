@@ -1,21 +1,12 @@
 %!TEX root = ../main.tex
-
-% This section should contain information about the problem, but not the solution. I am analysing the problem and explaining what will be problematic when translating from SMEIL to CSPm.
-
-% Der er tre dele i SMEIL jeg har interesse i:
-% Three components: Behavioral, structural, meta data
-
-% Jeg skal ikke fortælle hvordan jeg har gjort det men analyse af problemet og ikke af løsningen. Jeg skal blot beskrive problemstillingerne.
-In this section, I will analyse the differences between the SMEIL model and the \cspm{} language. I will also introduce important parts of the SMEIL structure and grammar to provide an understanding of the different challenges.
+In this section, I will analyse the differences between the SMEIL model and the \cspm{} language. I will also introduce important parts of the SMEIL structure and grammar to provide an understanding of the different challenges that lie in translating a hardware model to a specification model.
 \section{Verification}
 \label{sec:analysis_verification}
-% TODO: Still not sure I introduce the problem properly
-The reason for translating SMEIL to \cspm{} is to use the refinement checking properties of the CSP language. By loading a \cspm{} program into FDR4, it is possible to utilise these properties on the SMEIL network. Before I can design the transpiler and generate the \cspm{} code, it is essential to examine what kind of properties would be beneficial to verify in hardware. It is also relevant to explore how these properties can be verified with FDR4. As mentioned in Chapter \ref{chap:background}, FDR4 provides refinement checking with different models, like the traces and failures models. FDR4 is often used for deadlock checking, but since the SME model guarantees deadlock freedom, it is unnecessary to use this property within FDR4. It might, however, be interesting to perform deadlock checking to verify that the translation was done correctly. The generated \cspm{} code should also be deadlock free.\\
+The reason for translating SMEIL to \cspm{} is to use the refinement checking properties of the CSP language. By loading a \cspm{} program into FDR4, it is possible to utilise these properties on the SMEIL network. Before I can design the transpiler and generate the \cspm{} code, it is essential to examine what kind of properties would be beneficial to verify in hardware. It is also relevant to explore how these properties can be verified with FDR4. As mentioned in Chapter \ref{chap:background}, FDR4 provides refinement checking with different models, like the traces and failures models. FDR4 is often used for deadlock checking, but since the SME model guarantees deadlock freedom, it is unnecessary to use this property within FDR4. It might, however, be interesting to perform deadlock checking to verify that the translation was done correctly. Since the SMEIL model cannot deadlock, the generated \cspm{} code should also be deadlock free.\\
 
 In hardware, it is typically relevant to verify that the communication on a bus does not exceed a certain range, or that the sum of multiple signals do not exceed a specific value. A bus might be able to carry unexpected data, and being able to formally verify that this never happens, is of great value. Therefore it would be interesting to verify that certain values are never communicated on a specific channel, or that they are the only values communicated on the channel. When designing hardware, each component is designed separately, and usually several components are combined to create a larger network with more functionality. When modeling a small component, it can be difficult to predict the possible input values for the component, especially when parallel structures are involved. It is therefore interesting to be able to verify that a specific range of input values will not cause failures in the parallel model.\\
 
 To provide an understanding of the type of problem that this kind of verification would be able to solve, an example is introduced in Section \ref{sec:example-seven_segment_intro}, which will be referred to several times throughout this thesis.
-
 \subsection{Seven-Segment Example}
 \label{sec:example-seven_segment_intro}
 A seven-segment display is an electronic display device which is used in digital clocks or other devices that display numerals. An example of a typical digital clock display can be seen in Figure~\ref{fig:6_displays}. As the name states, each display consists of seven-segments which can be lit up in patterns to display symbols, like numerals.
@@ -48,7 +39,7 @@ In this example, we wish to model a typical digital clock that is able to calcul
 
 When writing hardware models in pure SMEIL, one of the possible ways to generate input for the network is to create a data generator process. This process, called the \texttt{clock} process in our example, is instantiated with a start time and is incremented by 1 for each simulation cycle, representing a one second increase. The result of the \texttt{clock} process is communicated on the process output bus where the three \texttt{time} processes are listening. These \texttt{time} processes receive the number and by the use of simple integer arithmetic, calculate the hours, minutes, and seconds since midnight respectively. It is obvious that at some point in time, each \texttt{time} process will calculate a two-digit result, for example at 12 hours or 42 seconds. However, a single seven-segment display can only show one digit between 0 and 9. Therefore we need two seven-segment displays for each \texttt{time} process in order to show the correct time in a 24-hour interval. Each \texttt{time} process has an output bus with two individual channels that represent the communication to each different display. The number representing either hours, minutes, or seconds are separated into first and second digit, by $\lfloor \frac{x}{10} \rfloor$ and $(x \text{ mod } 10)$. These six different results are then communicated onto the six different channels which represent the six different seven-segment displays. The outline of this network can be seen in Figure~\ref{fig:smeil_network} where the network consists of four processes. The data generator process, \textit{I}, which creates the input that is broadcast out on the network. The three \texttt{time} processes, hours (\textit{H}), minutes (\textit{M}), and seconds (\textit{S}) are the processes described above, which calculate each part of the current time. The outputs are communicated on the six outgoing channels.
 \\
-%TODO: Figure out if I should change the python example to also show the actual result
+
 \begin{listing}
 \begin{minted}{python}
 from math import floor
@@ -59,9 +50,9 @@ def time(time_since_midnight):
     seconds = time_since_midnight - hours * 3600 - minutes * 60
     return [hours, minutes, seconds]
 
-print(time( 57100)) # =>  15:51:40
-print(time(  3601)) # =>  01:00:01
-print(time( 66666)) # =>  18:31:06
+print(time( 57100)) # =>  [15,51,40] or 15:51:40
+print(time(  3601)) # =>  [01,00,01] or 01:00:01
+print(time( 66666)) # =>  [18,31,06] or 18:31:06
 \end{minted}
 \caption{A Python implementation of the seven-segment display example.}
 \label{lst:python}
@@ -275,8 +266,7 @@ In \cspm{} there is no network structure, but \cspm{} does have a structure for 
 While it is possible to model equivalent communication by using these operators it quickly becomes complex, because the operators only syncronise two processes at a time. It is a challenge to ensure that an SMEIL network is translated to an equivalent \cspm{} structure, and it requires careful planning to provide a complete translation of all the relevant information. However it is possible due to the simple network structure in SMEIL.
 \subsubsection{Buses and Channels}
 \label{bus_and_channels}
-As previously explained, an SMEIL bus defines a collection of channels which are used for all communication between the processes. Each channel has a type describing the communicated data and can be initialised with an initial value. The syntax of a read or write in SMEIL is \texttt{c.x} where the \texttt{c} specifies the bus and \texttt{x} specifies the channel within the bus.
-% TODO: Add an example here! it is difficult to understand without more context
+As previously explained, an SMEIL bus defines a collection of channels which are used for all communication between the processes. Each channel has a type describing the communicated data and can be initialised with an initial value. The syntax of a read or write in SMEIL is \texttt{bus.channel} where \texttt{bus} specifies the bus and \texttt{channel} specifies the channel within the bus. An example of this can be seen in the \texttt{add} process in Listing \ref{lst:smeil_communication_example} where \texttt{input.val} refers to the \texttt{input} bus and \texttt{val} refers to the channel within the bus.
 A bus in itself does not have a type or values, but all channels within a bus have an identifier, types, and values, but the same types do not have to apply to all channels in a single bus. An SMEIL bus does have an identifier which is used for referencing the bus. All channels within a bus are connected to the process at the same time, and it is up to the developer to call the correct channel within the bus for either a read or a write.
 An example of a bus definition in SMEIL can be seen below. The bus is identified with the name \texttt{day} and it consists of three channels, \texttt{hours}, \texttt{minutes}, and \texttt{seconds}. Each channel is defined with a type, \texttt{u5} or \texttt{u6} and a range, 0 through 23 or 0 through 59.
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}

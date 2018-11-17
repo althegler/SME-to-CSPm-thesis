@@ -265,7 +265,7 @@ Figure \ref{fig:clocked_resident_size} shows the clocked \texttt{maximum residen
 \end{figure}
 \subsection{Results}
 % TODO when I know I can use this example
-As explained above, the \texttt{number of visited states} property from the unclocked seven segments experiment showed to be equal for all three \texttt{time} verifications whereas, for the clocked experiment, the \texttt{number of visited states} varied between the three verifications. Figure \ref{fig:combined_states} represents all four graphs, however, only two can be seen. %TODO: Make sure the actual graph used also looks like this.
+As explained above, the \texttt{number of visited states} property from the unclocked seven segments experiment showed to be equal for all three \texttt{time} verifications whereas, for the clocked experiment, the \texttt{number of visited states} varied between the three verifications. Figure \ref{fig:combined_states} represents all four graphs, however, only two can be seen. %TODO: Make sure the new graph used also looks like this.
 The reason for this is that the values of the clocked \texttt{number of visited states} are so much lower than the unclocked results that they cannot be shown separately in the graph. \\
 
 In Figure \ref{fig:combined_verification} the combined \texttt{verification time} graph can be seen. Here, the difference also shows very clearly. The clocked experiment verifies much faster than the unclocked. Again it is not possible to display the actual values of the clocked version in the graph because they are too low to be displayed properly. The same case can be seen in Figure \ref{fig:combined_resident_size} which represents the combined \texttt{maximum resident set size}. \\
@@ -332,7 +332,6 @@ The required dependencies for generating the ANTLR4 parser, running TAPS and ver
 ANTLR4 and FDR4 can both be downloaded from their websites where installation instructions are also provided.
 The ANTLR4 project can be found at \url{https://www.antlr.org/} and the FDR4 Project at \url{https://www.cs.ox.ac.uk/projects/fdr/}.\\
 It is also necessary to download the ANTLR4 Python runtime from \url{https://pypi.org/project/antlr4-python2-runtime/}.
-
 Assuming that an ANTLR4 alias has been created as the ANTLR4 installation suggest, the parser and lexer can be generated with ANTLR4 using the command: {\ttfamily antlr4 -Dlanguage=Python2 - visitor -no-listener Smeil.g4.}
 This will create all the required parser and lexer files as well as the visitor methods. This step is only necessary if the .g4 grammar file has been modified.\\
 

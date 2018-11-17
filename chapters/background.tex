@@ -1,20 +1,15 @@
 %!TEX root = ../main.tex
-In this chapter, I introduce the SME model and the SME Implementation Language, SMEIL. I will also introduce CSP as well as \cspm{} and the FDR4 tool.
-% TODO: Add more here. it is a little empty this small section
-
+In this chapter, I will introduce the SME model and the SME Implementation Language, SMEIL. I will also introduce CSP, the machine-readable CSP language, \cspm{}, and the FDR4 tool. The basic structures of both SMEIL and \cspm{} are introduced in order to provide the reader with a basic knowledge of the functions and structures mentioned in this thesis.
 \section{Synchronous Message Exchange}
 SMEIL is based on the SME model and therefore I will give an introduction to SME to familiarise the reader with the SME model before introducing SMEIL.
 \\
-% TODO: reference?
 
 The development of SME was mainly driven by the need to provide a simple framework for programming an FPGA. A lot of today's research focuses on General Purpose Graphical Processing Units, GPGPUs.% TODO: reference?
 The GPGPU has been extensively researched and different environments and tools have been implemented to give developers the possibility of utilising all of its capabilities. % TODO: reference?
 However, FPGAs can be a better choice when it comes to energy sensitive applications, since FPGAs can, in some cases, achieve the same performance as a GPGPU but with lower energy consumption. % TODO: reference and what problems?
 Previously, the developer needed to design an integrated circuit on the gate level for the FPGA, which can be difficult and it is no longer common knowledge amongst developers. The FPGA has not been the subject of as much research as the GPGPU. Some high-level methods for programming an FPGA have been developed, however, these are often tedious to work with and so when using SME it becomes more accessible to design and implement hardware models.\\
 
-The primary purpose of SME is to give software developers a tool which provides the opportunity for the developer to program hardware but with an added abstraction layer which seperates the developer from the hardware details, such that, the development resembles the structures and semantics that is known from software development.
-% Thus the framework is based on a top-down approach rather than a bottom-up approach that is common in current hardware frameworks.\\
-% Global synchronicity is fundamental when modeling hardware, but CSP does not support this. Even though CSP does enforce strict synchrony between communicating processes, there is no such semantic beging enforced on a global level. % TODO: Do I want to include this?
+The primary purpose of SME is to give software developers a tool which provides the opportunity for the developer to program hardware but with an added abstraction layer which seperates the developer from the hardware details, such that, the development resembles the structures and semantics that is known from software development.\\
 
 SME was first introduced in 2014 and after several iterations~\cite{Vinter2014, Vinter2015, Skovhede} now presents as a programming model, a simulation library, and VHDL code generators. The original idea was conceived following an attempt to create a hardware implementation of a vector processor, modeled in PyCSP~\cite{bjorndalen2007pycsp, vinter2009pycsp},
 a Communicating Sequential Processes (CSP)~\cite{Hoare1978} library for Python. The work was initially presented in the paper \textit{BPU Simulator}~\cite{Rehr2013} by M. Rehr, K. Skovhede, and B. Vinter, which introduced a high abstraction level simulation. The subject was explored more in detail in the master's thesis project \textit{Generation of FPGA Hardware
@@ -33,7 +28,6 @@ The advantage of using PyCSP for processor simulation is the flexibility and sim
 After this attempt, it became clear that the structure of CSP was poorly suited for modeling clocked systems, and therefore it was decided to create the Synchronous Message Exchange framework, based on the CSP algebra. The idea was to only use the subset of the CSP algebra that provided beneficial functionality to hardware modeling which, most importantly, meant that external choice was omitted while shared-nothing was retained.
 \\
 
-% In SME the introduction of an implicit clock that eliminates the complexity caused by the model, described above, was imperative and is one of the key concepts hereof. The implicit clock removed the problems found by forcing the globally synchronous clock onto the CSP model. \\
 In SME, a network is a combination of processes that are connected through buses. The processes communicate through a collection of signals in a bus, instead of CSP's synchronous rendezvous model, but retains the shared-nothing trait of CSP.
 SME uses the term \texttt{bus} instead of \texttt{channel} to enforce the semantic correlation between the SME bus and a physical hardware signal bus.
 The process communication is handled by a hidden clock which eliminates the complexity that arose from adding synchronicity to a CSP network. The combination of the hidden clock and the synchronous message passing between processes means that the SME model provides hardware-like signal propagation.
@@ -41,13 +35,8 @@ An SME clock cycle consists of three phases: it reads, executes, and writes as c
 
 SME is able to detect read/write conflicts where multiple writes are performed to a single bus within the same clock cycle, as well as reads from a signal that has not been written to in the previous clock cycle.\\
 
-All data that is written to a bus, can be logged for each clock cycle and saved as Comma-Separated Values, CSV, which means that they can be used for validating the VHDL implementation with a VHDL tool. This eliminates the need to write separate VHDL tests which will improve developer productivity immensely.\\
+All data that is written to a bus, can be logged for each clock cycle and saved as Comma-Separated Values, CSV, which means that they can be used for validating the VHDL implementation with a VHDL tool. This eliminates the need to write a separate VHDL test bench which will improve developer productivity immensely. A test bench is a piece of software used for testing hardware models. It provides input data to the hardware model and verifies its output.\\
 
-% SME supports clock-multipliers which means that a clocked network can have components inside the network being clocked at a different rate than its own clock. The rate can be an integer multiplier from its own clock. This means that all components are clocked relative to its parent network and therefore the clock will not need any extra coordination. It does however, also mean that the inner components can only run faster than their parents.
-% TODO: Do I really want this included?
-
-% Since an SME network is a network that can be represented as a graph, a diagram tool have also been implemented for SME. It utilises the Graphviz tool to generate a visual graph of the network. This means that the SME networks can be generated and drawn as a graph which can help with debugging.
-%TODO: Also, it this something I really want to include?
 \begin{figure}[!ht]
   \centering
   \begin{tikzpicture}[auto]
@@ -67,14 +56,14 @@ corresponding CSP model, and because of this property, it is possible to create 
 The SME model is currently implemented as libraries for the general-purpose languages C\#~\cite{Skovhede}, C++~\cite{asheim2015}, and Python~\cite{asheim2016vhdl} as well as the language SMEIL which will be introduced further below. The Python and C\# libraries both have code generators for VHDL as well.
 \subsection{SMEIL}
 \label{sec:background_smeil}
-With the different SME implementations, a need arose for a common intermediate language. SME Implementation Language (SMEIL) was developed as a Domain Specific Language (DSL) for SME, usable both as an Intermediate Language, IL, and as an independent implementation language. It is accompanied by the implementation, LIBSME. %TODO: Find the reference in truls paper.
+With the different SME implementations, a need arose for a common intermediate language. SME Implementation Language (SMEIL) was developed as a Domain Specific Language (DSL) for SME, usable both as an Intermediate Language, IL, and as an independent implementation language. It is accompanied by the implementation, LIBSME~\cite{libsme}.
 SMEIL has a C-like syntax with a specialised type system that makes hardware modeling simple. In spite of its simplicity, SMEIL still provides hardware-specific functionality that is more difficult to express with general-purpose languages.\\
 
 Programs written in SMEIL are run by using the LIBSME library, either by using the command line utility or through the provided API.
 The different methods of using SMEIL are:\\
 \begin{itemize}
     \item \textbf{Pure SMEIL simulation:} A pure SMEIL program is a network which does not depend on external inputs. This means that the network generates data itself and the only communication are between the processes defined in the network.
-    \item \textbf{Co-simulation of SMEIL:} The original intent with SMEIL was to create an intermediate language which could be used together with the general-purpose language implementations of SME, which is called co-simulation. With co-simulation, a test bench can be generated as well as VHDL code.% TODO: Describe a test bench when I talk about VHDL above
+    \item \textbf{Co-simulation of SMEIL:} The original intent with SMEIL was to create an intermediate language which could be used together with the general-purpose language implementations of SME, which is called co-simulation. With co-simulation, a test bench can be generated as well as VHDL code.
     \item \textbf{Direct code generation:} This is an SMEIL program which does not need to simulate before generating VHDL. In this case, all types are constrained and all information needed for the code generation is in place. Because the simulation step is not executed, a VHDL test bench is also not automatically generated, since this depends on input from the simulation step.
 \end{itemize}
 An SMEIL module consists of the actual SMEIL program as well as import statements. SMEIL programs can be separated into modules which can then be imported into other SMEIL programs, creating a library-like structure and reusable components.\\
@@ -107,7 +96,6 @@ network net() {
 The SMEIL language is strongly, statically typed and has a simple type system that is checked at compile-time. The purpose of SMEIL is to be able to model hardware, and since hardware is static, it was important to create a type system that was capable of enforcing as many static invariants as possible.
 Because of this, the only type coercion possible in SMEIL is between signed and unsigned integers. Consequently, only booleans can be used in conditionals.
 The SMEIL type system differs from standard general-purpose languages mainly in the support for bit-precise types. General-purpose languages are typically targeting a CPU which consists of fixed-width registers. Therefore it can not work with data smaller than a byte. However, an important part of modeling hardware is to be able to define the exact widths of the buses, in order to optimise the hardware implementation. SMEIL supports unlimited-size integers as well as integers constrained to a specific bit size. SMEIL also supports booleans, double and single precision floating point numbers as well as strings. Currently, floating-point numbers are supported in the SMEIL simulator but have not been extensively tested. The VHDL code generator does not support floating point numbers. \\
-% Fixed length arrays of the types, mentioned above, are also supported.\\
 
 In SMEIL buses can contain more than one channel and since processes or networks can accept buses passed as parameters, it is important to ensure that no process or network reads or writes to a channel that is not contained within the expected bus.
 In the same way, it is essential to ensure that the directionality of the bus is enforced. When buses are passed as parameters, they are explicitly declared as either an input or an output bus. However, when defining a bus within a process, it is not possible to define the directionality of the bus. Therefore the bus is defined as input or output based on their first use.
@@ -115,8 +103,11 @@ The type system of SMEIL enforces a set of rules that define how two buses are u
 All types of declarations in SMEIL are private, except bus declarations. As mentioned above, they are used for establishing communication between processes and therefore needs to be a part of the public interface of a process or network.
 
 \subsubsection{Simulating SMEIL programs}
-For FDR4 to verify the networks within a reasonable timeframe, it is necessary to constrain the state space that FDR4 has to search. Therefore, when translating SMEIL to a specification model, it is necessary to have all types in the program, constrained to a specific width. However, as mentioned before, SMEIL does support unlimited size integers. Since it can be difficult to define an optimal width when writing the SME model, it was necessary to provide both the support of the unlimited size integers while still being able to translate to hardware descriptions. %TODO: WHen I have written the introduction and everything, I need to figure out if this section above should be kept: i need the information to fit together, but the FDR bit kind of comes out of the blue here.
-Therefore LIBSME provides a way to re-type the SME network based on the values observed during the simulation of the program.
+It is not possible to express unlimited integers in hardware, and therefore,
+when translating SMEIL to a hardware model, it is necessary to have all types in the program, constrained to a specific width.
+However, as mentioned before, SMEIL does support unlimited size integers. Since it can be difficult to define an optimal width when writing the SME model, it was necessary to provide both the support of the unlimited size integers while still being able to translate to hardware descriptions.
+Therefore LIBSME provides a way to re-type the SME network based on the values observed during the simulation of the program.\\
+
 During the simulation, the observed minimum and maximum value for all variables and channel are captured and saved along with the current value. SMEIL has been extended to include lower bounds for the purpose of this thesis.
 After the simulation, these minimum and maximum values are then converted into SMEIL types large enough to hold the range.
 The new SMEIL program, with the updated types and observed ranges, are then passed through the type checker in order to ensure that all constraints from the original program are still respected.
@@ -186,7 +177,7 @@ In Figure~\ref{fig:smeil_transpiler} the SMEIL transpiler structure can be seen.
 \section{CSP}
 \label{sec:csp_background}
 Communicating Sequential Processes (CSP)~\cite{Hoare1978} is a process algebra that provides a method to express interaction between processes of concurrent systems.
-CSP had a lot of influence in the design of several programming languages such as Occam as well as the Go programming language. %TODO: Reference?
+CSP had a lot of influence in the design of several programming languages such as Occam as well as the Go programming language.
 As described in Chapter \ref{chap:related_work}, it was first introduced in 1976 by C.A.R Hoare but, not until 1984, did it develop into a process algebra. CSP is still a large research subject, and due to the tools available today, it is becoming increasingly more accessible for the general users.\\
 
 CSP provides the possibility of describing systems in terms of message passing communication between independently operating processes. It can be argued that the \textit{sequential} part of the CSP name is not providing a full understanding of the current version of CSP. This is because the current version of CSP allows not only sequential processes, but also processes consisting of parallel compositions of other processes.
@@ -195,7 +186,6 @@ It is possible to describe complex concurrent and parallel structures with a few
 
 In CSP, a process is mainly defined by the way it can communicate with its external environment. An essential part of this communication is the \textit{alphabet} of possible communication events. This is the set of events that the process, and related processes, can use for communication. Events in CSP can only occur when both the process and the environment allow, but then they are instantaneous.\\
 
-% TODO: Have I introduced TAPS before now? Because otherwise I have to introduce it here.
 Here I give a brief introduction to the essential parts of CSP and structures that are used in TAPS, in order to give the reader a basic understanding to build on with \cspm{} and FDR. To learn more in-depth about CSP the reader is encouraged to seek out the books \textit{The Theory and Practice of Concurrency}~\cite{Roscoe1997} or \textit{Understanding Concurrent Systems}~\cite{Roscoe2010} by A. W. Roscoe.
 \begin{itemize}
     \item \textbf{Prefix:} Given an event $a$ in the alphabet $\Sigma$, and a process $P$, $a \then P$ is the process which will communicate $a$ and then behaves like the process $P$. The process will wait indefinitely to communicate $a$. This is known as prefixing.
@@ -220,8 +210,6 @@ In 1998 Bryan Scattergood introduced a machine-readable version of CSP, called \
 
 \cspm{} use the existing theory of CSP and in spite of being combined with a functional programming language, \cspm{} retains the idioms of CSP.
 The main purpose of creating \cspm{} was not so it could be executed, like most programming languages. The main reason for creating \cspm{} was to provide an approach to describe parallel systems in a structure which can be automatically manipulated, with tools like FDR4.
-% This also means that a program written in \cspm{} cannot be executed and simulated like a network can be simulated in SMEIL. In FDR4, the assertions defined in the program will be verified by looking through the entire state space of the program.\\
-
 \subsubsection{Essentials of \cspm}
 The basics of a \cspm{} program is to define the processes, their functionality, and the communication. \cspm{} supports sequences, sets, booleans, tuples, user-defined types, local definitions, pattern matching, and lambda terms.
 \cspm{} does not enforce restrictions on the use of upper/lower-case letters in identifiers, although some standard conventions can be followed if needed. Some conventions define processes either all in capital letters or with an initial capital letter. Channels and function naming are typically all in lowercase lettering.\\
@@ -242,9 +230,6 @@ Sequential composition is defined with a semicolon, for example, \texttt{P;Q} is
 External choice is defined with \texttt{P [] Q} and internal choice with \texttt{P |\textasciitilde| Q}. A boolean guard, \texttt{b \& P}, is the same as \texttt{if b then P else STOP}.
 Generalised parallel is defined by \texttt{P [| A |] Q}, similar to how it is defined in the section above. It is worth noting that \texttt{P [|\{\}|] Q} is the same as using the interleave operator. \\
 It is also possible to define alphabetised parallel, \texttt{P [A || B] Q}, which means that the set of events, \texttt{A}, are the events that \texttt{P} is allowed to perform and the set of events, \texttt{B} are the events allowed by \texttt{Q}.
-%
-% In \cspm{} when we wish to assert that some property hold for some process within the \cspm{} scripts. A basic assertion could be \texttt{assert 4 < 9}, but could also be used to express refinement checks, which is how FDR4 use assertions, which we explain further in the section below.\\
-
 \subsection{FDR4}
 \label{sec:background_fdr}
 \textit{Note that the information represented in this section is based on the information published, which unfortunately does not include a lot of details about the internal workings of FDR4. I have assumed that the internal workings of FDR4 are similar to FDR3, which has been described in ~\cite{fdr}.}\\
@@ -274,7 +259,6 @@ Some example are:\\
 $traces(\STOP) = \{\emptyseq\}$\\
 $traces(a \then \STOP) = \{\emptyseq, \seq{a}\}$\\
 $traces((a \then \STOP)\extchoice (b \then \STOP)) = \{\emptyseq, \seq{a}, \seq{b}\}$.
-% TODO: Maybe add an example with SKIP?
 \paragraph{Failures model and refinement}
 Traces are great at telling what the processes do, but they do have limitations. For example, $a \then P \intchoice \STOP$ and $a \then P$ have the exact same trace, even though one has the possibility of \textit{STOP} and the other does not. This is why we, in some cases, need to look at not only what the process can do, but also what it can refuse to do. A refusal is a set of all the events that a process can fail to accept, no matter how long it is offered. A failure is a pair $(s, X)$ where $s$ is a trace and $X$ is the set of events that the process can refuse after the trace $s$.\\
 
@@ -296,12 +280,3 @@ When looking at Figure \ref{fig:failures_graph} it is clear that both $P_2$ and 
 \paragraph{Failure-Divergences model and refinement}
 Traces and failures are some very powerful models, however they do not account for divergence, which is addressed by the failure-divergence model. Divergence is a situation where a process performs an endless series of $\tau$ events. If a stable node in a transition graph, like the one in Figure \ref{fig:failures_graph}, performed endless internal actions, it would be a process that diverges. In the failure-divergences model, a process is represented by $(failures\bot(P), divergences(P))$. $divergences(P)$ represents the set of traces where $P$ can actually diverge afterwards. $failures\bot(P)$ represents the set of failures of $P$ extended by all the failures from the traces in $divergences(P)$, that is $failures(P) \cup \{(s,X) | s \in divergences(P), X \subseteq \Sigma\}$.
 In a transition graph, divergences occur where a process can reach itself with a number of $\tau$ events, i.e a $\tau$-loop.
-% There are different ways to model divergence, and usually it is easier if divergence is assumed to be stict. Once a process has reached a point or trace where it might diverge, even though we do not actually know that it will go on forwver, there is no need to look at what else it could do. The assumption is that the process can do anything at all after that point, which is divergence strictness. It is possible to build models that does contain processes that diverge, but that are not divergence-strict. % TODO: I wrote this, but not sure if I think it is needed here.
-
-
-
-% TODO: This does not belong here. Find out where it should go.
-% For our current implementation of the transpiler, we can assert the ranges of the channel inputs, for example, we can automatically assert that the observed ranges, provided by the SMEIL simulation, and the possible input on the \cspm{} channels are not conflicting.
-% In hardware, we would typically want to verify that the communication on a bus does not exceed a certain range or that the sum of multiple signals does not exceed a specific value. A bus might be able to carry other data than needed, and being able to model a circuit that can assert that the bus never carries other data than expected, is of great value.
-
-% CSP was not initially developed for hardware modeling, and therefore it is not evident how to handle the clock cycle, which is an essential part of hardware modeling. When we transpile the SME network into \cspm{} the SMEIL simulation have provided the ranges of all values from the simulation and therefore all clock cycles. This means that when FDR4 asserts a property it asserts on all possible communication combinations for all the simulated clock cycles. Therefore, even though we are transpiling from an SME model, where the clock is crucial, we can simply translate ``one-to-one" from the SMEIL program and still get an accurate assertion on the properties.
