@@ -1,6 +1,5 @@
 %!TEX root = ../main.tex
 After developing the initial version of TAPS, I realised that the solution was not broad enough in terms of what type of network it could verify. The type of network that is possible to verify in the initial version of TAPS, is a network that does not keep internal states between clock cycles. In the seven-segment example, no internal results have any influence on the result from other clock cycles and therefore it can be correctly translated using the structures described in the previous chapters.
-
 However, the original TAPS system was unable to generate semantically equivalent \cspm{} code from networks where the results depends on the internal state of the network. Examples of such networks include the addone example from \cite{smeil}.\\
 
 % TODO: remember to remove the addone example in the analysis chapter. Both the original one and the other ones that are using the names. Use something from seven segment example instead.
@@ -294,7 +293,6 @@ In the \texttt{addone} network, the internal state of the network changes for ea
 
 It would of course not be possible to know when all possible state combinations have been verified in a network. The developer must define how many clock cycles to verify with FDR4 and the choice will depend on the network and how many state combinations are possible.
 
-% TODO: Consider if this section provide any important information
 \section{Verifying Clocked Networks}
 It is, of course, also necessary to add verification structures to the clocked \cspm{} network and even though the structure changed, there was no reason for changing the verification structure. The clocked version of TAPS model the monitor processes as described in Chapter \ref{chap:design} with a small change. The values to verify does not change but because the initial value of the buffer processes is a dummy value, this value must be defined as an acceptable value in the monitor process. \\
 
@@ -343,6 +341,7 @@ An illustration of the clocked \texttt{addone} network with monitor processes ca
 \label{fig:addone_clocked_monitor}
 \end{figure}
 
+% TODO: Consider if this section provide any important information
 \section{Generating Clocked Network}
 The structure of a clocked network is far more complex than the network structure presented in the initial version of TAPS. However, a lot of the added complexity is easy to auto-generate and therefore it does not pose a problem. A network will be generated the same way as in the initial version of TAPS. The monitor processes are synchronised with the processes first while leaving out the read which is now performed inside the process itself. The buffer processes are added to the network in the same way as the monitor processes. \\
 
