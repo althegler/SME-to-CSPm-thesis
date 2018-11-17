@@ -126,7 +126,9 @@ P = sync ->
 The process synchronises twice in a row because it does not perform a read in the read phase and therefore it must wait to compute and write in the write phase. \\
 
 Simple calculations in SMEIL can be included in-line with the read and the write. An example of this can be seen in the \texttt{add} process in Listing \ref{lst:addone_smeil_example} where \texttt{constant} is added to the input value and written to the output bus on the same line.
-Listing \ref{lst:cspm_computation} shows two examples of dividing simple computation in \cspm{}. However, to simplify its implementation, TAPS does not distinguish the generated code based on the complexity of expressions.
+Listing \ref{lst:cspm_computation} shows two examples of dividing simple computation in \cspm{}.
+As seen, the simple computation of the \texttt{add} process can trivially be included directly to the read or write.
+However, to simplify its implementation, TAPS does not distinguish the generated code based on the complexity of expressions.
 Therefore, these types of SMEIL structures will be divided into a separate read and write by TAPS.
 This means that the example in Listing \ref{lst:cspm_computation_simple} will be fitted to the general solution that can be seen in Listing \ref{lst:cspm_computation_letwithin}, even though it is unnecessarily complex. As previously explained, this is one of the disadvantages of auto-generated code.\\
 \begin{minipage}[t]{.98\linewidth}
