@@ -1,33 +1,27 @@
 %!TEX root = ../main.tex
-% some explanation about what I am actually doing in this project.
-%
-% "Now I have shown what others have done with verification, now I need to be explicit about what I am going to do"
-
-% Tegne et billede af måden jeg gerne vil løse det her problem på.
-
-
 As explained in Chapter \ref{chap:related_work} several attempts have been made to translate programs written in CSP into a hardware description language. But even a good implementation of this type of system would require that the developer manually models the specification of the \cspm{} network, which can be very tedious especially for a novice.
 The complexity of CSP is most likely leading to fewer developers utilising the functionalities and advantages of the CSP process algebra.\\
 
 What I aim to achieve is to create a translation reversed from what has previously been done. I wish to provide a solution where the developer can model the network first and then, using the system, automatically generate the specification for that exact network. On top of this, I want to be able to formally verify specific properties of this specification model. This can provide valuable insights into the possible pitfalls of the hardware model that a standard test bench cannot provide.\\
 
-In this thesis, I introduce the system TAPS, a transpiler that provides translation from hardware models to specification models, while also introducing specific properties for verification within the generated specification model.\\
+In this thesis, I introduce the system TAPS, a transpiler that provides translation from hardware models to specification models, while also introducing specific properties for verification within the generated specification model. An illustration of the system structure can be seen in Figure \ref{fig:simple_TAPS_network}.\\
 
 The language used to model the hardware is the SME Implementation Language (SMEIL) and is based on the Synchronous Message Exchange (SME) model. SMEIL resembles a standard general-purpose programming language, while still providing all the necessary elements of hardware modeling. The programming structure of SMEIL enables the traditional developer to model hardware models in a simple but efficient manner.\\
 
 TAPS provides translation to the machine-readable version of the CSP process algebra, \cspm{}. The generated \cspm{} code will not only be equivalent to the SMEIL code, but it will also include assertion statements to formally verify properties within the hardware model. These properties can be verified with the \cspm{} refinement checker tool FDR4, described in Chapter \ref{chap:related_work}.
-
-% TODO: Add something about this figure. I need to reference it.
 \begin{figure}[!ht]
   \centering
   \begin{tikzpicture}
-    \node [mysquare] (HM) at (0, 0) {Hardware model};
+    \node [mysquare] (HM) at (0, 0) {Hardware model implementation};
+
+    \node [mysquare] (S) at (0, -2.5) {Observed simulation values};
 
     \node [mysquare] (TAPS) at (2, -1.3) {TAPS};
     \draw [myarrow, smooth] (HM) to[out=270, in=180] (TAPS);
+    \draw [myarrow, smooth] (S) to[out=90, in=180] (TAPS);
 
-    \node [mysquare] (spec) at (4, 0) {Specification model};
-    \draw [myarrow, smooth] (TAPS) to[out=0, in=270] (spec);
+    \node [mysquare] (spec) at (5.5, -1.3) {Specification model};
+    \draw [myarrow, smooth] (TAPS) to[out=0, in=180] (spec);
 
   \end{tikzpicture}
   \caption{Overall system structure of TAPS.}

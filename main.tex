@@ -50,19 +50,19 @@
 This thesis introduces a method to simplify hardware modeling and verification
 thereof in order for software programmers to, more easily, meet the demands of
 the growing embedded device industry. The system TAPS is presented, which is a
-system for transpiling from the new SME Implementation Language into the
+system for transpiling from the new SME Implementation Language (SMEIL) into the
 machine-readable CSP language, \cspm{}.
-The translated \cspm{} code is augmented with assertion statements using
+The translated \cspm{} code is augmented with assertion statements, using
 observed values from the SME model. Utilising the formal verification
 properties of the FDR4 refinement tool, the assertion statements of the
-translated \cspm{} code is formally verified.
+translated \cspm{} code are formally verified.
 An extension to the initial version of TAPS is introduced in the thesis. The extension provides the possibility of modeling a global synchronous clock in
 \cspm{}, providing the possibility of verifying the internal state of the
 \cspm{} code separately for each clock cycle.
 A small example consisting of a
-seven segment display clock network is presented to introduce how to verify the
-widths of the channels in the network. A small cyclic network is presented to
-show the possibilities of verifying separate clock cycles with the extended
+seven segment display clock network is presented, to introduce how to verify the
+widths of channels in the network. A small cyclic network is presented, to
+show the possibilities of verifying separate clock cycles, using the extended
 version of TAPS.
 \end{doublespace}
 \end{abstract}
@@ -72,8 +72,6 @@ version of TAPS.
 \tableofcontents
 
 \newpage
-%\listoftodos
-%\newpage
 \pagenumbering{arabic}
 
 %%%%%%%%%%%%%%%%%%%
@@ -81,19 +79,27 @@ version of TAPS.
 %%%%%%%%%%%%%%%%%%%
 
 % TODO: Add somewhere some stuff about referencing your own paper and what sectons use stuff from the paper.
-
-\chapter{Introduction}
-\input{chapters/introduction}
+% \noindent A paper based on this thesis has been submitted for publication as
 %
-% % \chapter{Notations and Abbreviations}
-% % \input{chapters/conventions.tex}
-% %
+% \begin{center}
+% \begin{minipage}{0.8\textwidth}
+%     A. Thegler, M. Larsen, K. Skovhede, and B. Vinter. ”Towards automatic program specification using sme models”. In: {\itshape Proceedings of Communicating Process Architectures
+%     2018} (2018)
+% \end{minipage}
+% \end{center}
+
+% \chapter{Introduction}
+% \input{chapters/introduction}
+
+% \chapter{Notations and Abbreviations}
+% \input{chapters/conventions.tex}
+%
 % \chapter{Related Work}
 % \label{chap:related_work}
 % \input{chapters/related_work}
-
-% \chapter{Approach}
-% \input{chapters/approach}
+%
+\chapter{Approach}
+\input{chapters/approach}
 %
 % \chapter{Background Technologies}
 % \label{chap:background}
@@ -110,23 +116,23 @@ version of TAPS.
 % \chapter{Implementation}
 % \label{chap:implementation}
 % \input{chapters/implementation}
-
+%
 % \chapter{Extending TAPS for Clocked Systems}
 % \label{chap:clock}
 % \input{chapters/clock_cycle_problem}
 %
-\chapter{Experiments and results}
-\label{chap:exp}
-\input{chapters/experiments_and_results}
-
-\chapter{Discussion}
-\input{chapters/discussion}
-
-\chapter{Future work}
-\input{chapters/future_work}
-
-\chapter{Conclusion}
-\input{chapters/conclusion}
+% \chapter{Experiments and results}
+% \label{chap:exp}
+% \input{chapters/experiments_and_results}
+%
+% \chapter{Discussion}
+% \input{chapters/discussion}
+%
+% \chapter{Future work}
+% \input{chapters/future_work}
+%
+% \chapter{Conclusion}
+% \input{chapters/conclusion}
 %
 % \chapter*{Acknowledgements}
 % % Thanks to Uwe Zimmermann who made the seven segment example in TikZ on \url{http://www.texample.net/tikz/examples/segment-display/}.
