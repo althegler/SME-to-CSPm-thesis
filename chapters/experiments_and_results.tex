@@ -116,7 +116,7 @@ With this enhanced example, the SMEIL simulation provides reasonable observed va
 % TODO: Add something about where the entire code can be seen
 After 10 clock cycles, the value becomes larger than 5, but the restriction ensures that the verification will succeed even if verified more than 10 clock cycles. The value will simply wrap around and continue at 0. If the restriction is removed and FDR4 verifies more than 10 clock cycles, the verification fails as expected. \\
 
-This example is somewhat strange to verify with FDR4 since it does not take advantage of the state space exploration that FDR4 provides. The lack of an input range for the system means that for each clock cycle a new state machine is verified, but only the internal values change. In this example, FDR4 only verifies the relation between internal values for each clock cycles with no external influence. The advantage of the clocked structure is that values, which might cause failures after a certain amount of clock cycles, are now possible to verify, which was not possible with the initial version of TAPS. \\
+This example is somewhat awkward to verify with FDR4 since it does not take advantage of the state space exploration that FDR4 provides. The lack of an input range for the system means that for each clock cycle a new state machine is verified, but only the internal values change. In this example, FDR4 only verifies the relation between internal values for each clock cycles with no external influence. The advantage of the clocked structure is that values, which might cause failures after a certain amount of clock cycles, are now possible to verify, which was not possible with the initial version of TAPS. \\
 
 It is easy to see that this example never fails with the added restriction, but the example clearly introduces the clocked version of TAPS and how it is possible to verify clocked networks in FDR4 and therefore it still provides value to this thesis.
 
@@ -193,12 +193,12 @@ c_read_monitor(c) =
 \label{lst:cspm_addone_restricted}
 \end{listing}
 \section{Problem Size Experiments}
-The examples presented in this thesis are not very complex, but they provide a suitable introduction to the translation and the verification in FDR4. More complex examples would have required a substantial introduction and it would not be as straightforward to understand the translations. The challenge with verification of a state space is to keep the verification time to a minimum. This does not only apply for FDR4 but for model checking tools in general. FDR4 performs different kinds of internal optimisations on the networks to minimise the state space before the refinement check. FDR4 also provides several compression algorithms to provide further compression of larger problems. \\
+The examples presented in this thesis provide a suitable introduction to the translation and the verification in FDR4. More complex examples would have required a substantial introduction and it would not be as straightforward to understand the translations. he challenge with verification via exploration of a state space is to keep the verification time to a minimum. This does not only apply for FDR4 but for model checking tools in general. FDR4 performs different kinds of internal optimisations on the networks to minimise the state space before the refinement check. FDR4 also provides several compression algorithms to provide further compression of larger problems. \\
 
 I have performed some experiments on the seven segments example to examine the behaviour in FDR4.
 % TODO: Rewrite if I cannot use the unclocked version!
 Both experiments have been run on a (info to come) %TODO: REMEMBER THIS !
-machine with no other programs running. The experiments consist of measuring three different properties from the FDR4 verification. The first property is \texttt{verification time} which is measured by the \texttt{time} command. Even though all experiments have been performed on the same machine, to avoid potential confusion, the GNU \texttt{time} command was used instead of the built-in \texttt{time} command shells as bash and zsh provide. This property will provide insight into the size of feasible inputs for a \cspm{} network.\\
+machine with no other programs running. The experiments consist of measuring three different properties from the FDR4 verification. The first property is \texttt{verification time} which is measured by the \texttt{time} command. Even though all experiments have been performed on the same machine, to avoid potential confusion, the GNU \texttt{time} command was used instead of the built-in \texttt{time} command shells as \texttt{bash} and \texttt{zsh} provide. This property will provide insight into the size of feasible inputs for a \cspm{} network.\\
 
 The second property is \texttt{number of visited states} which is a piece of information FDR4 provides itself.
 As previously explained, FDR4 performs compression to minimise the state space.
@@ -229,7 +229,7 @@ In Figure \ref{fig:unclocked_verification} the \texttt{verification time} result
 \label{fig:unclocked_verification}
 \end{figure}
 \paragraph{Maximum resident set size}
-The result from this property can be seen in Figure \ref{fig:unclocked_resident_size}. These results are not fitted to a perfect line as well as the other two experiment properties. It is clear that the amount of memory used for the verification grows with an increase in the input range. It is also somewhat consistent until around 10000 in upper bound limit. This fluctuation could be caused by some internal structure in FDR4 or it could be a result of other requirements within the machine that is running the verification. Unfortunately, FDR4 does not provide a lot of information about the internal workings and so it can be very difficult to examine these results further. However, the results are overall consistent with the results from both \texttt{number of visited states} and \texttt{verification time}.
+The result from this property can be seen in Figure \ref{fig:unclocked_resident_size}. These results are not fitted to a perfect line as well as the other two experiment properties. It is clear that the amount of memory used for the verification grows with an increase in the input range. It is also somewhat consistent until around 10000 in upper bound limit. This fluctuation could be caused by some internal structure in FDR4 or it could be a result of other processes running on the machine that is running the verification. Unfortunately, FDR4 does not provide a lot of information about the internal workings and so it can be very difficult to examine these results further. However, the results are overall consistent with the results from both \texttt{number of visited states} and \texttt{verification time}.
 \begin{figure}
     \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/unclocked_maximum_resident_set_size.jpg}
 \caption{Graph of the \texttt{maximum resident set size} property from the unclocked seven segments experiment.}
@@ -330,8 +330,8 @@ The required dependencies for generating the ANTLR4 parser, running TAPS and ver
 \end{itemize}
 
 ANTLR4 and FDR4 can both be downloaded from their websites where installation instructions are also provided.
-ANTLR4 can be found at \url{https://www.antlr.org/} and FDR4 at \url{https://www.cs.ox.ac.uk/projects/fdr/}.\\
-It is also necessary to download the Python runtime from \url{https://pypi.org/project/antlr4-python2-runtime/}.
+The ANTLR4 project can be found at \url{https://www.antlr.org/} and the FDR4 Project at \url{https://www.cs.ox.ac.uk/projects/fdr/}.\\
+It is also necessary to download the ANTLR4 Python runtime from \url{https://pypi.org/project/antlr4-python2-runtime/}.
 
 Assuming that an ANTLR4 alias has been created as the ANTLR4 installation suggest, the parser and lexer can be generated with ANTLR4 using the command: {\ttfamily antlr4 -Dlanguage=Python2 - visitor -no-listener Smeil.g4.}
 This will create all the required parser and lexer files as well as the visitor methods. This step is only necessary if the .g4 grammar file has been modified.\\
