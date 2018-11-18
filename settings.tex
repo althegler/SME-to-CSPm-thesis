@@ -63,6 +63,29 @@
 \usepackage{pgfplots}
 \usepackage{tikz}
 
+
+% \usepackage[%
+%   backend=biber,
+%   style=numeric,
+%   maxnames=2,
+%   minnames=1,
+%   maxbibnames=99,
+%   firstinits,
+%   uniquename=init,
+%   backref=true]{biblatex} % TODO: adapt citation style
+%   %maxcitenames=2,
+%
+% \AtEveryBibitem{%
+%   \ifentrytype{onlinex}{%
+%   }{%
+%     \clearfield{url}%
+%     \clearfield{urldate}%
+%   }%
+% }
+
+
+
+
 \usepackage[labelsep=period]{caption}
 
 \usepackage{cspsymb}
@@ -242,16 +265,6 @@
 
 \pgfplotsset{
   every axis plot post/.style={/pgf/number format/fixed}
-}
-
-\newcommand{\codemargins}[0]{\paperwidth-2cm}
-
-\newenvironment{widefigure}[1][]{
-  \begin{figure}[#1]
-  \centering
-  \begin{minipage}[t]{\codemargins}
-  }{\end{minipage}
-   \end{figure}
 }
 
 
