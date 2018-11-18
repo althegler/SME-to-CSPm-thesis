@@ -106,8 +106,7 @@ This example shows how important it is for critical systems to be well-designed,
 \subsection{The patriot missile failure}
 During the Persian Gulf war, on February 25, 1991, an American Patriot missile failed to intercept an incoming Iraqi Scud missile, which caused the Scud to hit an American Army barracks injuring around 100 people and killing 28 soldiers.\\
 
-The Patriot missile failed due to an error in converting an integer, representing time since last boot, to a floating-point number using a 24-bit register. As time since last boot increased, the limited 24-bit register did not represent enough precision and so the chopping error increased. At the time of the incident, the Patriot missile battery had been on for approximately 100 hours, which caused the chopping inaccuracy to be around 0.34 seconds. The Scud travels at around 1.676 meters per second, and therefore in the 0.34 seconds, it travels more than a half kilometer.
-% TODO: Så den brugte tid til at finde ud af hvor langt den har rejst og dermed beregnede den sin position upræsist? Måske bør di skrive det lidt mere eksplicit
+The Patriot missile failed due to an error in converting an integer, representing time since last boot, to a floating-point number using a 24-bit register. As time since last boot increased, the limited 24-bit register did not represent enough precision and so the chopping error increased. At the time of the incident, the Patriot missile battery had been on for approximately 100 hours, which caused the chopping inaccuracy to be around 0.34 seconds. The Scud travels at around 1.676 meters per second, and therefore in the 0.34 seconds, it travels more than a half kilometer. This caused the Patriot missile to wrongly predict the location of the Scud. 
 The inaccuracy of the 24-bit representation caused the Patriot missile to perform inaccurate calculations, and the consequence of this was that the Patriot missile missed its target Scud missile. This example shows how it is impossible to test 100\% of any system and how that can cause horrible failures. If the Patriot missile systems had been verified or had been subject to long-term testing, this accident might have been avoided. An example, similar to the Patriot missile failure, will be introduced in this thesis and will be verified to show potentiel failures.
 %Intels-division bug \\
 %Toyota bremse-fejl\\
@@ -122,4 +121,8 @@ The learning goals accepted for this thesis are:
 \item Reflect on the generality of a generic verification template.
 \item Disseminate project results to a professional audience.
 \end{itemize}
+
+
+% \section{Limitations}
+
 
