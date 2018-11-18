@@ -217,21 +217,21 @@ For each verification, three assertions are performed within the seven segment d
 
 Figure \ref{fig:unclocked_states} presents the results of the \texttt{number of visited states} property. From this graph, it is very clear how the state space increases linearly with the input range. This result means that FDR4 is not able to compress the state space further with the increase of input. A reason for FDR4 not providing any additional state space compression could be that because no input is repeated, it is not possible for FDR4 to provide further compression and so the number of states remain the same. This does, however, show how a problem quickly can become very large within FDR4 which is something a user must consider when choosing the data to verify.
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/unclocked_number_of_states.jpg}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_figures/unclocked_number_of_states.jpg}
 \caption{Graph of the \texttt{number of visited states} property from the unclocked seven segments experiment.}
 \label{fig:unclocked_states}
 \end{figure}
 \paragraph{Verification time}
 In Figure \ref{fig:unclocked_verification} the \texttt{verification time} results can be seen. The graph represents the verification time in seconds for each increase in the input range. As can be seen the verification time increase exponentially with the input values. Since the number of states visited is increasing linearly it can seem odd that the verification time does not follow that same pattern. However, besides the refinement checking of the GLTS, which will increase with the number of states, FDR4 must compile the network and generate the GLTS. It is reasonable to expect that the larger the state space, the more effort for FDR4 to complete all the steps of the verification. Therefore these results are consistent with what could be expected.
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/unclocked_verification_time.jpg}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_figures/unclocked_verification_time.jpg}
 \caption{Graph of the \texttt{verification time} property from the unclocked seven segments experiment.}
 \label{fig:unclocked_verification}
 \end{figure}
 \paragraph{Maximum resident set size}
 The result from this property can be seen in Figure \ref{fig:unclocked_resident_size}. These results are not fitted to a perfect line as well as the other two experiment properties. It is clear that the amount of memory used for the verification grows with an increase in the input range. It is also somewhat consistent until around 10000 in upper bound limit. This fluctuation could be caused by some internal structure in FDR4 or it could be a result of other processes running on the machine that is running the verification. Unfortunately, FDR4 does not provide a lot of information about the internal workings and so it can be very difficult to examine these results further. However, the results are overall consistent with the results from both \texttt{number of visited states} and \texttt{verification time}.
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/unclocked_maximum_resident_set_size.jpg}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_figures/unclocked_maximum_resident_set_size.jpg}
 \caption{Graph of the \texttt{maximum resident set size} property from the unclocked seven segments experiment.}
 \label{fig:unclocked_resident_size}
 \end{figure}
@@ -243,7 +243,7 @@ In order to make the clocked seven segment experiment equivalent with the uncloc
 \paragraph{Number of visited states}
 In Figure \ref{fig:clocked_states}the results of the clocked \texttt{number of visited states} property can be seen for each \texttt{time} verification. As can be seen, they differ quite a lot from each other. The \texttt{number of visited states} property for \texttt{hour} seems to increase every 3600 input increase, and since there are 3600 seconds in one hour, this means that every time the input represents an extra hour, the number of states increase. The \texttt{number of visited states} for \texttt{minutes} increase linearly until exactly 5339 and then stays at 134 for the rest of the verifications. It is very clear from this result that the number of states reaches its maximum when the input range represents the maximum amount of minutes. The input range \{0..5339\} represents 59 minutes which is maximum. The \texttt{number of visited states} for \texttt{seconds} is constant at 134, however if the input range was decreased to \{0..59\} the same result could be seen as with the \texttt{minutes} graph. These results make it clear that FDR4 is able to decrease the number of states to the number of \texttt{hours}, \texttt{minutes} and \texttt{seconds} represented by the input.
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/clocked_number_of_states.jpg}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_figures/clocked_number_of_states.jpg}
 \caption{Graphs of the three \texttt{number of visited states} properties from the clocked seven segments experiment.}
 \label{fig:clocked_states}
 \end{figure}
@@ -252,14 +252,14 @@ In Figure \ref{fig:clocked_verification} the clocked \texttt{verification time}
 results can be seen.
 This graph is very similar to the \texttt{verification time} results for the unclocked experiment but with a slightly different increase. However, the values also increase exponentially with the input which, as explained above, is to be expected. What is important to notice is that even though the graph is similar to the unclocked \texttt{verification time} graph, the number of seconds are very different than in the first experiment. The reason for this is probably the decrease in \texttt{number of visited states} which will be discussed further below.
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/clocked_verification_time.jpg}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_figures/clocked_verification_time.jpg}
 \caption{Graph of the \texttt{verification time} property from the clocked seven segments experiment.}
 \label{fig:clocked_verification}
 \end{figure}
 \paragraph{Maximum resident set size}
 Figure \ref{fig:clocked_resident_size} shows the clocked \texttt{maximum resident set size}. This graph shows the same situation as the \texttt{verification time} graph. The graph is similar to that of the unclocked \texttt{maximum resident set size} with a slightly more flattened increase and not nearly as much fluctuation. The big difference with this graph is again the low values compared to the unclocked \texttt{maximum resident set size} values. This is also discussed further below.
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/clocked_maximum_resident_set_size.jpg}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_figures/clocked_maximum_resident_set_size.jpg}
 \caption{Graph of the \texttt{maximum resident set size} property from the clocked seven segments experiment.}
 \label{fig:clocked_resident_size}
 \end{figure}
@@ -295,19 +295,19 @@ It is quite surprising that the clocked experiment have such a drastic differenc
 \end{figure}
 
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/combined_number_of_states.jpg}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_figures/combined_number_of_states.jpg}
 \caption{Graphs of the \texttt{number of states} properties combined from both the unclocked and clocked seven segments experiment.}
 \label{fig:combined_states}
 \end{figure}
 
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/combined_verification_time.jpg}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_figures/combined_verification_time.jpg}
 \caption{Graphs of the \texttt{verification time} properties combined from both the unclocked and clocked seven segments experiment.}
 \label{fig:combined_verification}
 \end{figure}
 
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/temporary_graphs/combined_maximum_resident_set_size.jpg}
+    \includegraphics[width=0.98\textwidth]{./figures/temporary_figures/combined_maximum_resident_set_size.jpg}
 \caption{Graphs of the \texttt{maximum resident size set} properties combined from both the unclocked and clocked seven segments experiment.}
 \label{fig:combined_resident_size}
 \end{figure}
