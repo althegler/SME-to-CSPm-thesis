@@ -51,7 +51,7 @@ This thesis introduces a method to simplify hardware modeling and verification
 thereof in order for software programmers to, more easily, meet the demands of
 the growing embedded device industry. The system TAPS is presented, which is a
 system for transpiling from the new SME Implementation Language (SMEIL) into the
-machine-readable CSP language, \cspm{}.
+machine-readable CSP language (\cspm{}).
 The translated \cspm{} code is augmented with assertion statements, derived from values observed by simulating SME models. Utilising the formal verification
 properties of the FDR4 refinement tool, the assertion statements of the
 translated \cspm{} code are formally verified.
@@ -66,6 +66,12 @@ version of TAPS.
 \end{doublespace}
 \end{abstract}
 
+\chapter*{Acknowledgements}
+I would like to thank my supervisors Brian Vinter and Kenneth Skovhede for their support, patience, and guidance throughout this project and for encouraging me to write a paper based on this work.
+I'd like to give special thanks to Mads Ohm Larsen for his immense help in writing the paper and for always taking the time to discuss my ideas.
+Another special thanks goes to Truls Asheim for his kind support in introducing me to SMEIL, proofreading my writings, and for patiently answer all of my questions.
+I would also like to thank the employees in the eScience group at the Niels Bohr Institute, for their encouragement and for providing a welcomming environment.
+Last but not least, I would like to thank Lars and Asbj\o rn Thegler for taking their time to proofread my thesis and for their help towards making my writings clear and concise.
 
 \newpage
 \tableofcontents
@@ -90,9 +96,6 @@ version of TAPS.
 \chapter{Introduction}
 \input{chapters/introduction}
 
-% \chapter{Notations and Abbreviations}
-% \input{chapters/conventions.tex}
-%
 % \chapter{Related Work}
 % \label{chap:related_work}
 % \input{chapters/related_work}
@@ -120,19 +123,19 @@ version of TAPS.
 % \label{chap:clock}
 % \input{chapters/clock_cycle_problem}
 %
-% \chapter{Experiments and results}
+% \chapter{Experiments and Results}
 % \label{chap:exp}
 % \input{chapters/experiments_and_results}
 %
 % \chapter{Discussion}
 % \input{chapters/discussion}
 %
-% \chapter{Future work}
+% \chapter{Future Work}
 % \input{chapters/future_work}
 %
 % \chapter{Conclusion}
 % \input{chapters/conclusion}
-%
+
 % \chapter*{Acknowledgements}
 % % Thanks to Uwe Zimmermann who made the seven segment example in TikZ on \url{http://www.texample.net/tikz/examples/segment-display/}.
 
