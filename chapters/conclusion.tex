@@ -4,31 +4,30 @@ new SME intermediate language (SMEIL) into the machine-readable CSP language,
 \cspm{}. In TAPS, the translated \cspm{} code is augmented with assertion
 properties which can be verified with the Failure-Divergences Refinement tool
 (FDR4).\\
-I have presented an initial system which is able to translate SMEIL networks to
-\cspm{} and verify a large range of defined input values. TAPS can assert that
-the observed values of a channel, in a simulated SMEIL program, are in fact the
+I have presented an initial system, which is able to translate SMEIL networks to
+\cspm{}, and verify a large range of defined input values. TAPS can assert that
+the observed values of a channel in a simulated SMEIL program, are in fact the
 only possible values communicated on that specific channel. \\
 
-An extension to this initial version of TAPS has also been presented in this
+An extension to the initial version of TAPS has also been presented in this
 thesis. This extension provides TAPS with the support to model a global
-synchronous clock in \cspm{}. It has previously been shown in \cite{Skaarup14}
+synchronous clock in \cspm{}. It has previously been shown~\cite{Skaarup14}
 that enforcing a global synchronous clock onto a PyCSP network results in code complexity explosion. To avoid having to model networks with this large amount of
 states, the SME model was developed, based on the CSP algebra. With the
-extended version of TAPS, the state explosion occurs but because TAPS auto
-generates the \cspm{} code the state explosion is not a hindrance to the
+extended version of TAPS, the state explosion still occurs, but because TAPS auto-generates the \cspm{} code, the state explosion is not a hindrance to the
 translation.\\
 
-The translated \cspm{} network can be verified with the FDR4 tool which can
+The translated \cspm{} network can be verified with the FDR4 tool, which can
 perform refinement checks on \cspm{} networks. I present examples of failures
 and solution to these with an example of a Seven Segment Display network and a
-cyclic Addone network showing the advantages of both the initial version of TAPS and the clocked version.\\
+cyclic Addone network, showing the advantages of both the initial version of TAPS, and the clocked version.\\
 
 This system makes it more accessible for software programmers to program
-hardware and thereby bridging a gap between software programmers and the needs
+hardware, thereby bridging a gap between software programmers and the needs
 of the industry.
 Instead of having to create advanced test-benches, TAPS provides a simple
-way to verify the hardware model via FDR4s assertion functionalities.
-TAPS do not yet provide support for the entire SMEIL language. In spite of this,
+way to verify the hardware model via the assertion functionalities of FDR4.
+TAPS does not yet provide support for the entire SMEIL language. In spite of this,
 I am pleased with the possibilities that TAPS present, and I have shown the current capabilities of TAPS are valuable.
 
 
