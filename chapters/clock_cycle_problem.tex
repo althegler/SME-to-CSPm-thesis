@@ -1,10 +1,8 @@
 %!TEX root = ../main.tex
-After developing the initial version of TAPS, I realised that the solution was not broad enough in terms of what type of network it could verify. The type of network that is possible to verify with the initial version of TAPS, is a network that does not keep internal states between clock cycles.
-% TODO: It is not TAPS that does the verification, so maybe change this in the sentences aboce?
+After developing the initial version of TAPS, I realised that the solution was not broad enough in terms of what type of network it could accurately translate. The type of network that is possible to translate with the initial version of TAPS, is a network that does not keep internal states between clock cycles.
 In the seven-segment example, no internal results have any influence on the result from other clock cycles, and therefore it can be correctly translated using the structures described in the previous chapters.
 However, the original TAPS system was unable to generate semantically equivalent \cspm{} code from networks where the results depend on the internal state of the network. Examples of such networks include the \texttt{addone} example from \cite{smeil}.\\
 
-% TODO: remember to remove the addone example in the analysis chapter. Both the original one and the other ones that are using the names. Use something from seven segment example instead.
 The \texttt{addone} network is a simple cyclic network that consists of two processes communicating with each other. The SMEIL code for this example can be seen in Listing \ref{lst:addone_smeil_example}. The \texttt{add} process receives a value and increments it by a constant parameter. The \texttt{id} process receives the value and passes it along on its output bus.
 An illustration of the network can be seen in Figure \ref{fig:addone_unclocked}.\\
 \begin{figure}
@@ -165,8 +163,15 @@ Q = read_channel ? val ->
 In Listing \ref{lst:cspm_computation_letwithin}, the process first reads a value from \texttt{read\_channel}, then computes the result within the \texttt{let} section and then writes the result to \texttt{write\_channel} in the \texttt{within} section.
 \section{Introducing Buffers}
 As can be seen in Figure \ref{fig:addone_unclocked}, both the \texttt{id} process and the \texttt{add} process are both reading and writing. A problem occurs because they are both trying to read and write at the same time. It is clear that both processes cannot begin by reading, because no process has yet written anything for the other to read.
-To solve this problem, TAPS defines a buffer structure for each SMEIL channel. A buffer is a process that stores data between clock cycles. The buffer first writes a value to a channel and then reads a value from a channel, all in one clock cycle. Thus, the buffer structure is the reverse of a 'normal' process, because it will write first and then read in a clock cycle. \\
-% TODO: add figure like on page 125 in bujo
+To solve this problem, TAPS defines a buffer structure for each SMEIL channel. A buffer is a process that stores data between clock cycles. The buffer first writes a value to a channel and then reads a value from a channel, all in one clock cycle. Thus, the buffer structure is the reverse of a 'normal' process, because it will write first and then read in a clock cycle. Figure \ref{fig:clock_cycle} illustrates the relation between a process and a buffer.\\
+
+\begin{figure}
+\centering
+\includegraphics[width=0.90\textwidth]{./figures/clock_cycle_thesis_5.png}
+\caption{Illustration of the relation between a process and a buffer. In one clock cycle the buffer writes a value which the process reads, and after the computation the process writes the value to the buffer which holds it for the next clock cycle.}
+\label{fig:clock_cycle}
+\end{figure}
+
 
 The buffer solves the problem of initialising the network. Each buffer is instantiated with a value that the buffer writes to a channel from which a process can read. However, the initial value is only used to initialise the network. I refer to the initial value as a \textit{dummy value} which is determined as a value outside of the channel range so that the process is able to distinguish between the initial value and the actual network values. \\
 % TODO: maybe write something about if the input range is Int_min ti int_max
