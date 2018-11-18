@@ -149,7 +149,6 @@ proc A ()
    \vspace{1cm}
 \end{minipage}
 \subsubsection{Co-simulation}
-% Is this section actually relevant to keep?
 Often when modeling hardware in Hardware Description Languages (HDLs) like VHDL or Verilog, code for testing and verifying are often written in the same language as the design itself. Unfortunately, writing test codes in HDLs are often tedious. Using general-purpose languages for testing hardware models are useful since the range of available libraries is much larger.
 Therefore the SMEIL simulator provides a simple language-independent API which enables SME implementations written for general-purpose languages to communicate with SME networks written in SMEIL, so-called co-simulation.
 The big advantage of the SMEIL approach to co-simulation is that SME is used on both sides of the co-simulation and therefore can act as a single entity.
@@ -240,7 +239,7 @@ FDR was first released in 1991 and has since then been used both in academia and
 
 An assertion in FDR4 contains a specification process as well as an implemented process to verify. For instance, \texttt{assert P [T= Q} means to assert if \texttt{Q} refines \texttt{P} according to the trace model.
 FDR4 converts the two processes to a Labelled Transition Systems, LTS. A transition system consists of states and transitions between states which gives the opportunity of exploring the state space of the process.
-FDR4 specifies the LTS further by using Generalised LST, GLTSs. A GLTS can have individual states being labeled with different properties, depending on the semantic model used for the refinement. For instance, if the trace model was used, then the states would be labeled with the traces in a GLTS.
+FDR4 specifies the LTS further by using Generalised LTS (GLTSs). A GLTS can have individual states being labeled with different properties, depending on the semantic model used for the refinement. For instance, if the trace model was used, then the states would be labeled with the traces in a GLTS.
 FDR4 transforms both the specification process and the implementation process into GLTSs, which can then be checked for refinement. In order to be able to perform the verification, the specification GLTS is normalised, which has been extensively introduced in \cite{Roscoe1997}, but in short, the GLTS is transformed into a deterministic GLTS without any internal transitions or $\tau$ transitions. This can be an extensive operation, but since specification processes often are quite simple, this has proven to be the best approach.
 After this, FDR4 is ready to check if the implemented process, transformed to a GLTS, refines the normalised specification GLTS, which is further introduced in section \ref{sec:refinement}. Since it is only necessary to normalise the specification process, the automatic refinement check becomes much more feasible than if it was necessary to normalise both. \\
 
