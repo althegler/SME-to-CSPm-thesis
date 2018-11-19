@@ -1,8 +1,6 @@
 %!TEX root = ../main.tex
 
 In this chapter, I first present examples of verification for the seven segment display example as well as the addone example. Secondly, an experiment has been conducted to gain further insight into program size and validation time. The experimental setup and results are introduced with the three properties verification time, number of states and maximum resident set size.
-% TODO: Mention how to use taps if i keep it here.
-
 \section{Seven Segments Display Example Validation}
 The seven segments example has been presented in different sections throughout this thesis. An illustration of the entire translated unclocked seven segments network can be seen in Figure \ref{fig:cspm-network}. The SMEIL representation of the same network can be seen in Chapter \ref{chap:analysis}, in Figure \ref{fig:smeil_network}.
 The unclocked \cspm{} network consists of 12 different processes, all created so that not only the network is simulated correctly, but also so the monitor processes are placed correctly. The input is represented by a triangle, since it transpiles from an SME process to a \cspm{} channel, it is not represented as a process in this network. Each of the dotted squares represents the network of synchronisations for each \texttt{time} process, which in itself is a process in \cspm{}. For each network, we have the \texttt{time} process and two monitor processes, for example, $H$, $M_{H_1}$ and $M_{H_2}$.
@@ -199,7 +197,6 @@ The examples presented in this thesis provide a suitable introduction to the tra
 The challenge with verification via exploration of a state space, is to keep the verification time to a minimum. This does not only apply for FDR4, but for model checking tools in general. FDR4 performs different kinds of internal optimisations on the networks, to minimise the state space before the refinement check. FDR4 also provides several compression algorithms, to provide further compression of larger problems. \\
 
 I have performed some experiments on the seven segments example, to examine the behaviour in FDR4.
-% TODO: Rewrite if I cannot use the unclocked version!
 Both experiments have been run on a (info to come) %TODO: REMEMBER THIS !
 machine with no other programs running. The experiments consist of measuring three different properties from the FDR4 verification. The first property is verification time which is measured by the \texttt{time} command. Even though all experiments have been performed on the same machine, to ensure uniformity, the GNU \texttt{time} command was used instead of the built-in \texttt{time} command that shells such as \texttt{bash} and \texttt{zsh} provide. This property will provide insight into the size of feasible inputs for a \cspm{} network.\\
 
@@ -277,7 +274,6 @@ Figure \ref{fig:clocked_resident_size} shows the clocked maximum resident set si
 \label{fig:clocked_resident_size}
 \end{figure}
 \subsection{Results}
-% TODO when I know I can use this example
 As explained above, the number of visited states property from the unclocked seven segments experiment showed to be equal for all three \texttt{time} verifications whereas, for the clocked experiment, the number of visited states varied between the three verifications. Figure \ref{fig:combined_states} represents all four graphs, but the unclocked values are several order of magnitude larger than the clocked values, making the clocked values hard to discern in the graph.\\
 
 In Figure \ref{fig:combined_verification} the combined verification time graph can be seen. Here, the difference also shows very clearly. The clocked experiment verifies much faster than the unclocked. Again it is difficult to see the actual values of the clocked version in the graph because they are significantly lower. The same case can be seen in Figure \ref{fig:combined_resident_size} which represents the combined maximum resident set size. \\
@@ -326,8 +322,3 @@ It is quite surprising that the clocked experiment has such a drastic difference
 \caption{Graphs of the \texttt{maximum resident size set} properties combined from both the unclocked and clocked seven segments experiment.}
 \label{fig:combined_resident_size}
 \end{figure}
-
-
-
-
-% TODO: I should also still mention something about how the increase in number of processes was or was not feasible.
