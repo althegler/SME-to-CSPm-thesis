@@ -11,7 +11,7 @@ class SMEILLexer(RegexLexer):
     tokens = {
         'root': [
             (r'\s+', Text),
-            (r'//.*$', Comment.Single),
+            (r'\/\/.*\n', Comment.Single),
 
             (r'\b(as|barrier|break|bus|case|default|elif|else|enum|for|from|func|generate|if|import|instance|network|of|proc|range|return|simulation|switch|to|var|where|const)\b', Keyword.Reserved),
             (r'\b(sync|async|exposed|unique|len)\b', Keyword),
