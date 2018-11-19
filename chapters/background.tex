@@ -245,7 +245,7 @@ After this, FDR4 is ready to check if the implemented process, transformed to a 
 
 FDR4 supports other compression functionalities besides normalisation, which can reduce the state space without changing the overall semantics of the process. This helps improve the runtime of the refinement checks. The reduction in state space is a crucial element of FDR4, since the state space quickly becomes overwhelmingly large, making the refinement check infeasible. The compression algorithms provide the possibility of verifying otherwise absurdly large problems.
 These compression algorithms will not be further introduced in this thesis, but more information on these can be found in \cite{Roscoe2010}.
-FDR4 also supports refinement of Timed CSP~\cite{REED1988249}~\cite{Armstrong2011} which is used within time-critical systems.
+FDR4 also supports refinement of Timed CSP~\cite{REED1988249}~\cite{armstrong2014model} which is used within time-critical systems.
 \subsubsection{Refinement}
 \label{sec:refinement}
 Refinement checking consists of searching through each of the GLTS, checking that all reachable states within the verification GLTS are compatible with every state within the normalised specification GLTS. It performs a breadth-first search, which has the advantage that when an error is found, the counterexample provided is the smallest possible. In each state, properties are checked according to the semantic model used. The refinement algorithm stores a set of states in order to keep count of what has been checked, what is currently being checked and what is left to be checked. FDR4 uses B-Trees to store data during refinement, and since version 3 of FDR, FDR3, the refinement can also be performed in parallel.
