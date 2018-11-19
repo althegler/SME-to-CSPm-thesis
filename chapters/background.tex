@@ -4,9 +4,9 @@ In this chapter, I will introduce the SME model and the SME Implementation Langu
 SMEIL is based on the SME model and therefore I will give an introduction to SME to familiarise the reader with the SME model before introducing SMEIL.
 \\
 
-The development of SME was mainly driven by the need to provide a simple framework for programming an FPGA. A lot of today's research focuses on General Purpose Graphical Processing Units, GPGPUs.% TODO: reference?
-The GPGPU has been extensively researched and different environments and tools have been implemented to give developers the possibility of utilising all of its capabilities. % TODO: reference?
-However, FPGAs can be a better choice when it comes to energy sensitive applications, since FPGAs can, in some cases, achieve the same performance as a GPGPU but with lower energy consumption. % TODO: reference and what problems?
+The development of SME was mainly driven by the need to provide a simple framework for programming an FPGA. A lot of today's research focuses on General Purpose Graphical Processing Units, GPGPUs.
+The GPGPU has been extensively researched and different environments and tools have been implemented to give developers the possibility of utilising all of its capabilities~\cite{Vinter2014}.
+However, FPGAs can be a better choice when it comes to energy sensitive applications, since FPGAs can, in some cases, achieve the same performance as a GPGPU but with lower energy consumption~\cite{Vinter2014}.
 Previously, the developer needed to design an integrated circuit on the gate level for the FPGA, which can be difficult and it is no longer common knowledge amongst developers. The FPGA has not been the subject of as much research as the GPGPU. Some high-level methods for programming an FPGA have been developed, however, these are often tedious to work with and so when using SME it becomes more accessible to design and implement hardware models.\\
 
 The primary purpose of SME is to give software developers a tool which provides the opportunity for the developer to program hardware but with an added abstraction layer which seperates the developer from the hardware details, such that, the development resembles the structures and semantics that is known from software development.\\
@@ -56,7 +56,23 @@ corresponding CSP model, and because of this property, it is possible to create 
 The SME model is currently implemented as libraries for the general-purpose languages C\#~\cite{Skovhede}, C++~\cite{asheim2015}, and Python~\cite{asheim2016vhdl} as well as the language SMEIL which will be introduced further below. The Python and C\# libraries both have code generators for VHDL as well.
 \subsection{SMEIL}
 \label{sec:background_smeil}
-With the different SME implementations, a need arose for a common intermediate language. SME Implementation Language (SMEIL) was developed as a Domain Specific Language (DSL) for SME, usable both as an Intermediate Language, IL, and as an independent implementation language. It is accompanied by the implementation, LIBSME~\cite{libsme}.
+With the different SME implementations, a need arose for a common intermediate language. SME Implementation Language (SMEIL) was developed as a Domain Specific Language (DSL) for SME, usable both as an Intermediate Language, IL, and as an independent implementation language. It is accompanied by the implementation, LIBSME~\cite{libsme}. In Figure~\ref{fig:smeil_transpiler} the SMEIL transpiler structure can be seen.\\
+
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}[auto]
+    \node[mycircle, minimum size=1.75cm, align=center, text width=1.75cm, font=\footnotesize]    (smeil)                                       {SMEIL};
+    \node[myrectangle, text width=1.5cm, minimum height=1.0cm, inner sep=5pt, inner ysep=5pt] (csme)  [above left=-0.25cm and 1.5cm of smeil] {C\#SME};
+    \node[myrectangle, text width=1.5cm, minimum height=1.0cm, inner sep=5pt, inner ysep=5pt] (pysme) [below left=-0.25cm and 1.5cm of smeil] {PySME};
+    \node[myrectangle, text width=1.5cm, minimum height=1.0cm, inner sep=5pt, inner ysep=5pt] (vhdl)  [right=1.0cm of smeil]                {VHDL};
+
+    \draw[myarrow] (csme)  -- (smeil);
+    \draw[myarrow] (pysme) -- (smeil);
+    \draw[myarrow] (smeil) -- (vhdl);
+  \end{tikzpicture}
+  \caption{SMEIL transpiler structure.}
+  \label{fig:smeil_transpiler}
+\end{figure}
 SMEIL has a C-like syntax with a specialised type system that makes hardware modeling simple. In spite of its simplicity, SMEIL still provides hardware-specific functionality that is more difficult to express with general-purpose languages.\\
 
 Programs written in SMEIL are run by using the LIBSME library, either by using the command line utility or through the provided API.
@@ -154,25 +170,6 @@ Therefore the SMEIL simulator provides a simple language-independent API which e
 The big advantage of the SMEIL approach to co-simulation is that SME is used on both sides of the co-simulation and therefore can act as a single entity.
 The PySME~\cite{pysme} library has been extended to support co-simulation with SMEIL, thereby providing the possibility of writing networks in PySME which can interact with SME networks written in SMEIL. Currently, only PySME has been extended with this but is expected to be implemented in the other SME implementations as well.
 When simulating the SMEIL network, the compiler can record a trace of all communication between processes in the network. This trace file can then be used as a source for the VHDL test bench, which can be used to verify the generated VHDL code.
-
-% This figure should be moved to where I talk about SMEIL being an IL. It does not make sense to have it here becasue it looks like it is part of the co-simulation section, which it is not
-In Figure~\ref{fig:smeil_transpiler} the SMEIL transpiler structure can be seen.
-
-\begin{figure}[!ht]
-  \centering
-  \begin{tikzpicture}[auto]
-    \node[mycircle, minimum size=1.75cm, align=center, text width=1.75cm, font=\footnotesize]    (smeil)                                       {SMEIL};
-    \node[myrectangle, text width=1.5cm, minimum height=1.0cm, inner sep=5pt, inner ysep=5pt] (csme)  [above left=-0.25cm and 1.5cm of smeil] {C\#SME};
-    \node[myrectangle, text width=1.5cm, minimum height=1.0cm, inner sep=5pt, inner ysep=5pt] (pysme) [below left=-0.25cm and 1.5cm of smeil] {PySME};
-    \node[myrectangle, text width=1.5cm, minimum height=1.0cm, inner sep=5pt, inner ysep=5pt] (vhdl)  [right=1.0cm of smeil]                {VHDL};
-
-    \draw[myarrow] (csme)  -- (smeil);
-    \draw[myarrow] (pysme) -- (smeil);
-    \draw[myarrow] (smeil) -- (vhdl);
-  \end{tikzpicture}
-  \caption{SMEIL transpiler structure.}
-  \label{fig:smeil_transpiler}
-\end{figure}
 \section{CSP}
 \label{sec:csp_background}
 Communicating Sequential Processes (CSP)~\cite{Hoare1978} is a process algebra that provides a method to express interaction between processes of concurrent systems.
