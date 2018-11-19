@@ -111,7 +111,7 @@ Therefore LIBSME provides a way to re-type the SME network based on the values o
 During the simulation, the observed minimum and maximum value for all variables and channel are captured and saved along with the current value. SMEIL has been extended to include lower bounds for the purpose of this thesis.
 After the simulation, these minimum and maximum values are then converted into SMEIL types large enough to hold the range.
 The new SMEIL program, with the updated types and observed ranges, are then passed through the type checker in order to ensure that all constraints from the original program are still respected.
-An example of this can be seen in Listing \ref{lst:smeil_restricted_types_and_ranges} where a unlimited size integer is re-typed to an integer of fixed size after the simulation.
+An example of this can be seen in Listing \ref{lst:smeil_restricted_types_and_ranges} where a unlimited size integer is re-typed to an integer of fixed size after the simulation.\\
 \begin{minipage}[t]{.98\linewidth}
     % \centering
   \begin{minipage}[t]{0.45\linewidth}
@@ -233,7 +233,10 @@ It is also possible to define alphabetised parallel, \texttt{P [A || B] Q}, whic
 \label{sec:background_fdr}
 \textit{Note that the information represented in this section is based on the information published, which unfortunately does not include a lot of details about the internal workings of FDR4. I have assumed that the internal workings of FDR4 are similar to FDR3, which has been described in ~\cite{fdr}.}\\
 
-Today, there exists several tools for formal verification. One of the currently most favored tools is the Failures-Divergences Refinement tool (FDR4). This tool is a CSP refinement checker that can analyse programs written in \cspm{}. Using the denotational models of CSP, \textit{traces}, \textit{failures}, and \textit{failures-divergences}, FDR4 is able to check if an implemented process refines a specification process. FDR4 also has the functionality of checking more properties than these models, like deadlock freedom or livelock freedom.\\
+Today, there exists several tools for formal verification. One of the currently most favored tools is the Failures-Divergences Refinement tool (FDR4). FDR4 is a CSP refinement checker that can analyse programs written in \cspm{}.
+It is an obvious choice as the verification tool for the generated \cspm{} programs from TAPS. It has the ability to perform parallel refinement-checking, which drastically increase the amount of states it is able to check. FDR4 is also an actively maintained tool, so it is less likely to become obsolete.\\
+
+ Using the denotational models of CSP, \textit{traces}, \textit{failures}, and \textit{failures-divergences}, FDR4 is able to check if an implemented process refines a specification process. FDR4 also has the functionality of checking more properties than these models, like deadlock freedom or livelock freedom.\\
 
 FDR was first released in 1991 and has since then been used both in academia and in the industry. The FDR4 tool incorporates features like a \cspm{} type checker, a debugger as well as a built-in version of ProBE, the CSP process animator mentioned in Chapter \ref{chap:related_work}. FDR4 provides a parallel refinement-checking engine that can scale up linearly with the number of cores. This means that it can handle processes with a very large number of states in a reasonable time, which, along with compression, provides the possibility of verifying even larger problems. FDR4 also provide a cluster version, also providing verification of larger problems.\\
 
