@@ -18,9 +18,14 @@ channel hours_out_second_digit : {0..15}
     |$\vdots$|
 
 Hours(hours_in) =
-let
-    hours = hours_in / 3600
-    |$\vdots$|
+    let
+        hours = hours_in / 3600
+        hours_first_temp = hours / 10
+        hours_second_temp = hours % 10
+    within
+        hours_out_first_digit ! hours_first_temp ->
+        hours_out_first_digit ! hours_second_temp ->
+        SKIP
 
 Hours_out_first_digit_monitor(c) =
     c ? x -> if 0 <= x and x <= 2 then SKIP else STOP
@@ -128,7 +133,7 @@ proc add (in input, const constant)
         val: u4 = 0 range 0 to 10;
     };
 {
-    output.val = (input.val + constant) % 11; // upper limit + 1
+    output.val = (input.val + constant) % 11; //upper limit + 1
 }
 
 proc id (in input)
@@ -140,7 +145,6 @@ proc id (in input)
     from_add = input.val;
     output.val = from_add;
 }
-
 
 network addone_network ()
 {
@@ -182,7 +186,7 @@ Add(i, input_channel) =
 
 c_read_monitor(c) =
     (c ? x ->
-    (0 <= x and x <= 10 or x == -1) & -- observed values + initial value
+    (0 <= x and x <= 10 or x == -1) & -- observed values and initial value
         c_read_monitor(c)
     ) [] SKIP
 
@@ -327,26 +331,3 @@ It is quite surprising that the clocked experiment has such a drastic difference
 
 
 % TODO: I should also still mention something about how the increase in number of processes was or was not feasible.
-
-
-% TODO: To appendix
-\newpage
-\section{How to use TAPS}
-The required dependencies for generating the ANTLR4 parser, running TAPS and verification with FDR4 are listed below:
-\begin{itemize}
-    \item ANTLR4
-    \item Python 2.7
-    \item ANTLR Python runtime
-    \item FDR4
-\end{itemize}
-
-ANTLR4 and FDR4 can both be downloaded from their websites, where installation instructions are also provided.
-The ANTLR4 project can be found at \url{https://www.antlr.org/} and the FDR4 Project at \url{https://www.cs.ox.ac.uk/projects/fdr/}.\\
-It is also necessary to download the ANTLR4 Python runtime from \url{https://pypi.org/project/antlr4-python2-runtime/}.
-Assuming that an ANTLR4 alias has been created as the ANTLR4 installation suggest, the parser and lexer can be generated with ANTLR4 using the command: {\ttfamily antlr4 -Dlanguage=Python2 - visitor -no-listener Smeil.g4.}
-This will create all the required parser and lexer files, as well as the visitor methods. This step is only necessary if the .g4 grammar file has been modified.\\
-
-When the ANTLR4 files have been generated, TAPS can be used directly with a well-formed SMEIL program with the command: {\ttfamily python taps.py input.sme output.csp}. The system requires both an input file and an output file. If the output file does not exist, it will be created by TAPS. \\
-
-The resulting \cspm{} file can be verified in FDR4, either by the command line tool or by the FDR4 tool, which is a graphical tool. The command line tool can be used by the command \texttt{refines output.csp}. There are several options to adjust the output of the command. The FDR4 command line tool is mostly used to quickly check if a network passes the verification, because it is difficult to navigate the counterexamples. The FDR4 graphical tool provides a better visualisation of counterexamples, and the ProBE visualiser can be called directly from the FDR4 graphical tool.
-
