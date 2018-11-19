@@ -1,7 +1,24 @@
 % Appendix
-\section*{Paper}
-% Add the paper as PDF here
-\section*{Full SMEIL and \cspm code}
+\chapter{How to use TAPS}
+The required dependencies for generating the ANTLR4 parser, running TAPS and verification with FDR4 are listed below:
+\begin{itemize}
+    \item ANTLR4
+    \item Python 2.7
+    \item ANTLR Python runtime
+    \item FDR4
+\end{itemize}
+
+ANTLR4 and FDR4 can both be downloaded from their websites, where installation instructions are also provided.
+The ANTLR4 project can be found at \url{https://www.antlr.org/} and the FDR4 Project at \url{https://www.cs.ox.ac.uk/projects/fdr/}.\\
+It is also necessary to download the ANTLR4 Python runtime from \url{https://pypi.org/project/antlr4-python2-runtime/}.
+Assuming that an ANTLR4 alias has been created as the ANTLR4 installation suggest, the parser and lexer can be generated with ANTLR4 using the command: {\ttfamily antlr4 -Dlanguage=Python2 - visitor -no-listener Smeil.g4.}
+This will create all the required parser and lexer files, as well as the visitor methods. This step is only necessary if the .g4 grammar file has been modified.\\
+
+When the ANTLR4 files have been generated, TAPS can be used directly with a well-formed SMEIL program with the command: {\ttfamily python taps.py input.sme output.csp}. The system requires both an input file and an output file. If the output file does not exist, it will be created by TAPS. \\
+
+The resulting \cspm{} file can be verified in FDR4, either by the command line tool or by the FDR4 tool, which is a graphical tool. The command line tool can be used by the command \texttt{refines output.csp}. There are several options to adjust the output of the command. The FDR4 command line tool is mostly used to quickly check if a network passes the verification, because it is difficult to navigate the counterexamples. The FDR4 graphical tool provides a better visualisation of counterexamples, and the ProBE visualiser can be called directly from the FDR4 graphical tool.
+
+\chapter{Full SMEIL and \cspm code}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc clock ()
     bus clock_out {val: u17 range 1 to 86401;};
@@ -159,3 +176,15 @@ assert SKIP [F= N_seconds \ Events
 \end{minted}
 \captionof{listing}{The full \cspm{} code after transpiling the seven segment display example, as seen in Listing~\ref{lst:smeil} in the appendix.\label{lst:cspm}}
 
+\chapter{Towards Automatic Program Specification
+Using SME Models}
+\noindent A paper based on this thesis has been submitted for publication as
+
+\begin{center}
+\begin{minipage}{0.8\textwidth}
+    A. Thegler, M. Larsen, K. Skovhede, and B. Vinter. "Towards automatic program specification using sme models". In: {\itshape Proceedings of Communicating Process Architectures
+    2018} (2018)
+\end{minipage}
+\end{center}
+The following pages contains this paper.
+\includepdf[pages=-]{./paper/main.pdf}
