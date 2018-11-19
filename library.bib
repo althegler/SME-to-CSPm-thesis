@@ -63,10 +63,12 @@ volume = {6},
 year = {1997}
 }
 @misc{fdr_example,
-title = {{FDR4 manual example files}},
-url = {https://www.cs.ox.ac.uk/projects/fdr/manual/examples/index.html},
-urldate = {2018-10-06}
+title = {{FDR4 Manual Example Files}},
+howpublished = "\url{https://www.cs.ox.ac.uk/projects/fdr/manual/examples/index.html}",
+note = {[Online; accessed October 2018]},
 }
+
+
 @book{Parr2012,
 author = {Parr, Terence},
 pages = {319},
@@ -87,8 +89,8 @@ volume = {115},
 year = {1994}
 }
 
-@InProceedings{smeil,
-  title = {"SMEIL: A Domain-Specific Language for Synchronous Message Exchange Networks"},
+@inproceedings{smeil,
+  title = {{SMEIL: A Domain-Specific Language for Synchronous Message Exchange Networks}},
   author = "{Asheim}, {Truls}",
   editor = "{Chalmers}, {Kevin} and {Pedersen}, {Jan B{\ae}kgaard} and {Smith}, {Marc L.} and {Skovhede}, {Kenneth} and {Welch}, {Peter H.}",
   publisher = {"IOS Press, Amsterdam, The Netherlands"},
@@ -97,8 +99,6 @@ year = {1994}
   year = "2018",
   month = {"August"}
 }
-
-
 
 @misc{Roscoe1995,
 author = {Roscoe, A. W.},
@@ -142,17 +142,7 @@ publisher = {Prentice Hall},
 title = {{Design and Validation of Computer Protocols}},
 year = {1991}
 }
-@inproceedings{10.1007/978-3-540-73370-6_15,
-address = {Berlin, Heidelberg},
-author = {{Lluch Lafuente}, Alberto},
-booktitle = {Model Checking Software},
-editor = {Bo{\v{s}}na{\v{c}}ki, Dragan and Edelkamp, Stefan},
-isbn = {978-3-540-73370-6},
-pages = {223--242},
-publisher = {Springer Berlin Heidelberg},
-title = {{Towards Model Checking Spatial Properties with SPIN}},
-year = {2007}
-}
+
 @article{kepner2004hpc,
 author = {Kepner, Jeremy},
 journal = {The International Journal of High Performance Computing Applications},
@@ -164,17 +154,11 @@ volume = {18},
 year = {2004}
 }
 @book{Abdallah2005,
-archivePrefix = {arXiv},
-arxivId = {9780201398298},
 author = {Abdallah, A E and Jones, C B and Sanders, J W},
-doi = {10.1007/3-540-68339-9_34},
-eprint = {9780201398298},
-isbn = {9783540258131},
-issn = {0302-9743},
-pmid = {4520227},
 title = {{Communicating Sequential Processes. The First 25 Years: Symposium on the Occasion of 25 Years of CSP, London, UK, July 7-8, 2004. Revised Invited Papers}},
-url = {http://books.google.no/books?id=Q7SCim{\_}-8VEC},
-year = {2005}
+howpublished="\url{https://books.google.no/books?id=Q7SCim_-8VEC&hl=en}",
+year = {2005},
+note = {[Online; accessed November 2018]},
 }
 @article{Pedersen2018,
 author = {Pedersen, Jan B. and Welch, Peter H.},
@@ -190,17 +174,7 @@ url = {http://link.springer.com/10.1007/s00165-017-0447-x},
 volume = {30},
 year = {2018}
 }
-@inproceedings{Leuschel2008a,
-address = {Berlin, Heidelberg},
-author = {Leuschel, Michael and Fontaine, Marc},
-booktitle = {Formal Methods and Software Engineering},
-editor = {Liu, Shaoying and Maibaum, Tom and Araki, Keijiro},
-isbn = {978-3-540-88194-0},
-pages = {278--297},
-publisher = {Springer Berlin Heidelberg},
-title = {{Probing the Depths of CSP-M: A New fdr-Compliant Validation Tool}},
-year = {2008}
-}
+
 @article{Dibley2018,
 author = {Dibley, James and Bradshaw, Karen},
 journal = {Communicating Process Architectures 2018},
@@ -209,12 +183,15 @@ pages = {1--20},
 title = {{Deriving Reusable Go Components from Verified CSP Prototypes}},
 year = {2018}
 }
-@misc{asheim2015,
-annote = {Bachelor's Thesis},
-author = {Asheim, Truls},
-title = {{Implementing High Performance Synchronous Message Exchange}},
-year = {2015}
+
+@mastersthesis{asheim2015,
+  author={Asheim, Truls},
+  title="Implementing High Performance Synchronous Message Exchange",
+  school= "University of Copenhagen, Niels Bohr Institute",
+  year=2015,
+  type={Bachelor's Thesis}
 }
+
 @article{Lamport1980,
 author = {Lamport, Leslie},
 doi = {10.1007/BF00289062},
@@ -278,17 +255,20 @@ title = {{Logic For Computable Functions Description of a Machine Implementation
 year = {1972}
 }
 @misc{pysme,
-annote = {[Online; accessed April 2018]},
+note = {[Online; accessed November 2018]},
 author = {Asheim, Truls},
 title = {{PySME source code}},
-url = {https://github.com/truls/pysme},
-urldate = {2018-11-03}
+howpublished = "\url{https://github.com/truls/pysme}",
 }
-@article{Armstrong2011,
-author = {Armstrong, Philip and {Gavin Lowe} and {Jo{\"{e}}l Ouaknine} and {A.W. Roscoe}},
-title = {{Model checking Timed CSP}},
-year = {2011}
+
+@inproceedings{Armstrong2011,
+  title={Model checking Timed CSP.},
+  author={Armstrong, Philip J and Lowe, Gavin and Ouaknine, Jo{\"e}l and Roscoe, Bill},
+  booktitle={HOWARD-60},
+  pages={13--33},
+  year={2014}
 }
+
 @misc{UniveristyofKent,
 author = {{Univeristy of Kent}},
 title = {{occam-pi: blending the best of CSP and the pi-calculus}},
@@ -305,13 +285,21 @@ title = {{FDR3 --- A Modern Refinement Checker for CSP}},
 volume = {8413},
 year = {2014}
 }
-@inproceedings{bjorndalen2007pycsp,
-author = {Bj{\o}rndalen, John Markus and Vinter, Brian and Anshus, Otto J},
-booktitle = {Cpa},
-pages = {229--248},
-title = {{PyCSP-Communicating Sequential Processes for Python.}},
-year = {2007}
+
+@InProceedings{bjorndalen2007pycsp,
+  title = {{PyCSP - Communicating Sequential Processes for Python}},
+  author = "{Bj{\o}rndalen}, {John Markus} and {Vinter}, {Brian} and {Anshus}, {Otto J.}",
+  editor = "{McEwan}, {Alistair A.} and {Schneider}, {Steve} and {Welch}, {Peter H.} and {Ifill}, {Wilson}",
+  pages = "229 -- 248",
+  publisher = {"IOS Press, Amsterdam, The Netherlands"},
+  booktitle = {"Communicating Process Architectures 2007"},
+  isbn = "978-1586037673",
+  year = "2007",
+  month = {"July"}
 }
+
+
+
 @article{Vinter2015,
 author = {Vinter, Brian and Skovhede, Kenneth},
 keywords = {FPGA,PyCSP,Scientific Byte Code,Synchronous Messaging},
@@ -320,16 +308,13 @@ title = {{Bus Centric Synchronous Message Exchange for Hardware Designs}},
 year = {2015}
 }
 @inproceedings{Agrawal:1985:VDP:320599.322570,
-address = {New York, NY, USA},
 author = {Agrawal, Vishwani and Poon, Samuel H C},
 booktitle = {Proceedings of the 1985 ACM Thirteenth Annual Conference on Computer Science},
-doi = {10.1145/320599.322570},
-isbn = {0-89791-150-4},
 pages = {74--78},
 publisher = {ACM},
 series = {CSC '85},
 title = {{VLSI Design Process}},
-url = {http://doi.acm.org/10.1145/320599.322570},
+howpublished = "\url{http://doi.acm.org/10.1145/320599.322570}",
 year = {1985}
 }
 @article{Leveson1993,
@@ -388,18 +373,12 @@ issn = {01460404},
 pages = {19--32},
 pmid = {17389487},
 title = {{Assigning Meanings to Programs}},
-url = {http://www.springerlink.com/index/10.1007/978-94-011-1793-7{\_}4},
 year = {1967}
 }
 @misc{Go,
 title = {{Go Project. The Go programming language}},
-url = {https://golang.org},
-urldate = {2018-10-15}
-}
-@misc{antlr,
-annote = {[Online; accessed June 2018]},
-howpublished = {$\backslash$url{\{}http://www.antlr.org/{\}}},
-title = {{ANTLR4}}
+howpublished = "\url{https://golang.org}",
+note = {[Online; accessed October 2018]},
 }
 
 @inproceedings{Larsen1995,
@@ -427,17 +406,22 @@ year = {1977}
 }
 @misc{coq,
 title = {{The Coq Proof Assistant}},
-url = {https://coq.inria.fr/},
-urldate = {2018-10-14}
+howpublished = "\url{https://coq.inria.fr/}",
+note = {[Online; accessed October 2018]},
 }
-@article{asheim2016vhdl,
-author = {Asheim, Truls and Vinter, Brian and Skovhede, Kenneth},
-keywords = {CSP,FPGA,HLS,Haskell,Python,VHDL,synchronous messaging,transpiler},
-number = {September},
-pages = {23},
-title = {{VHDL Generation From Python Synchronous Message Exchange Networks}},
-year = {2016}
+
+@InProceedings{asheim2016vhdl,
+  title = {{VHDL Generation From Python Synchronous Message Exchange Networks}},
+  author = "{Asheim}, {Truls} and {Skovhede}, {Kenneth} and {Vinter}, {Brian}",
+  editor = "{Chalmers}, {Kevin} and {Pedersen}, {Jan B{\ae}kgaard} and {Broenink}, {Jan F.} and {Vinter}, {Brian} and {Welch}, {Peter H.}",
+  pages = "161 -- 184",
+  publisher = {"IOS Press, Amsterdam, The Netherlands"},
+  booktitle = {"Communicating Process Architectures 2016"},
+  isbn = "978-XXX",
+  year = "2016",
+  month = {"August"}
 }
+
 @inproceedings{Oliveira2007,
 address = {Berlin, Heidelberg},
 author = {Oliveira, Marcel and Woodcock, Jim},
@@ -449,12 +433,12 @@ publisher = {Springer Berlin Heidelberg},
 title = {{Automatic Generation of Verified Concurrent Hardware}},
 year = {2007}
 }
-@phdthesis{Asheim2018,
-author = {Asheim, Truls},
-school = {University of Copenhagen, Niels Bohr Institute},
-title = {{A Domain Specific Language for Synchronous Message Exchange Networks}},
-type = {masterthesis},
-year = {2018}
+
+@mastersthesis{Asheim2018,
+  author={Asheim, Truls},
+  title="A Domain Specific Language for Synchronous Message Exchange Networks",
+  school= "University of Copenhagen, Niels Bohr Institute",
+  year=2018,
 }
 
 @article{Isobe2005,
@@ -548,7 +532,6 @@ year = {2010}
 }
 @article{VHDL98,
 journal = {IEEE Std 1076-1987},
-keywords = {VLSI,circuit CAD,context-free languages,integrated},
 title = {{IEEE Standard VHDL Language Reference Manual}},
 year = {1998}
 }
@@ -637,19 +620,18 @@ author = {Ltd, Formal Systems (Europe)},
 organization = {Formal Systems (Europe) Ltd},
 title = {{Process Behaviour Explorer - ProBE User Manual}}
 }
+
 @article{Brookes1984,
-author = {Brookes, S. D. and Hoare, C.A.R. and Roscoe, A. W.},
-doi = {10.1145/828.833},
-isbn = {0004-5411},
-issn = {00045411},
-journal = {Journal of the ACM},
-number = {3},
-pages = {560--599},
-title = {{A Theory of Communicating Sequential Processes}},
-url = {http://www.cs.ox.ac.uk/bill.roscoe/publications/4.pdf},
-volume = {31},
-year = {1984}
+  title={A theory of communicating sequential processes},
+  author={Brookes, Stephen D and Hoare, Charles AR and Roscoe, Andrew W},
+  journal={Journal of the ACM (JACM)},
+  volume={31},
+  number={3},
+  pages={560--599},
+  year={1984},
+  publisher={ACM}
 }
+
 @article{Vinter2014,
 author = {Vinter, B and Skovhede, K},
 journal = {Communicating Process Architectures},
@@ -682,10 +664,8 @@ title = {{Stanford Pascal Verifier User Manual}},
 year = {1979}
 }
 @article{VHDL92,
-doi = {10.1109/IEEESTD.1992.101084},
 journal = {IEEE Std 1076/INT-1991},
-keywords = {Design automation,IEEE Std 1076-1987,Specification languages,Standards,VHSIC Hardware Description Language,circuit CAD,specification languages,standards},
-title = {{IEEE Standards Interpretations: IEEE Std 1076-1987, IEEE Standard VHDL Language Reference Manual}},
+title = {{IEEE Standard VHDL Language Reference Manual}},
 year = {1992}
 }
 @inproceedings{Schneider2002a,
@@ -740,12 +720,10 @@ title = {{Design and Synthesis of Synchronization Skeletons Using Branching-Time
 year = {1981}
 }
 @inproceedings{Abrial1988,
-address = {Berlin, Heidelberg},
-annote = {I do not have this as a file},
 author = {Abrial, J R},
+note= {I done have this on paper},
 booktitle = {VDM '88 VDM --- The Way Ahead},
 editor = {Bloomfield, Robin E and Marshall, Lynn S and Jones, Roger B},
-isbn = {978-3-540-45955-2},
 pages = {86--87},
 publisher = {Springer Berlin Heidelberg},
 title = {{The B tool (Abstract)}},
