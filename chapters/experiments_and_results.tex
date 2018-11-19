@@ -111,14 +111,11 @@ The \texttt{addone} example differs from the seven segment example in that it do
 
 If an SMEIL simulation of an unrestricted \texttt{addone} network results in the internal values reaching 20 and the FDR4 verification verifies more clock cycles than the SMEIL simulation, this would cause the values of the FDR4 verification to exceed the observed values, which would cause FDR4 to fail the verification. It is, therefore, necessary that the user makes an informed choice as to the number of clock cycles to simulate in SMEIL but also to verify in FDR4. The number of simulated clock cycles and FDR4 verified clock cycles do not have to be equal, but in most cases, it might be the obvious choice. \\
 
-% TODO: Fix this according to the addone example (%5 or %6?)
-
-As mentioned, the \texttt{addone} example should be restricted and so a \texttt{\% 6} was added to the value-incrementing expression in the \texttt{add} process to avoid the value becoming larger than 5. Listing \ref{lst:addone_mod_example} shows the simulated \texttt{addone} network with the restriction added in the \texttt{add} process. Besides the restriction, this example is identical to the example in Listing \ref{lst:addone_smeil_example} in Chapter \ref{chap:clock}.
+As mentioned, the \texttt{addone} example should be restricted and so a \texttt{\% 11} was added to the value-incrementing expression in the \texttt{add} process to avoid the value becoming larger than 10. Listing \ref{lst:addone_mod_example} shows the simulated \texttt{addone} network with the restriction added in the \texttt{add} process. Besides the restriction, this example is identical to the example in Listing \ref{lst:addone_smeil_example} in Chapter \ref{chap:clock}.
 With this enhanced example, the SMEIL simulation provides reasonable observed values which can be used for the verification in FDR4. In Listing \ref{lst:cspm_addone_restricted}, a subset of the translated \texttt{addone} example can be seen which includes the restriction.
 % TODO: Add something about where the entire code can be seen
-% TODO: Fix this according to the addone example (%5 or %6?)
 
-After 10 clock cycles, the value becomes larger than 5, but the restriction ensures that the verification will succeed even if verified for more than 10 clock cycles. The value will simply wrap around and continue at 0. If the restriction is removed and FDR4 verifies more than 10 clock cycles, the verification fails as expected. \\
+After 21 clock cycles, the value becomes larger than 10, but the restriction ensures that the verification will succeed even if verified for more than 21 clock cycles. The value will simply wrap around and continue at 0. If the restriction is removed and FDR4 verifies more than 21 clock cycles, the verification fails as expected. \\
 
 This example is somewhat awkward to verify with FDR4, since it does not take advantage of the state space exploration that FDR4 provides. The lack of an input range for the system means that for each clock cycle a new state machine is verified, but only the internal values change. In this example, FDR4 only verifies the relation between internal values for each clock cycle with no external influence. The advantage of the clocked structure is that values, which might cause failures after a certain amount of clock cycles, are now possible to verify, which was not possible with the initial version of TAPS. \\
 
@@ -126,26 +123,24 @@ It is easy to see that this example never fails with the added restriction, but 
 
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
+proc add (in input, const constant)
+    bus output {
+        val: u4 = 0 range 0 to 10;
+    };
+{
+    output.val = (input.val + constant) % 11; // upper limit + 1
+}
 
 proc id (in input)
     bus output {
-        val: u4 = 0 range 0 to 4;
+        val: u4 = 0 range 0 to 10;
     };
-    var from_add: u4 range 0 to 4;
+    var from_add: u4 range 0 to 10;
 {
     from_add = input.val;
     output.val = from_add;
 }
 
-proc add (in input, const constant)
-    bus output {
-        val: u4 = 0 range 0 to 4;
-    };
-    var from_id: u4 range 0 to 4;
-{
-    from_id = (input.val + constant) % 5;
-    output.val = from_id;
-}
 
 network addone_network ()
 {
@@ -156,14 +151,13 @@ network addone_network ()
 \caption{The restricted SMEIL network \texttt{addone\_network} similar to the example in Listing \ref{lst:addone_smeil_example}.}
 \label{lst:addone_mod_example}
 \end{listing}
-% TODO: Fix this example! the example values as well as the caption!
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel sync
 channel d_read, c_read : { -1..15} -- u4 and initial value
 channel d_write, c_write : { -1..15} -- u4 and initial value
 
-DUM_VAL = -1
+DUM_VAL = -1 -- initial value
 
 Add(i, input_channel) =
     (sync ->
@@ -174,13 +168,13 @@ Add(i, input_channel) =
                 let
                     var = i
                 within
-                    var <= 15 &
+                    var <= 15 & -- upper limit
                         c_read ! var -> Add(i, input_channel))
             else (
                 let
-                    var = (x + 1) % 5 -- % restriction
+                    var = (x + 1) % 11 -- observed value + 1 restriction
                 within
-                    var <= 15 &
+                    var <= 15 & -- upper limit
                         c_read ! var -> Add(i, input_channel))
     )
     [] SKIP
@@ -188,12 +182,12 @@ Add(i, input_channel) =
 
 c_read_monitor(c) =
     (c ? x ->
-    (0 <= x and x <= 5 or x == -1) &
+    (0 <= x and x <= 10 or x == -1) & -- observed values + initial value
         c_read_monitor(c)
     ) [] SKIP
 
 \end{minted}
-\caption{Sections of the translated \texttt{addone} network. The \texttt{Add} process has restrictions included to ensure no values above 5. The monitor process defines this range along with the acceptance of the dummy value -1. This example has been manually translated due to limitations of the clocked version of TAPS.}
+\caption{Sections of the translated \texttt{addone} network. The \texttt{Add} process has restrictions included to ensure no values above 10. The monitor process defines this range along with the acceptance of the dummy value -1. This example has been manually translated due to limitations of the clocked version of TAPS.}
 \label{lst:cspm_addone_restricted}
 \end{listing}
 \section{Problem Size Experiments}

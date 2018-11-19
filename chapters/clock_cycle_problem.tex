@@ -30,12 +30,9 @@ proc add (in input, const constant)
     bus output {
         val: u4 = 0 range 0 to 10;
     };
-    var from_id: u4 range 0 to 10;
 {
-    from_id = input.val + constant;
-    output.val = from_id;
+    output.val = input.val + constant;
 }
-
 
 proc id (in input)
     bus output {
@@ -171,8 +168,6 @@ To solve this problem, TAPS defines a buffer structure for each SMEIL channel. A
 \caption{Illustration of the relation between a process and a buffer. In one clock cycle the buffer writes a value which the process reads, and after the computation the process writes the value to the buffer which holds it for the next clock cycle.}
 \label{fig:clock_cycle}
 \end{figure}
-
-
 The buffer solves the problem of initialising the network. Each buffer is instantiated with a value that the buffer writes to a channel from which a process can read. However, the initial value is only used to initialise the network. I refer to the initial value as a \textit{dummy value} which is determined as a value outside of the channel range so that the process is able to distinguish between the initial value and the actual network values.
 It is, of course, not ideal to represent the dummy value as an integer. The dummy value must be outside the channel range, and therefore the channel range cannot represent the entire signed 32-bit representation that FDR4 support. Even though it is highly unlikely for a channel range to be this large, it is an unnecessary restriction. It is possible to define a data structure in \cspm{} that removes this restriction, for example by having the dummy value being represented by a boolean instead of an integer. This extended structure will increase the complexity of the communication structures, but it is simple to auto-generate.
 In this thesis, the dummy value is represented by an integer value to simplify the examples.\\
@@ -261,18 +256,19 @@ Add = sync ->
         within
             output ! result -> Add
 
-Clock(10) = SKIP
+Clock(11) = SKIP
 Clock(n) =  sync -> sync -> Clock(n+1)
 \end{minted}
 \caption{A simplified example of the \texttt{Add} process in the \texttt{Addone} network.}
 \label{lst:simplified_addone}
 \end{listing}
-A simplified example can be seen in Listing \ref{lst:simplified_addone}, where the channels are defined with the range \{0..5\}, the \texttt{Clock} process is running for 10 clock cycles, and the \texttt{add} process is incrementing by 1.
+% TODO: add something to the caption about the appendix
+A simplified example can be seen in Listing \ref{lst:simplified_addone}, where the channels are defined with the range \{0..5\}, the \texttt{Clock} process is running for 11 clock cycles, and the \texttt{add} process is incrementing by 1.
 % TODO: Maybe add a table of the propagation results for this example? That would be easier to understand I think.
 The result of this network is that the \texttt{add} process would write 6 to the channel just before terminating, but since the channel is defined only for the range \{0..5\}, FDR4 fails and provides an error message that this is not possible. The error will still occur even if the maximum channel value is changed to 6, because the last written value would then be 7 and once again out of range. \\
 
 Even if the maximum value was increased so much that the actual communicated values would never be above, FDR4 would still provide the error.
-For example, if the network was the same as described above, but the channels were defined for a range \{0..500\}, the values the \texttt{add} process would communicate after 10 clock cycles would not be near the maximum value of 500. But in this case, FDR4 still raised an error because the problem does not lie in the values communicated on the network, but the structure of the network. \\
+For example, if the network was the same as described above, but the channels were defined for a range \{0..500\}, the values the \texttt{add} process would communicate after 11 clock cycles would not be near the maximum value of 500. But in this case, FDR4 still raised an error because the problem does not lie in the values communicated on the network, but the structure of the network. \\
 
 The reason that FDR4 fails in both cases lies in the internal structure of FDR4 and the verification method. For all networks, FDR4 must allocate all possible states, even though not all of them are visited during the refinement check. This means that it allocates states where the process writes values larger than the maximum channel value, even though those states would never be visited.\\
 
