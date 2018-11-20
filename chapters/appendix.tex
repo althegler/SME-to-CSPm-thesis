@@ -18,7 +18,7 @@ When the ANTLR4 files have been generated, TAPS can be used directly with a well
 
 The resulting \cspm{} file can be verified in FDR4, either by the command line tool or by the FDR4 tool, which is a graphical tool. The command line tool can be used by the command \texttt{refines output.csp}. There are several options to adjust the output of the command. The FDR4 command line tool is mostly used to quickly check if a network passes the verification, because it is difficult to navigate the counterexamples. The FDR4 graphical tool provides a better visualisation of counterexamples, and the ProBE visualiser can be called directly from the FDR4 graphical tool.
 
-\chapter{Full SMEIL and \cspm code}
+\chapter{Seven Segments Display Example Full SMEIL and \cspm code}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc clock ()
     bus clock_out {val: u17 range 1 to 86401;};
@@ -174,7 +174,305 @@ N_seconds = clock_out_val ? variable ->
 assert SKIP [F= N_seconds \ Events
 
 \end{minted}
-\captionof{listing}{The full \cspm{} code after transpiling the seven segment display example, as seen in Listing~\ref{lst:smeil} in the appendix.\label{lst:cspm}}
+\captionof{listing}{The full unclocked \cspm{} code after transpiling the seven segment display example, as seen in Listing~\ref{lst:smeil} in the appendix.\label{lst:cspm}}
+
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
+channel hours_hours_out_first_digit : {0..3}
+channel hours_hours_out_second_digit : {0..15}
+channel minutes_min_out_first_digit : {0..7}
+channel minutes_min_out_second_digit : {0..15}
+channel seconds_sec_out_first_digit : {0..7}
+channel seconds_sec_out_second_digit : {0..15}
+channel clock_c_out_val : { 0..1000}
+channel sync
+
+Clock(1) = SKIP
+Clock(n) =  sync -> sync -> Clock(n+1)
+
+Hours(input_channel) =
+    (sync ->
+     input_channel ? hours_in ->
+     sync ->
+        let
+            hours = ( hours_in / 3600 ) % 24
+            hours_first_temp = hours / 10
+            hours_second_temp = hours % 10
+        within
+            (hours_first_temp <= 3) &
+                (hours_hours_out_first_digit ! hours_first_temp ->
+                (hours_second_temp <= 15) &
+                    (hours_hours_out_second_digit ! hours_second_temp ->
+                    Hours(input_channel)
+                    )
+                )
+    ) [] SKIP
+
+hours_hours_out_first_digit_monitor(c) =
+    (c ? x ->
+    (0 <= x and x <= 2 or x == -1) &
+        hours_hours_out_first_digit_monitor(c)
+    ) [] SKIP
+
+hours_hours_out_second_digit_monitor(c) =
+    (c ? x ->
+    (0 <= x and x <= 9 or x == -1) &
+        hours_hours_out_second_digit_monitor(c)
+    ) [] SKIP
+
+
+N_hours =
+        (
+            (
+            Hours(clock_c_out_val)
+            [|{| hours_hours_out_first_digit |}|]
+            hours_hours_out_first_digit_monitor(hours_hours_out_first_digit)
+            )
+        [|{| hours_hours_out_second_digit |}|]
+        hours_hours_out_second_digit_monitor(hours_hours_out_second_digit)
+        )
+        [|{| sync |}|]
+        (
+        Clock(0)
+        )
+
+assert SKIP [F= N_hours \ Events
+--------------------------------------------------------------------------
+
+Minutes(input_channel) =
+    (sync ->
+     clock_c_out_val ? min_in ->
+     sync ->
+        let
+            min = ( min_in / 60 ) % 60
+            min_first_temp = min / 10
+            min_second_temp = min % 10
+        within
+            (min_first_temp <= 7) &
+                (minutes_min_out_first_digit ! min_first_temp ->
+                (min_second_temp <= 15) &
+                    (minutes_min_out_second_digit ! min_second_temp ->
+                    Minutes(input_channel)
+                    )
+                )
+    ) [] SKIP
+
+minutes_min_out_first_digit_monitor(c) =
+    (c ? x ->
+    (0 <= x and x <= 5 or x == -1) &
+        minutes_min_out_first_digit_monitor(c)
+    ) [] SKIP
+
+minutes_min_out_second_digit_monitor(c) =
+    (c ? x ->
+    (0 <= x and x <= 9 or x == -1) &
+        minutes_min_out_second_digit_monitor(c)
+    ) [] SKIP
+
+N_minutes =
+        (
+            (
+            Minutes(clock_c_out_val)
+            [|{| minutes_min_out_first_digit |}|]
+            minutes_min_out_first_digit_monitor(minutes_min_out_first_digit)
+            )
+        [|{| minutes_min_out_second_digit |}|]
+        minutes_min_out_second_digit_monitor(minutes_min_out_second_digit)
+        )
+        [|{| sync |}|]
+        (
+        Clock(0)
+        )
+
+assert SKIP [F= N_minutes \ Events
+
+--------------------------------------------------------------------------
+
+
+Seconds(input_channel) =
+    (sync ->
+     clock_c_out_val ? sec_in ->
+     sync ->
+        let
+            sec = sec_in % 60
+            sec_first_temp = sec / 10
+            sec_second_temp = sec % 10
+        within
+            -- I might be able to put them together in a if x > 10 or y >10
+            -- But this would probably not be possible to auto generate.
+            (sec_first_temp <= 7) &
+                (seconds_sec_out_first_digit ! sec_first_temp ->
+                (sec_second_temp <= 15) &
+                    (seconds_sec_out_second_digit ! sec_second_temp ->
+                    Seconds(input_channel)
+                    )
+                )
+    ) [] SKIP
+
+
+sec_sec_out_first_digit_monitor(c) =
+    (c ? x ->
+    (0 <= x and x <= 5) &
+        sec_sec_out_first_digit_monitor(c)
+    ) [] SKIP
+
+sec_sec_out_second_digit_monitor(c) =
+    (c ? x ->
+    (0 <= x and x <= 9) &
+        sec_sec_out_second_digit_monitor(c)
+    ) [] SKIP
+
+N_seconds =
+        (
+            (
+            Seconds(clock_c_out_val)
+            [|{| seconds_sec_out_first_digit |}|]
+            sec_sec_out_first_digit_monitor(seconds_sec_out_first_digit)
+            )
+        [|{| seconds_sec_out_second_digit |}|]
+        sec_sec_out_second_digit_monitor(seconds_sec_out_second_digit)
+        )
+        [|{| sync |}|]
+        (
+        Clock(0)
+        )
+
+assert SKIP [F= N_seconds \ Events
+\end{minted}
+\captionof{listing}{The full clocked \cspm{} code after transpiling the seven segment display example, as seen in Listing~\ref{lst:smeil} in the appendix.\label{lst:cspm_clocked}}
+
+
+\chapter{Addone Example Full SMEIL and \cspm code}
+\begin{minted}{smeil_lexer.py:SMEILLexer -x}
+proc add (in input, const constant)
+    bus output {
+        val: u4 = 0 range 0 to 10;
+    };
+{
+    output.val = (input.val + constant) % 11; // upper limit + 1
+}
+
+proc id (in input)
+    bus output {
+        val: u4 = 0 range 0 to 10;
+    };
+    var from_add: u4 range 0 to 10;
+{
+    from_add = input.val;
+    output.val = from_add;
+}
+
+
+network addone_network ()
+{
+    instance id of id(add.output);
+    instance add of add(id.output, constant: 1);
+}
+\end{minted}
+\captionof{listing}{The full SMEIL code used for transpiling in the Addone example.\label{lst:smeil_addone_full}}
+
+\begin{minted}{cspm_lexer.py:CSPmLexer -x}
+channel sync
+channel d_read, c_read : { -1..15} -- u4 and initial value
+channel d_write, c_write : { -1..15} -- u4 and initial value
+
+DUM_VAL = -1 -- initial value
+
+
+Add(i, input_channel) =
+    (sync ->
+     input_channel ? x ->
+     sync ->
+        if (x == DUM_VAL) -- initial value
+            then (
+                let
+                    var = i
+                within
+                    var <= 15 & -- upper limit
+                        c_read ! var -> Add(i, input_channel))
+            else (
+                let
+                    var = (x + 1) % 11 -- observed value + 1 restriction
+                within
+                    var <= 15 & -- upper limit
+                        c_read ! var -> Add(i, input_channel))
+    )
+    [] SKIP
+
+
+Id(i, input_channel) =
+    (sync ->
+     input_channel ? x ->
+     sync ->
+        if (x == DUM_VAL) -- initial value
+            then (
+                i <= 15 & -- upper limit
+                    d_read ! i -> Id(i, input_channel))
+            else (
+                x <= 15 & -- upper limit
+                    d_read ! x -> Id(i, input_channel))
+    )
+    [] SKIP
+
+
+c_read_monitor(c) =
+    (c ? x ->
+    (0 <= x and x <= 10 or x == -1) & -- observed values + initial value
+        c_read_monitor(c)
+    ) [] SKIP
+
+d_read_monitor(c) =
+    (c ? x ->
+    (0 <= x and x <= 10 or x == -1) & -- observed values + initial value
+        d_read_monitor(c)
+    ) [] SKIP
+
+
+Buf_d_read = sync -> ((d_read ? x -> (d_read ? x -> STOP [] Buf_d_write(x))
+                    [] sync -> Buf_d_read) [] SKIP)
+
+Writes_d_write(x) = d_write ! x -> ((Writes_d_write(x) [] Buf_d_read) [] SKIP)
+Buf_d_write(x) = sync -> (Writes_d_write(x) [] Buf_d_read) [] SKIP
+
+
+Buf_c_read = sync -> ((c_read ? x -> (c_read ? x -> STOP [] Buf_c_write(x))
+                    [] sync -> Buf_c_read) [] SKIP)
+
+Writes_c_write(x) = c_write ! x -> ((Writes_c_write(x) [] Buf_c_read) [] SKIP)
+Buf_c_write(x) = sync -> (Writes_c_write(x) [] Buf_c_read) [] SKIP
+
+Clock(21) = SKIP
+Clock(n) =  sync -> sync -> Clock(n+1)
+
+
+System =
+        (
+            (
+                (
+                    Add(0, d_write)
+                    [{| sync, c_read, d_write |} || {| c_read |}]
+                    c_read_monitor(c_read)
+                )
+                [{| sync, c_read, d_write |} || {| sync, d_read, d_write |}]
+                Buf_d_write(DUM_VAL)
+            )
+            [{| sync, c_read, d_read, d_write |} || {| sync, c_read, c_write, d_read |}]
+            (
+                (
+                    Id(0, c_write)
+                    [{| sync, d_read, c_write |} || {| d_read |}]
+                    d_read_monitor(d_read)
+                )
+                [{| sync, c_write, d_read |} || {| sync, c_read, c_write |}]
+                Buf_c_write(DUM_VAL)
+            )
+        )
+        [|{| sync |}|]
+        Clock(0)
+
+assert SKIP [F= System \ Events
+\end{minted}
+\captionof{listing}{The full \cspm{} code after transpiling the Addone example, as seen in Listing~\ref{lst:smeil_addone_full} in the appendix.\label{lst:cspm_addone_full}}
+
 
 \chapter{Towards Automatic Program Specification
 Using SME Models}

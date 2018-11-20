@@ -51,7 +51,7 @@ network addone_network ()
     instance add of add(id.outbus, constant: 1);
 }
 \end{minted}
-\caption{The simulated SMEIL network \texttt{addone\_network} with two processes. The example is similar with the addone example in \cite{smeil}.}
+\caption{The simulated SMEIL network \texttt{addone\_network} with two processes. The example is similar with the addone example in \cite{smeil}. The }
 \label{lst:addone_smeil_example}
 \end{listing}
 
@@ -259,10 +259,9 @@ Add = sync ->
 Clock(11) = SKIP
 Clock(n) =  sync -> sync -> Clock(n+1)
 \end{minted}
-\caption{A simplified example of the \texttt{Add} process in the \texttt{Addone} network.}
+\caption{A simplified example of the \texttt{Add} process in the \texttt{Addone} network. See full example in Listing~\ref{lst:cspm_addone_full} in the appendix.}
 \label{lst:simplified_addone}
 \end{listing}
-% TODO: add something to the caption about the appendix
 A simplified example can be seen in Listing \ref{lst:simplified_addone}, where the channels are defined with the range \{0..5\}, the \texttt{Clock} process is running for 11 clock cycles, and the \texttt{add} process is incrementing by 1.
 % TODO: Maybe add a table of the propagation results for this example? That would be easier to understand I think.
 The result of this network is that the \texttt{add} process would write 6 to the channel just before terminating, but since the channel is defined only for the range \{0..5\}, FDR4 fails and provides an error message that this is not possible. The error will still occur even if the maximum channel value is changed to 6, because the last written value would then be 7 and once again out of range. \\
