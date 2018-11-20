@@ -89,18 +89,18 @@ The two fundamental components of an SMEIL program are \texttt{process} and \tex
 The SME model supports both synchronous and asynchronous processes. A synchronous process is run during every clock cycle and an asynchronous process is only run when receiving a signal on the input bus. Unfortunately, the SMEIL implementation does not currently support asynchronous processes.
 \begin{listing}
 \begin{minted}[escapeinside=&&, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-proc addone (in inbus)
+proc double (in inbus)
     bus outbus {
-        val: int;
+        val: uint;
     };
 {
-    outbus.val = inbus.val + 1;
+    outbus.val = inbus.val * 2;
 }
 
     &$\vdots$&
 
-network net() {
-    instance a of addone(b.outbus);
+network plus_net() {
+    instance a of double(b.outbus);
     instance b of ..
     &$\vdots$&
 }
@@ -132,13 +132,12 @@ An example of this can be seen in Listing \ref{lst:smeil_restricted_types_and_ra
     % \centering
   \begin{minipage}[t]{0.45\linewidth}
     \begin{minted}{smeil_lexer.py:SMEILLexer -x}
-proc A ()
-    bus b {
-        chan: int;
+proc double (in inbus)
+    bus outbus {
+        val: uint;
     };
-    var c: i10;
 {
-    c = b.chan;
+    outbus.val = inbus.val * 2;
 }
     \end{minted}
     \captionof{listing}{Example of unconstrained channel type before simulation.}
@@ -147,14 +146,15 @@ proc A ()
   \hspace{0.5cm}
   \begin{minipage}[t]{0.45\linewidth}
     \begin{minted}{smeil_lexer.py:SMEILLexer -x}
-proc A ()
-    bus b {
-        chan: i6 range 0 to 29;
+proc double (in inbus)
+    bus outbus {
+        val: u5 range 0 to 25;
     };
-    var c: i10;
 {
-    c = b.chan;
+    outbus.val = inbus.val * 2;
 }
+
+
     \end{minted}
     \captionof{listing}{Example of constrained channel type and range after simulation.}
     \label{lst:constrained_smeil_type}
