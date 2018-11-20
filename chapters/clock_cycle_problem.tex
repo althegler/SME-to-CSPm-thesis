@@ -26,29 +26,29 @@ An illustration of the network can be seen in Figure \ref{fig:addone_unclocked}.
 As presented in Chapter \ref{chap:design}, all possible communication combinations are represented in the generated \cspm{} code, however, the generated \cspm{} processes are not recursing, and so only one cycle of the loop is simulated in the \texttt{addone} example. This means that if the network was provided with an input that, after several clock cycles, resulted in a failure, this would not be caught by FDR4 because the \cspm{} code only represents one clock cycle. It was, therefore, necessary to extend TAPS so that network with internal states can be verified.\\
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
-proc add (in input, const constant)
-    bus output {
+proc add (in inbus, const constant)
+    bus outbus {
         val: u4 = 0 range 0 to 10;
     };
 {
-    output.val = input.val + constant;
+    outbus.val = inbus.val + constant;
 }
 
-proc id (in input)
-    bus output {
+proc id (in inbus)
+    bus outbus {
         val: u4 = 0 range 0 to 10;
     };
     var from_add: u4 range 0 to 10;
 {
-    from_add = input.val;
-    output.val = from_add;
+    from_add = inbus.val;
+    outbus.val = from_add;
 }
 
 
 network addone_network ()
 {
-    instance id of id(add.output);
-    instance add of add(id.output, constant: 1);
+    instance id of id(add.outbus);
+    instance add of add(id.outbus, constant: 1);
 }
 \end{minted}
 \caption{The simulated SMEIL network \texttt{addone\_network} with two processes. The example is similar with the addone example in \cite{smeil}.}
@@ -65,8 +65,8 @@ In order to verify networks for more than one clock cycle, it is necessary to tr
 An example of this can be seen in Listing \ref{lst:cspm_recursion}.
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
-Init = d ! 1 -> A(1)
-A(x) = d ! x -> A(x+1)
+Init = d ! 1 -> Inc(1)
+Inc(x) = d ! (x+1) -> Inc(x+1)
 \end{minted}
 \caption{Example of the a recursive \cspm{} process that is initialised by the \texttt{Init} process.}
 \label{lst:cspm_recursion}
@@ -74,7 +74,7 @@ A(x) = d ! x -> A(x+1)
 
 An actual SME process will never terminate, but it is of course not possible to simulate endless runtime, so when simulating the SMEIL network the developer indicates the number of clock cycles to simulate. The results of the simulation can be seen as a snapshot of the process trace. The SMEIL simulation consists of a finite number of clock cycles and it is not possible to verify an infinite state space with FDR4, therefore, it is necessary to introduce process termination to the translation, even though this is not the reality of actual hardware. \\
 
-In Listing \ref{lst:cspm_recursion}, process \texttt{A} performs an endless loop with no option to terminate. As previously mentioned, it is important to limit the range of values for FDR4 to verify, in order to avoid running out of space. If the example in Listing \ref{lst:cspm_recursion} was verified with FDR4, it would eventually run out of space. It is therefore crucial to model a structure that can drive the network synchronisation, and that can ensure that the processes terminate at a specified time. This structure is represented by a \texttt{Clock} process added to the generated network in \cspm{}. The \texttt{Clock} process drives the network for a specific number of clock cycles and then terminates, causing all other processes to do the same. \\
+In Listing \ref{lst:cspm_recursion}, process \texttt{Inc} performs an endless loop with no option to terminate. As previously mentioned, it is important to limit the range of values for FDR4 to verify, in order to avoid running out of space. If the example in Listing \ref{lst:cspm_recursion} was verified with FDR4, it would eventually run out of space. It is therefore crucial to model a structure that can drive the network synchronisation, and that can ensure that the processes terminate at a specified time. This structure is represented by a \texttt{Clock} process added to the generated network in \cspm{}. The \texttt{Clock} process drives the network for a specific number of clock cycles and then terminates, causing all other processes to do the same. \\
 
 It is, of course, still necessary for the new version of TAPS to model a \cspm{} network that reflects the SME model, and therefore it must adhere to the SME model structure. To model the global synchronicity in \cspm{}, it is necessary to enforce a synchronising event. This synchronicity can be emulated by having a \texttt{sync} channel, where all processes synchronise and thus they can emulate rising and falling clock signals. All clocked processes in the network will synchronise on the \texttt{sync} channel, and as previously introduced, when two processes are synchronised on a channel, they must agree on communication before any process can continue. The same \texttt{sync} channel is used for syncronising read as well as write, thus all processes syncronise on the \texttt{sync} channel before they read and before they write.
 The \texttt{Clock} process is also synchronising on the \texttt{sync} channel, so when the specified number of clock cycles has passed, the \texttt{Clock} process terminates.
@@ -130,8 +130,8 @@ This means that the example in Listing \ref{lst:cspm_computation_simple} will be
     \centering
 \begin{minipage}[t]{0.45\linewidth}
 \begin{minted}[stripnl=false]{cspm_lexer.py:CSPmLexer -x}
-Q = read_channel ? val ->
-    write_channel ! val + 1 -> Q
+P = read_channel ? val ->
+    write_channel ! val + 1 -> P
 
 
 
@@ -142,11 +142,11 @@ Q = read_channel ? val ->
 \hspace{0.6cm}
 \begin{minipage}[t]{0.45\linewidth}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
-Q = read_channel ? val ->
+P = read_channel ? val ->
     let
         result = val + 1
     within
-        write_channel ! result -> Q
+        write_channel ! result -> P
 \end{minted}
 \captionof{listing}{An example of an addition computation and a write separated by the \texttt{let within} structure.}
 \label{lst:cspm_computation_letwithin}
@@ -171,7 +171,7 @@ To solve this problem, TAPS defines a buffer structure for each SMEIL channel. A
 The buffer solves the problem of initialising the network. Each buffer is instantiated with a value that the buffer writes to a channel from which a process can read. However, the initial value is only used to initialise the network. I refer to the initial value as a \textit{dummy value} which is determined as a value outside of the channel range so that the process is able to distinguish between the initial value and the actual network values.
 It is, of course, not ideal to represent the dummy value as an integer. The dummy value must be outside the channel range, and therefore the channel range cannot represent the entire signed 32-bit representation that FDR4 support. Even though it is highly unlikely for a channel range to be this large, it is an unnecessary restriction. It is possible to define a data structure in \cspm{} that removes this restriction, for example by having the dummy value being represented by a boolean instead of an integer. This extended structure will increase the complexity of the communication structures, but it is simple to auto-generate.
 In this thesis, the dummy value is represented by an integer value to simplify the examples.\\
-
+% TODO: Is it clear that I am talking about the addone example here below?
 The \texttt{add} process and the \texttt{id} process are both instantiated with a value, which is used instead of the initial dummy value from the buffer process. When the process encounters the dummy value, the process ignores it and continues with the value that the process was instantiated with instead. After the first clock cycle, the process loop will continue, and the communication will hold according to the SME model.\\
 
 A clocked version of the \texttt{addone} network can be seen in Figure \ref{fig:addone_clocked}. The clocked \texttt{addone} network consists of four channels, two buffer read channels and two buffer write channels. A buffer process is defined for each original channel in the \texttt{addone} network. \\

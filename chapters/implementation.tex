@@ -30,16 +30,16 @@ Expressions in SMEIL and their precedence rules are similar to C-like languages,
 
 As mentioned in Section \ref{sec:background_smeil}, SMEIL supports floating point numbers in the simulator, but this has not been extensively tested. Floating point numbers are not supported by \cspm{} because it is not possible to assert if two floating point numbers are exactly equal and therefore it is not possible to create refinement checks with floating point numbers. It is possible to create models in \cspm{} that define a floating point number, but the type itself is not supported in \cspm{} and FDR4. TAPS does not provide any type checking and therefore it does not provide a warning if floating point numbers occur within an SMEIL program.
 \section{Transpiling Channels}
- The read and write syntax in SMEIL is used as a variable in the SMEIL process. In Listing \ref{lst:implementation_smeil_input_parameter}, the syntax \texttt{input.val} indicates a read to the channel \texttt{val} within the bus \texttt{input}. As can be seen, the read and write structures are used as if they are simple variables representing a value.
+ The read and write syntax in SMEIL is used as a variable in the SMEIL process. In Listing \ref{lst:implementation_smeil_input_parameter}, the syntax \texttt{inbus.val} indicates a read to the channel \texttt{val} within the bus \texttt{inbus}. As can be seen, the read and write structures are used as if they are simple variables representing a value.
 
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
-proc a (in input)
-    bus abus {
+proc double (in inbus)
+    bus outbus {
         val: uint;
-    }
+    };
 {
-    abus.val = input.val + 1;
+    outbus.val = inbus.val * 2;
 }
 \end{minted}
 \caption{Example of a read and a write in SMEIL.}
@@ -79,9 +79,9 @@ It is also possible to use randomly generated strings instead of using the origi
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 network net() {
     instance c of clock();
-    instance a of A(c.output, val: 1);
-    instance _ of A(c.output, val: 2);
-    instance s of src(a.output);
+    instance a of A(c.outbus, val: 1);
+    instance _ of A(c.outbus, val: 2);
+    instance s of src(a.outbus);
 }
 \end{minted}
 \caption{Example of a network with four instances, where two are instances of the same process.}

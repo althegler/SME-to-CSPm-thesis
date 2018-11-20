@@ -161,30 +161,30 @@ To translate processes from SMEIL to \cspm{} is a challenge because they cannot 
 It will always be necessary to generate input for pure SMEIL networks. If the program was not written as a pure SMEIL program, the input for the network would be provided by the surrounding code, but in the case of pure SMEIL, the input data must be generated, which can be done in a few ways.
 One way of initialising the data in the SMEIL network is by instantiating the process with a constant given as a parameter or hardcode internal values into the process. Another way is to have a separate process that generates data for the network. I call this type of process a data generator process. Examples of both can be seen in Listing \ref{lst:addone_data_generation_example} and in Listing \ref{lst:clock_data_generation_example_smeil}.\\
 
-Listing \ref{lst:addone_data_generation_example} shows an example of the network \texttt{addone\_network} with two instantiated processes. The \texttt{add} process reads an input value and a constant, add the two values together, and writes it out onto the outbus bus. The \texttt{id} process reads an input and writes it to the output bus immediately. Networks in SMEIL are introduced further in Section \ref{sec:analysis_structural}, but the network in this example is defining the input bus of the \texttt{add} process to be the output bus of the \texttt{id} process, as well as defining that the constant value in the \texttt{add} process is 1.
+Listing \ref{lst:addone_data_generation_example} shows an example of the network \texttt{addone\_network} with two instantiated processes. The \texttt{add} process reads an input value and a constant, add the two values together, and writes it out onto the output bus. The \texttt{id} process reads an input and writes it to the output bus immediately. Networks in SMEIL are introduced further in Section \ref{sec:analysis_structural}, but the network in this example is defining the input bus of the \texttt{add} process to be the output bus of the \texttt{id} process, as well as defining that the constant value in the \texttt{add} process is 1.
 The \texttt{addone} example will be introduced further in Chaper \ref{chap:clock}.
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
-proc add (in input, const constant)
-    bus output {
+proc add (in inbus, const constant)
+    bus outbus {
         val: uint;
     };
 {
-    output.val = input.val + constant;
+    outbus.val = inbus.val + constant;
 }
 
-proc id (in input)
-    bus output {
+proc id (in inbus)
+    bus outbus {
         val: uint;
     }
     var from_add : uint;
 {
-    from_add = input.val;
-    output.val = from_add;
+    from_add = inbus.val;
+    outbus.val = from_add;
 }
 network addone_network() {
-    instance add of add(id.output, val: 1);
-    instance id of id(add.output)
+    instance add of add(id.outbus, val: 1);
+    instance id of id(add.outbus)
 }
 \end{minted}
 \caption{The SMEIL network \texttt{addone\_network} with two processes. The \texttt{add} process is instantiated with a value which is constant and used once for each clock cycle. The example is similar to the Addone example in \cite{smeil}.}
@@ -195,29 +195,29 @@ Listing \ref{lst:clock_data_generation_example_smeil} shows another way to insta
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc clock()
-    bus output {
+    bus outbus {
         val: uint;
     };
     var i: uint = 0;
 {
     i = i + 1;
-    output.val = i;
+    outbus.val = i;
 }
 
-proc minutes (in input)
-    bus output {
+proc minutes (in inbus)
+    bus outbus {
         val: uint;
     };
     from_clock : uint;
 {
-    from_clock = input.val / 60;
-    output.val = from_clock
+    from_clock = inbus.val / 60;
+    outbus.val = from_clock
 }
 
 
 network minutes_net() {
     instance c of clock();
-    instance s of minutes(c.output)
+    instance s of minutes(c.outbus)
 }
 \end{minted}
 \caption{The SMEIL network \texttt{minutes\_net}, with a data generator process and a calculation process that calculates minutes since simulation start.}
@@ -236,27 +236,27 @@ Defining the network out of process instances also has the advantage that one pr
 \begin{listing}
     \begin{minted}{smeil_lexer.py:SMEILLexer -x}
     proc clock ()
-        bus output {
+        bus outbus {
             val: uint;
         };
         var i: uint = 0;
     {
         i = i + 1;
-        output.val = i;
+        outbus.val = i;
     }
 
-    proc add (in input, const const_val)
+    proc add (in inbus, const const_val)
         bus addbus {
             val: uint;
         }
     {
-        addbus.val = input.val + const_val;
+        addbus.val = inbus.val + const_val;
     }
 
     network add_net() {
         instance c of clock();
-        instance a1 of add(c.output, const_val: 2);
-        instance a2 of add(c.output, const_val: 4);
+        instance a1 of add(c.outbus, const_val: 2);
+        instance a2 of add(c.outbus, const_val: 4);
     }
     \end{minted}
     \caption{Example of two instantiations of the same SMEIL process.}
@@ -267,7 +267,7 @@ In \cspm{} there is no network structure, but \cspm{} does have a structure for 
 While it is possible to model equivalent communication by using these operators it quickly becomes complex, because the operators only syncronise two processes at a time. It is a challenge to ensure that an SMEIL network is translated to an equivalent \cspm{} structure, and it requires careful planning to provide a complete translation of all the relevant information. However it is possible due to the simple network structure in SMEIL.
 \subsubsection{Buses and Channels}
 \label{bus_and_channels}
-As previously explained, an SMEIL bus defines a collection of channels which are used for all communication between the processes. Each channel has a type describing the communicated data and can be initialised with an initial value. The syntax of a read or write in SMEIL is \texttt{bus.channel} where \texttt{bus} specifies the bus and \texttt{channel} specifies the channel within the bus. An example of this can be seen in the \texttt{add} process in Listing \ref{lst:smeil_communication_example} where \texttt{input.val} refers to the \texttt{input} bus and \texttt{val} refers to the channel within the bus.
+As previously explained, an SMEIL bus defines a collection of channels which are used for all communication between the processes. Each channel has a type describing the communicated data and can be initialised with an initial value. The syntax of a read or write in SMEIL is \texttt{bus.channel} where \texttt{bus} specifies the bus and \texttt{channel} specifies the channel within the bus. An example of this can be seen in the \texttt{add} process in Listing \ref{lst:smeil_communication_example} where \texttt{inbus.val} refers to the \texttt{inbus} bus and \texttt{val} refers to the channel within the bus.
 A bus in itself does not have a type or values, but all channels within a bus have an identifier, types, and values, but the same types do not have to apply to all channels in a single bus. An SMEIL bus does have an identifier which is used for referencing the bus. All channels within a bus are connected to the process at the same time, and it is up to the developer to call the correct channel within the bus for either a read or a write.
 An example of a bus definition in SMEIL can be seen below. The bus is identified with the name \texttt{day} and it consists of three channels, \texttt{hours}, \texttt{minutes}, and \texttt{seconds}. Each channel is defined with a type, \texttt{u5} or \texttt{u6} and a range, 0 through 23 or 0 through 59.
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
@@ -279,16 +279,16 @@ bus day {
 \end{minted}
 A single SMEIL bus channel corresponds to a single \cspm{} channel and since the channel is a more general structure than the bus structure, it should be relatively simple to translate.
 \paragraph{SMEIL Input Bus}
-There are two different methods for accessing an input bus in an SMEIL process. The name of the input bus can be given as a process parameter. The process can use the parameter name to read from the actual bus channel, which can be seen in the example in Listing \ref{lst:smeil_communication_example}. In this example, the process reads the data from the channel \texttt{val} in the bus \texttt{input} and writes the data to the channel \texttt{val} on the \texttt{addbus} bus.
+There are two different methods for accessing an input bus in an SMEIL process. The name of the input bus can be given as a process parameter. The process can use the parameter name to read from the actual bus channel, which can be seen in the example in Listing \ref{lst:smeil_communication_example}. In this example, the process reads the data from the channel \texttt{val} in the bus \texttt{inbus} and writes the data to the channel \texttt{val} on the \texttt{addbus} bus.
 % TODO: Decide if this should be add example or double example
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
-proc add (in input)
+proc add (in inbus)
     bus addbus {
         val: uint;
     };
 {
-    addbus.val = input.val + 1;
+    addbus.val = inbus.val + 1;
 }
 \end{minted}
 \caption{Example of bus channel communication in an SMEIL process.}
@@ -326,13 +326,13 @@ network net ()
 \paragraph{SMEIL Output Bus}
 As with the input bus in SMEIL, there are several methods for defining and accessing the output bus in SMEIL.
 As seen in Listing \ref{lst:smeil_example_formal_channel_name}, the output bus can be defined inside the process itself using the keyword \texttt{bus} along with channel definitions. As with input buses, it is also possible to reference the hierarchical name of the channel directly inside the process body in the same way as can be seen in Listing \ref{lst:smeil_example_formal_channel_name}. Lastly, it is possible to give the output bus as a process parameter.
-An example of this can be seen in Listing \ref{lst:smeil_example_output_parameter} where the process \texttt{addone} reads from its \texttt{input} bus and writes to its \texttt{output} bus, both defined as parameters. The input bus for the \texttt{addone} process is the \texttt{constant\_bus} defined in the \texttt{constant} process. The output bus of the \texttt{addone} process is a bus defined inside the network called \texttt{net\_bus}. In this example, the network calculates \texttt{1 + 1} in each clock cycles.
+An example of this can be seen in Listing \ref{lst:smeil_example_output_parameter} where the process \texttt{addone} reads from its \texttt{inbus} bus and writes to its \texttt{outbus} bus, both defined as parameters. The input bus for the \texttt{addone} process is the \texttt{constant\_bus} defined in the \texttt{constant} process. The output bus of the \texttt{addone} process is a bus defined inside the network called \texttt{net\_bus}. In this example, the network calculates \texttt{1 + 1} in each clock cycles.
 % TODO: Can this be the clock example instead?
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
-proc addone (in input, out output)
+proc addone (in inbus, out outbus)
 {
-    output.val = input.val + 1;
+    outbus.val = inbus.val + 1;
 }
 
 proc constant ()
@@ -361,13 +361,13 @@ SMEIL was designed to be very flexible. Therefore, each process can have any num
 \paragraph{\cspm{} channels}
 Like in SMEIL, it is possible to communicate either by using a process parameter name or by communicating directly using the channels global name. These similarities between SMEIL and \cspm{} should provide a relatively simple translation of both communication methods in TAPS.\\
 
-An example of a \cspm{} process, communicating both via its process parameter and via a global name, can be seen in Listing \ref{lst:cspm_communication_methods}. The process \texttt{P} reads a value from the \texttt{input} channel, which is the channel \texttt{d}. The process then writes the value on the \texttt{c} channel and terminates.
+An example of a \cspm{} process, communicating both via its process parameter and via a global name, can be seen in Listing \ref{lst:cspm_communication_methods}. The process \texttt{P} reads a value from the \texttt{inbus} channel, which is the channel \texttt{d}. The process then writes the value on the \texttt{c} channel and terminates.
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel c : {0..10}
 channel d : {0..10}
 
-P(input) = input ? x -> c ! x -> SKIP
+P(inbus) = inbus ? x -> c ! x -> SKIP
 
 Network = P(d) -> SKIP
 \end{minted}

@@ -91,13 +91,13 @@ Listing \ref{lst:clock_data_generation_example_cspm} shows the translated code o
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel clock : {0..100}
-channel minutes_output_val : {0..1}
+channel minutes_outbus_val : {0..1}
 
 Minutes(input) =
 let
     from_clock = input / 60
 within
-    minutes_output_val ! from_clock ->
+    minutes_outbus_val ! from_clock ->
     SKIP
 
 \end{minted}
@@ -118,11 +118,12 @@ If a process contains an input bus parameter, there are several different method
     \centering
 \begin{minipage}[t]{0.45\linewidth}
   \begin{minted}{smeil_lexer.py:SMEILLexer -x}
-proc a (in input)
-    bus abus {
-        val: uint;};
+proc double (in inbus)
+    bus outbus {
+        val: uint;
+    };
 {
-    abus.val = input.val + 1;
+    outbus.val = inbus.val * 2;
 }
   \end{minted}
   \captionof{listing}{An SMEIL process with an input bus as parameter.}
@@ -131,12 +132,11 @@ proc a (in input)
 \hspace{0.6cm}
 \begin{minipage}[t]{0.45\linewidth}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
-
-A(input_val) =
+Double(input_val) =
     let
         result = input_val + 1
     within
-        a_abus_val ! result ->
+        double_outbus_val ! result ->
         SKIP
 \end{minted}
 \captionof{listing}{A \cspm{} process with input value as parameter.}
@@ -147,26 +147,26 @@ A(input_val) =
 \newline
 \begin{minipage}[t]{0.45\linewidth}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
-A() =
-    b_bbus_val ? value ->
+Double() =
+    other_outbus_val ? value ->
     let
         result = value + 1
     within
-        a_abus_val ! result ->
+        double_outbus_val ! result ->
         SKIP
 \end{minted}
-\captionof{listing}{A \cspm{} process with no input parameter. \texttt{b\_bbus\_val} is the formal name of the input bus, defined in the process \texttt{b}.}
+\captionof{listing}{A \cspm{} process with no input parameter. \texttt{other\_outbus\_val} is the formal name of the input bus, defined in the process \texttt{Other}.}
 \label{lst:cspm_no_input}
 \end{minipage}
 \hspace{0.6cm}
 \begin{minipage}[t]{0.45\linewidth}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
-A(input_bus_channel) =
-input_bus_channel ? value ->
+Double(inbus_channel) =
+inbus_channel ? value ->
     let
       result = value + 1
     within
-      a_abus_val ! result ->
+      double_outbus_val ! result ->
       SKIP
 \end{minted}
 \captionof{listing}{A \cspm{} process with input channel as parameter.}
@@ -228,31 +228,31 @@ The assertion uses the \textit{failures} model described in Chapter \ref{chap:ba
 When translating a network in SMEIL to \cspm{}, it is crucial that the composition of the network is kept intact. As much as the network is a crucial part of the SMEIL program, it is also one of the most tricky structures to translate correctly. A generated network can quickly become very complex, making it harder to ensure correct translation. \\
 
 An SMEIL network is separated into instances that each instantiates a single process and parameters. As mentioned in Chapter \ref{chap:analysis}, the closest equivalence to the SMEIL network in \cspm{}, are the parallel operators. To create a similar network in \cspm{}, TAPS will synchronise the two processes with the channels they are communicating on.
-This is the only way in \cspm{} to enforce synchronised communication on channels, which is an essential part of the synchronised network in SMEIL. An example of a simple network in \cspm{} can be seen in Listing \ref{lst:general_parallel_operator}, where the process \texttt{A} is synchronised with the process \texttt{B} over the channel \texttt{c}.
+This is the only way in \cspm{} to enforce synchronised communication on channels, which is an essential part of the synchronised network in SMEIL. An example of a simple network in \cspm{} can be seen in Listing \ref{lst:general_parallel_operator}, where the process \texttt{P} is synchronised with the process \texttt{Q} over the channel \texttt{c}.
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel c : {0..10}
 
-A = c ! 42 -> SKIP
-B = c ? x -> SKIP
+P = c ! 42 -> SKIP
+Q = c ? x -> SKIP
 
-Network = A [|{| c |}|] B
+Network = P [|{| c |}|] Q
 \end{minted}
 \caption{Example of synchronisation using the generalised parallel operator.}
 \label{lst:general_parallel_operator}
 \end{listing}
 This example uses the generalised parallel operator, because both processes communicate only on the channel \texttt{c}.
 
-Two processes that must synchronise on the same channels but also must communicate on other channels, can be synchronised using the alphabetised parallel operator. An example can be seen in Listing \ref{lst:alphabetised_parallel_operator}, where process \texttt{A} communicates both on channel \texttt{c} and \texttt{d}. Process \texttt{B} does not communicate on channel \texttt{d}, and therefore if the generalised parallel operator was used in this case, then process \texttt{B} would also have to agree on communication on channel \texttt{d}. In this example, the alphabetised parallel operator expresses that process \texttt{A} is allowed to perform events from the set on the left-hand side of the operator, which contains both channel \texttt{c} and \texttt{d}, and process \texttt{B} is only allowed to perform events on channel \texttt{c}, defined on the right-hand side.
+Two processes that must synchronise on the same channels but also must communicate on other channels, can be synchronised using the alphabetised parallel operator. An example can be seen in Listing \ref{lst:alphabetised_parallel_operator}, where process \texttt{P} communicates both on channel \texttt{c} and \texttt{d}. Process \texttt{Q} does not communicate on channel \texttt{d}, and therefore if the generalised parallel operator was used in this case, then process \texttt{Q} would also have to agree on communication on channel \texttt{d}. In this example, the alphabetised parallel operator expresses that process \texttt{P} is allowed to perform events from the set on the left-hand side of the operator, which contains both channel \texttt{c} and \texttt{d}, and process \texttt{B} is only allowed to perform events on channel \texttt{c}, defined on the right-hand side.
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel c : {0..10}
 channel d : {0..100}
 
-A = c ! 4 -> d ! 50 SKIP
-B = c ? x -> SKIP
+P = c ! 4 -> d ! 50 SKIP
+Q = c ? x -> SKIP
 
-Network = A [{| c, d |} || {| c |}] B
+Network = P [{| c, d |} || {| c |}] Q
 \end{minted}
 \caption{Example of synchronisation using the alphabetised parallel operator.}
 \label{lst:alphabetised_parallel_operator}
@@ -265,18 +265,18 @@ Not only is it important that the network is generated to be equivalent to the o
 
 If there are several output channels from a process, the synchronisation of the monitor processes will be nested together. A structure like this can be seen in the example below.
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
-Process_A_monitor_network = (A [|{| c1 |}|] monitor1) [|{| c2 |}|] monitor2
+Process_P_monitor_network = (P [|{| c1 |}|] monitor1) [|{| c2 |}|] monitor2
 \end{minted}
 As mentioned above, if the SMEIL process contains an input parameter, the value must be read and added to the process as an input parameter. This is also included in this process monitor network before the processes are synchronised. This can be seen in the example below.
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
-Process_A_monitor_network =
-    channel ? x -> (A(x) [|{| c1 |}|] monitor1) [|{| c2 |}|] monitor2
+Process_P_monitor_network =
+    channel ? x -> (P(x) [|{| c1 |}|] monitor1) [|{| c2 |}|] monitor2
 \end{minted}
-This design ensures that the monitor processes are included correctly in the network, and also that each read for the processes is defined without too much complexity. This process monitor network can be considered a shell around process \texttt{A}, since it only contains process relevant information. Because of the structure of this process monitor network, TAPS is able to use this as a single process that reads and writes to other processes. After this small network has been generated, it can be synchronised with other similar networks that share communication.\\
+This design ensures that the monitor processes are included correctly in the network, and also that each read for the processes is defined without too much complexity. This process monitor network can be considered a shell around process \texttt{P}, since it only contains process relevant information. Because of the structure of this process monitor network, TAPS is able to use this as a single process that reads and writes to other processes. After this small network has been generated, it can be synchronised with other similar networks that share communication.\\
 
 As mentioned in Chapter \ref{chap:analysis}, it is possible to instantiate one SMEIL process several times within the SMEIL network. Since TAPS is creating the network in \cspm{} by synchronising processes on channels, it can synchronise the same process several times with different channels or parameters, creating the same functionality as the instances declaration in SMEIL. An example of this can be seen below.\\ \begin{minted}{cspm_lexer.py:CSPmLexer -x}
-Process_A_monitor_network =
-    (A(1) [|{| c |}|] A(2)) [|{| c |}|] A(3)
+Process_P_monitor_network =
+    (P(1) [|{| c |}|] P(2)) [|{| c |}|] P(3)
 \end{minted}
 
 Translating the SMEIL network into an equivalent \cspm{} network is difficult and will quickly become very complex. Adding extra monitor processes increase the complexity of the network, and it is crucial that it does not affect the functionality of the network, but by using the structure introduced above, TAPS can include the monitor processes without affecting the original SMEIL network.

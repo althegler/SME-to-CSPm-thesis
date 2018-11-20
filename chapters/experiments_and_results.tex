@@ -126,28 +126,28 @@ It is easy to see that this example never fails with the added restriction, but 
 
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
-proc add (in input, const constant)
-    bus output {
+proc add (in inbus, const constant)
+    bus outbus {
         val: u4 = 0 range 0 to 10;
     };
 {
-    output.val = (input.val + constant) % 11; //upper limit + 1
+    outbus.val = (inbus.val + constant) % 11; //upper limit + 1
 }
 
-proc id (in input)
-    bus output {
+proc id (in inbus)
+    bus outbus {
         val: u4 = 0 range 0 to 10;
     };
     var from_add: u4 range 0 to 10;
 {
-    from_add = input.val;
-    output.val = from_add;
+    from_add = inbus.val;
+    outbus.val = from_add;
 }
 
 network addone_network ()
 {
-    instance id of id(add.output);
-    instance add of add(id.output, constant: 1);
+    instance id of id(add.outbus);
+    instance add of add(id.outbus, constant: 1);
 }
 \end{minted}
 \caption{The restricted SMEIL network \texttt{addone\_network} similar to the example in Listing \ref{lst:addone_smeil_example}.}
@@ -161,9 +161,9 @@ channel d_write, c_write : { -1..15} -- u4 and initial value
 
 DUM_VAL = -1 -- initial value
 
-Add(i, input_channel) =
+Add(i, inbus_channel) =
     (sync ->
-     input_channel ? x ->
+     inbus_channel ? x ->
      sync ->
         if (x == DUM_VAL) -- initial value
             then (
@@ -171,13 +171,13 @@ Add(i, input_channel) =
                     var = i
                 within
                     var <= 15 & -- upper limit
-                        c_read ! var -> Add(i, input_channel))
+                        c_read ! var -> Add(i, inbus_channel))
             else (
                 let
                     var = (x + 1) % 11 -- observed value + 1 restriction
                 within
                     var <= 15 & -- upper limit
-                        c_read ! var -> Add(i, input_channel))
+                        c_read ! var -> Add(i, inbus_channel))
     )
     [] SKIP
 
