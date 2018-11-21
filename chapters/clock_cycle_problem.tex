@@ -57,7 +57,7 @@ network addone_network ()
 
 The purpose of the initial design of TAPS was to model a synchronous network in \cspm{} without having to model a global synchronous clock. As described in Chapter \ref{chap:background}, the results from the master's thesis \textit{Generation of FPGA Hardware
 Specifications from PyCSP Networks}~\cite{Skaarup14} by E. Skaarup and A. Frisch, established how much the complexity of the network would increase when trying to model this in CSP.
-However, the \texttt{addone} example shows that it is necessary to extend TAPS to model a global synchronous structure in \cspm{}. As Skaarup and Frisch already learned, enforcing a global synchronous model onto CSP is not trivial, and even simple networks quickly become very complex. The reason for implementing this structure in spite of the results from \cite{Skaarup14}, is that TAPS will automatically generate the \cspm{} code and therefore the complexity and size of the corresponding \cspm{} network is less of an issue. However, the extra complexity might become a problem when verifying with FDR4. It is possible that the added complexity of the network increases the requirements for FDR4, and that the size of problems verifiable with FDR4, becomes smaller with this solution. \\
+However, the \texttt{addone} example shows that it is necessary to extend TAPS to model a global synchronous structure in \cspm{}. As Skaarup and Frisch already learned, enforcing a global synchronous model onto CSP is not trivial, and even simple networks quickly become very complex. The reason for implementing this structure in spite of the results from \cite{Skaarup14}, is that TAPS will automatically generate the \cspm{} code and therefore the complexity and size of the corresponding \cspm{} network are less of an issue. However, the extra complexity might become a problem when verifying with FDR4. It is possible that the added complexity of the network increases the requirements for FDR4, and that the size of problems verifiable with FDR4, becomes smaller with this solution. \\
 
 In this chapter, I will introduce the approach for extending TAPS to translate clocked systems.
 \section{Global Synchronisation}
@@ -106,7 +106,7 @@ P = sync ->
     within
         write_channel ! val -> P
 \end{minted}
-This \texttt{let within} structure is only necessary if the process is actually performing computation. The \texttt{id} process in Listing \ref{lst:addone_smeil_example} does not compute but only reads and writes, and therefore TAPS must not include the \texttt{let within} structure, because FDR4 will fail if an empty \texttt{let} is included. \\
+This \texttt{let within} structure is only necessary if the process is actually performing a computation. The \texttt{id} process in Listing \ref{lst:addone_smeil_example} does not compute but only reads and writes, and therefore TAPS must not include the \texttt{let within} structure, because FDR4 will fail if an empty \texttt{let} is included. \\
 % NOTE: This is actually a data generator process and we dont have those in the translation, so no point in showing it.
 % Similarly, not all processes both reads and writes, and therefore TAPS has to adapt the process structure to accommodate this. It is, however, still possible to keep the overall structure of the process even though a process does not read or write. A process that does not read can look like this:
 % \begin{minted}{cspm_lexer.py:CSPmLexer -x}
@@ -157,12 +157,12 @@ P = read_channel ? val ->
 \end{minipage}
 \section{Introducing Buffers}
 As can be seen in Figure \ref{fig:addone_unclocked}, both the \texttt{id} process and the \texttt{add} process are both reading and writing. A problem occurs because they are both trying to read and write at the same time. It is clear that both processes cannot begin by reading, because no process has yet written anything for the other to read.
-To solve this problem, TAPS defines a buffer structure for each SMEIL channel. A buffer is a process that stores data between clock cycles. The buffer first writes a value to a channel and then reads a value from a channel, all in one clock cycle. Thus, the buffer structure is the reverse of a 'normal' process, because it will write first and then read in a clock cycle. Figure \ref{fig:clock_cycle} illustrates the relation between a process and a buffer.\\
+To solve this problem, TAPS defines a buffer structure for each SMEIL channel. A buffer is a process that stores data between clock cycles. The buffer first writes a value to a channel and then reads a value from a channel, all in one clock cycle. Thus, the buffer structure is the reverse of a 'normal' process, because it will write first and then read in a clock cycle. Figure \ref{fig:clock_cycle} illustrates the relationship between a process and a buffer.\\
 
 \begin{figure}
 \centering
 \includegraphics[width=0.75\textwidth]{./figures/clock_cycle_thesis.png}
-\caption{Illustration of the relation between a process and a buffer. In one clock cycle the buffer writes a value which the process reads, and after the computation the process writes the value to the buffer which holds it for the next clock cycle.}
+\caption{Illustration of the relationship between a process and a buffer. In one clock cycle the buffer writes a value which the process reads, and after the computation the process writes the value to the buffer which holds it for the next clock cycle.}
 \label{fig:clock_cycle}
 \end{figure}
 The buffer solves the problem of initialising the network. Each buffer is instantiated with a value that the buffer writes to a channel from which a process can read. However, the initial value is only used to initialise the network. I refer to the initial value as a \textit{dummy value} which is determined as a value outside of the channel range so that the process is able to distinguish between the initial value and the actual network values.
@@ -241,7 +241,7 @@ Read_buf = sync -> ((r ? x -> (r ? x -> STOP [] Write_buf(x))
 \section{The Out Of Bounds Problem}
 Attempts to verify the \cspm{} translations of \texttt{addone} in FDR4 failed with a compilation error message, indicating that the system was trying to communicate a value that was not a part of the set of values defined for the channel. \\
 
-The reason for this error is that the \texttt{add} process in the \texttt{addone} example has to read, compute and write in all clock cycles. Because of the standard structure of a process, the last action it can perform before terminating, is to write a value. In the \texttt{add} process, this value is incremented with a defined constant.\\
+The reason for this error is that the \texttt{add} process in the \texttt{addone} example has to read, compute and write in all clock cycles. Because of the standard structure of a process, the last action it can perform before terminating is to write a value. In the \texttt{add} process, this value is incremented with a defined constant.\\
 
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
@@ -293,12 +293,12 @@ In a clocked version of the seven segments example, there is no reason to run th
 % TODO: Figur?
 In the \texttt{addone} network, the internal state of the network changes for each clock cycle, and so for each clock cycle, FDR4 will verify all possible inputs for the network. Verifying all possible input values for the network in each clock cycle will have the effect that the network must handle unexpected input. The internal structure of the network must be able to handle corner cases of unexpected values. Providing this type of verification can show if there are missing corner cases to handle in the network.\\
 
-It would of course not be possible to know when all possible state combinations have been verified in a network, and it will be up tp the user to define how many clock cycles to verify with FDR4.
+It would of course not be possible to know when all possible state combinations have been verified in a network, and it will be up to the user to define how many clock cycles to verify with FDR4.
 \section{Verifying Clocked Networks}
 It is, of course, also necessary to add verification structures to the clocked \cspm{} network and even though the communication structure has changed, there is no reason for changing the verification structure. The clocked version of TAPS model the monitor processes as described in Chapter \ref{chap:design} with one small change. The values to verify do not change, but since the initial value of the buffer processes is a dummy value, this value must be defined as an acceptable value in the monitor process. \\
 
 The monitor process will read the same value as the buffer process, and therefore it is possible to add the monitor verification inside the buffer processes, but there are several reasons why this is not a feasible solution. It is necessary to keep separation of concerns, and even though it would reduce the number of processes to have the monitor processes also perform the verification, the complexity would increase. The most important reason why it is not a feasible solution is that it is not a requirement that a channel has a buffer. If no process reads from a channel, the channel does not need a buffer to keep the value. All channels must have a monitor process, but not all channels must have a buffer process, and therefore the monitors and buffers are separated.
-Also a channel is not required to have both a write and a read end, but the values communicated on the channel should still be verified. Therefore the monitor must be in the write end of the channel to ensure that the monitor will be added, no matter if there is a process to read from it. \\
+Also, a channel is not required to have both a write and a read end, but the values communicated on the channel should still be verified. Therefore the monitor must be in the write end of the channel to ensure that the monitor will be added, no matter if there is a process to read from it. \\
 
 The monitor processes are not part of the clocked network and do not synchronise together with the other processes. It would not be a problem to have them clocked, but there is no reason for it. The process reads a value when one is written to the channel, so it will verify all values whether it is clocked or not.
 An illustration of the clocked \texttt{addone} network with monitor processes can be seen in Figure \ref{fig:addone_clocked_monitor}.
@@ -342,12 +342,12 @@ An illustration of the clocked \texttt{addone} network with monitor processes ca
 
 
 \section{Extensions for TAPS}
-For TAPS to be able to verify clocked networks, it must be extended with the structures described in this chapter. The buffer structure is a general structure which, does not need much adaption. For each SMEIL channel, two \cspm{} channels must be created, one for the buffer write and one for the read. The dummy value is currently chosen as an integer, but should be updated so it does not restrict the channel range. \\
+For TAPS to be able to verify clocked networks, it must be extended with the structures described in this chapter. The buffer structure is a general structure which, does not need to be adapted much. For each SMEIL channel, two \cspm{} channels must be created, one for the buffer write and one for the read. The dummy value is currently chosen as an integer but should be updated so it does not restrict the channel range. \\
 
 The process structure is updated to include the synchronisations on the \texttt{sync} channel and the process read is included inside the process. Each process will be augmented with the input channel, in the network structure.
 To ensure that no problems arise with the out of bounds problem, the process structure will also be augmented to include a \cspm{} bound on all writes. \\
 
-The \texttt{Clock} process must be defined with the number of clock cycles to verify, which the user should provide via the command line as argument for TAPS. It is also possible to create a structure that will allow the developer to define the number of clock cycles in a comment within the SMEIL program, but as the number of clock cycles to verify is not necessary the same as the number of clock cycles to simulate, this information might not belong within the SMEIL program itself. \\
+The \texttt{Clock} process must be defined with the number of clock cycles to verify, which the user should provide via the command line as an argument for TAPS. It is also possible to create a structure that will allow the developer to define the number of clock cycles in a comment within the SMEIL program, but as the number of clock cycles to verify is not necessary the same as the number of clock cycles to simulate, this information might not belong within the SMEIL program itself. \\
 
 The network structure will also be including the \texttt{Clock} process as well as the buffer processes. Lastly, all processes will be expanded with a \texttt{[] SKIP} around the entire body of the process, to ensure that the process can either synchronise for a new clock cycle or terminate.
 
