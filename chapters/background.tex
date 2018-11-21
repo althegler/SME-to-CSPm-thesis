@@ -53,7 +53,7 @@ corresponding CSP model, and because of this property, it is possible to create 
 The SME model is currently implemented as libraries for the general-purpose languages C\#~\cite{Skovhede}, C++~\cite{asheim2015}, and Python~\cite{asheim2016vhdl} as well as the language SMEIL which will be introduced further below. The Python and C\# libraries both have code generators for VHDL as well.
 \subsection{SMEIL}
 \label{sec:background_smeil}
-With the different SME implementations, a need arose for a common intermediate language. SME Implementation Language (SMEIL) was developed as a Domain Specific Language (DSL) for SME, usable both as an Intermediate Language (IL), and as an independent implementation language. It is accompanied by the implementation, LIBSME~\cite{libsme}. In Figure~\ref{fig:smeil_transpiler} the SMEIL transpiler structure can be seen.\\
+With the different SME implementations, a need arose for a common intermediate language. SMEIL was developed as a Domain Specific Language (DSL) for SME, usable both as an Intermediate Language (IL), and as an independent implementation language. It is accompanied by the implementation, LIBSME~\cite{libsme}. In Figure~\ref{fig:smeil_transpiler} the SMEIL transpiler structure can be seen.\\
 
 \begin{figure}[!ht]
   \centering
@@ -166,7 +166,7 @@ The PySME~\cite{pysme} library has been extended to support co-simulation with S
 When simulating the SMEIL network, the compiler can record a trace of all communication between processes in the network. This trace file can then be used as a source for the VHDL test bench, which can be used to verify the generated VHDL code.
 \section{CSP}
 \label{sec:csp_background}
-Communicating Sequential Processes (CSP)~\cite{Hoare1978} is a process algebra that provides a method to express interaction between processes of concurrent systems.
+CSP is a process algebra that provides a method to express interaction between processes of concurrent systems.
 CSP had a lot of influence in the design of several programming languages such as Occam as well as the Go programming language.
 As described in Chapter \ref{chap:related_work}, it was first introduced in 1976 by C.A.R Hoare but, not until 1984, did it develop into a process algebra. CSP is still a large research subject, and due to the tools available today, it is becoming increasingly more accessible for the general users.\\
 

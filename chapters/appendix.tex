@@ -13,7 +13,7 @@ The required dependencies for generating the ANTLR4 parser, running TAPS and ver
 ANTLR4 and FDR4 can both be downloaded from their websites, where installation instructions are also provided.
 The ANTLR4 project can be found at \url{https://www.antlr.org/} and the FDR4 Project at \url{https://www.cs.ox.ac.uk/projects/fdr/}.
 It is also necessary to download the ANTLR4 Python runtime from \url{https://pypi.org/project/antlr4-python2-runtime/}.
-Assuming that an ANTLR4 alias has been created as the ANTLR4 installation suggest, the parser and lexer can be generated with ANTLR4 using the command: {\ttfamily antlr4 -Dlanguage=Python2 - visitor -no-listener Smeil.g4.}
+Assuming that an ANTLR4 alias has been created as the ANTLR4 installation suggest, the parser and lexer can be generated with ANTLR4 using the command:\\ {\ttfamily antlr4 -Dlanguage=Python2 - visitor -no-listener Smeil.g4.}
 This will create all the required parser and lexer files, as well as the visitor methods. This step is only necessary if the .g4 grammar file has been modified.\\
 
 When the ANTLR4 files have been generated, TAPS can be used directly with a well-formed SMEIL program with the command: {\ttfamily python taps.py input.sme output.csp}. The system requires both an input file and an output file. If the output file does not exist, it will be created by TAPS. \\
@@ -22,7 +22,7 @@ The resulting \cspm{} file can be verified in FDR4, either by the command line t
 
 \chapter{Seven Segment Display Example Full Code}
 \label{app:seven_segments}
-\section*{SMEIL Code}
+\section*{Seven Segment Display Example SMEIL Code}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc clock ()
     bus out {
@@ -98,7 +98,7 @@ network clock_network ()
 \end{minted}
 \captionof{listing}{The full SMEIL code used for transpiling in the seven segment display example.\label{lst:smeil}}
 
-\section*{Unclocked \cspm{} Code}
+\section*{Unclocked Seven Segment Display Example \cspm{} Code}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel clock_out_val : {0..131071}
 
@@ -197,7 +197,7 @@ assert SKIP [F= N_seconds \ Events
 
 \end{minted}
 \captionof{listing}{The full unclocked \cspm{} code after transpiling the seven segment display example, as seen in Listing~\ref{lst:smeil} in Appendix \ref{app:seven_segments}.\label{lst:cspm}}
-\section*{Clocked \cspm{} Code}
+\section*{Clocked Seven Segment Display Example \cspm{} Code}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel clock_out_val : { 0..1000}
 channel sync
@@ -360,7 +360,7 @@ assert SKIP [F= N_seconds \ Events
 
 \chapter{Addone Example Full \cspm{} Code}
 \label{app:addone}
-\section*{\cspm{} Code}
+\section*{Addone Example \cspm{} Code}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel sync
 channel d_read, c_read : { -1..15} -- u4 and initial value
