@@ -1,5 +1,5 @@
 %!TEX root = ../main.tex
-In this chapter I introduce some of the main challenges in translating from SMEIL to \cspm{}, and how they have been solved in TAPS.
+In this chapter I introduce some of the main challenges in translating from SMEIL to \cspm{}, and how they have been solved in TAPS.\\
 
 The requirements for TAPS are considerable because of the flexibility of SMEIL. Translating the different functionalities of SMEIL have been prioritised according to the requirements of the examples used within this thesis, and due to time restrictions, the current version of TAPS does not support the entire SMEIL grammar. TAPS expects a well-formed legal SMEIL program as input and does not perform any type-checking. The best way to ensure an accurate translation to \cspm{} is to simulate the SMEIL program before using TAPS, in order to ensure that the program complies with all the rules of the LIBSME compiler.
 \section{Transpiling SMEIL Statements}
@@ -15,22 +15,22 @@ The SMEIL programs must be well-formed, and thus the constant will only be used 
 Variables in SMEIL can be instantiated with an initial value, and therefore TAPS must search through all the variable declarations in the SMEIL process. If a variable is defined with an initial value, this information is gathered so that the initial value of the variable can be added to the generated \cspm{} process.
 Variables with no initial value will be ignored by TAPS because they do not need instantiation in \cspm{}, and will be translated along with the other statements. With the current version of TAPS, only values communicated on channels are verified, and therefore the range and type of a variable have no purpose within the generated \cspm{} code. It would, however, be simple to gather this information if needed.\\
 
-The \texttt{trace} statement in SMEIL is not affecting the behaviour of the process. It prints out the string and arguments that are given, like a printf in C. It is possible to add a print statement in \cspm{}, but it has a very different functionality than the \texttt{trace} statement in SMEIL. A print statement in a \cspm{} program will appear in the right-hand side of the FDR4 session window, where it can be activated for easy evaluation. It does not support printing out text, but rather calculations and thus the trace statement in SMEIL is not compatible with the print statement in \cspm{}.\\
+The \texttt{trace} statement in SMEIL is not affecting the behaviour of the process. It prints out the string and arguments that are given, like a printf in C. It is possible to add a \texttt{print} statement in \cspm{}, but it has a very different functionality than the \texttt{trace} statement in SMEIL. A \texttt{print} statement in a \cspm{} program will appear in the right-hand side of the FDR4 session window, where it can be activated for easy evaluation. It does not support printing out text, but rather calculations and thus the \texttt{trace} statement in SMEIL is not compatible with the \texttt{print} statement in \cspm{}.\\
 
 The \texttt{assert} statement is used internally in SMEIL and evaluated during program execution. If the \texttt{assert} statement is not valid, then the execution is halted and the error message, defined in the \texttt{assert} statement, is printed. An example can be seen below.
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 assert(hour < 23, "hours must be less than 23");
 \end{minted}
-Even though the purpose of this project is to assert properties in FDR4, the properties that FDR4 can verify are not similar to the properties that the \texttt{assert} statement in SMEIL can assert. As was introduced in Section \ref{sec:background_fdr}, FDR4 is a refinement checker and the \texttt{assert} statements in FDR4 are asserting the refinement checks. In the \cspm{} language, assertions like \texttt{assert 4 + 4 == 8} are possible, however FDR4 does not support this\cite{fdrmanual}. The two types of \texttt{assert} statement are therefore not equivalent.\\
+Even though the purpose of this project is to assert properties in FDR4, the properties that FDR4 can verify are not similar to the properties that the \texttt{assert} statement in SMEIL can assert. As was introduced in Section \ref{sec:background_fdr}, FDR4 is a refinement checker and the \texttt{assert} statements in FDR4 are asserting the refinement checks. In the \cspm{} language, assertions like \texttt{assert 4 + 4 == 8} are possible, however FDR4 does not support this. The two types of \texttt{assert} statements are therefore not equivalent.\\
 
-Neither the SMEIL \texttt{trace} statement nor the \texttt{assert} statement provides any functionality to the translation or the network model, so there are two options for how TAPS should handle these. Either TAPS throws them away, or it keeps them as comments for reference in the generated code. Currently, TAPS throw them away, but it would be a simple task to change this and add them as comments in the generated \cspm{} code.\\
+Neither the SMEIL \texttt{trace} statement nor the \texttt{assert} statement provides any functionality to the translation or the network model, so there are two options for how TAPS should handle these. Either TAPS throws them away, or it keeps them as comments for reference in the generated code. Currently, TAPS throw them away, but it would be possible to change this and add them as comments in the generated \cspm{} code.\\
 % NOTE: Assertions are not curently implemented in TAPS. Trace is.
 
-Expressions in SMEIL and their precedence rules are similar to C-like languages, and they are used for defining operations and naming in SMEIL. All of the standard binary operators behave the same in SMEIL as in \cspm{}, as well as relational operators and logical conjunction and disjunction. The unary \texttt{!(not)} operator does not have the same precedence in the SMEIL grammar as in \cspm{}. Also, the equality operators and comparison operators have the same precedence in \cspm{}, but not in the SMEIL grammar. To avoid erroneous computation, TAPS adds parentheses around all nested expressions. The SMEIL grammar also consists of bitwise operations which FDR4 does not support, because \cspm{} only supports integers. It is likely possible to model the bitwise operations using the already supported operators, but this has not been a priority to implement and the current version of TAPS does not support it.\\
+Expressions in SMEIL and their precedence rules are similar to C-like languages, and they are used for defining operations and naming in SMEIL. All of the standard binary operators behave the same in SMEIL as in \cspm{}, as well as relational operators and logical conjunction and disjunction. The unary \texttt{!}(not) operator does not have the same precedence in the SMEIL grammar as in \cspm{}. Also, the equality operators and comparison operators have the same precedence in \cspm{}, but not in the SMEIL grammar. To avoid erroneous computation, TAPS adds parentheses around all nested expressions. The SMEIL grammar also consists of bitwise operations which FDR4 does not support, because \cspm{} only supports integers. It is likely possible to model the bitwise operations using the already supported operators, but this has not been a priority to implement and the current version of TAPS does not support it.\\
 
-As mentioned in Section \ref{sec:background_smeil}, SMEIL supports floating point numbers in the simulator, but this has not been extensively tested. Floating point numbers are not supported by \cspm{} because it is not possible to assert if two floating point numbers are exactly equal and therefore it is not possible to create refinement checks with floating point numbers. It is possible to create models in \cspm{} that define a floating point number, but the type itself is not supported in \cspm{} and FDR4. TAPS does not provide any type checking and therefore it does not provide a warning if floating point numbers occur within an SMEIL program.
+As mentioned in Section \ref{sec:background_smeil}, SMEIL supports floating point numbers in the simulator, but this has not been extensively tested. Floating point numbers are not supported by \cspm{} because it is not possible to assert if two floating point numbers are exactly equal and therefore it is not possible to create refinement checks with floating point numbers. It is possible to create models in \cspm{} that define a floating point number, but the type itself is not supported in \cspm{} or FDR4. TAPS does not provide any type checking and therefore it does not provide a warning if floating point numbers occur within an SMEIL program.
 \section{Transpiling Channels}
- The read and write syntax in SMEIL is used as a variable in the SMEIL process. In Listing \ref{lst:implementation_smeil_input_parameter}, the syntax \texttt{inbus.val} indicates a read to the channel \texttt{val} within the bus \texttt{inbus}. As can be seen, the read and write structures are used as if they are simple variables representing a value.
+ The read and write syntax in SMEIL is used as a variable in the SMEIL process. In Listing \ref{lst:implementation_smeil_input_parameter}, the syntax \texttt{inbus.val} indicates a read to the channel \texttt{val} within the bus \texttt{inbus}. As can be seen, the read and write structures are used as if they are simple variables representing a value.\\
 
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
@@ -72,7 +72,7 @@ A read can be used as an internal variable in the expressions and therefore TAPS
 When translating an SMEIL bus channel to a \cspm{} channel, TAPS must define \cspm{} channel names that are unique, the same way that the formal name of a bus channel in SMEIL is unique.\\
 
 The simplest way of translating the SMEIL channels into \cspm{} channels is to use the already defined formal name of the SMEIL bus channel. By concatenating the channel name, bus name, and process name into a single channel name in \cspm{}, the naming becomes unique.
-This means that all reads and writes using the syntax \texttt{bus.channel} from the process \texttt{A} in SMEIL, will be translated to \texttt{A\_bus\_channel} in \cspm{}.
+This means that all reads and writes using the syntax \texttt{outbus.val} from the process \texttt{double} in SMEIL, will be translated to \texttt{double\_outbus\_val} in \cspm{}.
 It is also possible to use randomly generated strings instead of using the original SMEIL names, but to ensure the readability of the generated code, it is necessary to have recognisable names for the \cspm{} channels.\\
 
 \begin{listing}
@@ -90,17 +90,16 @@ network net() {
 The example in Listing \ref{lst:Instance_variations} shows a network consisting of four instances, where two of them are instantiating the same process with different constant parameters. All but one instance declaration also includes an instance name which can be used when referencing the process in the instance parameters. SMEIL enforces the rule that two instances of the same process cannot both have the anonymous instance name, defined as \texttt{\_}.\\
 
 % NOTE: SMEIL does not support adding instance names to the cspm channel name
-With two instances of the same process in SMEIL, the \cspm{} channels of those processes, would have identical names. It is of course crucial to avoid duplicate channel names, and therefore TAPS looks through the instances in the SMEIL network, and appends the instance name to the \cspm{} channel name. If the instance name is anonymous, a \texttt{\_} is appended to the \cspm{} channel for simplicity. The restrictions against identical process instances in SMEIL ensures that there will never be two identical named \cspm{} channels in the generated code. \\
-
+With two instances of the same process in SMEIL, the \cspm{} channels of those processes, would have identical names. It is of course crucial to avoid duplicate channel names, and therefore TAPS looks through the instances in the SMEIL network, and appends the instance name to the \cspm{} channel name. If the instance name is anonymous, a \texttt{\_} is appended to the \cspm{} channel for simplicity. The restrictions against identical process instances in SMEIL ensures that there will never be two identical named \cspm{} channels in the generated code.
 It is also possible to have bus declarations within the network declaration in SMEIL. These bus channels are named in the same manner as other channels in \cspm{}, however without an instance name appended.
 The naming of each channel quickly becomes long and chaotic, which is one of the compromises of generated code.
 \subsection{\cspm{} Channel Range}
 When defining channels in \cspm{} it is important to define a restricted range of acceptable values for each channel. If the channel is defined with an unbounded range of integers, FDR4 would search through all possible integers which would result in a state space explosion and FDR4 would run out of space. These restricted ranges must of course represent relevant values.\\
 
 As explained in Chapter~\ref{chap:analysis}, all simulated SMEIL channels and variables are defined with a range of observed values and a restricted type.
-Because FDR4 only supports integers, only signed and unsigned types are supported in TAPS. The integer following the type defines the bit size of the observed values. This bit size is used to generate a restricted range for the \cspm{} channel, and thereby avoid having a seemingly endless runtime in FDR4.\\
+Because FDR4 only supports integers, only signed and unsigned integer types are supported in TAPS. The integer following the type defines the bit size of the observed values. This bit size is used to generate a restricted range for the \cspm{} channel, and thereby avoid having a seemingly endless runtime in FDR4.\\
 
-In Listing ~\ref{lst:range_smeil}, the simulated \texttt{seconds} process from the seven segments display example can be seen. The types of the two channels are \texttt{u3} and \texttt{u4} and the observed values are between 0 and 5 for the first digit and 0 and 9 for the second. TAPS converts the bit size of the type \texttt{u3} to the range \texttt{\{0..7\}} which is then used as the restricted range for the \cspm{} channel representing the first digit. The second digit channel type \texttt{u4} is converted to the range \texttt{\{0..15\}}. In Listing~\ref{lst:channel_range_cspm}, the converted ranges are defining the values of the \cspm{} channels.\\
+In Listing ~\ref{lst:range_smeil} in Chapter \ref{chap:analysis}, the simulated \texttt{seconds} process from the seven segments display example can be seen. The types of the two channels are \texttt{u3} and \texttt{u4} and the observed values are between 0 and 5 for the first digit and 0 and 9 for the second. TAPS converts the bit size of the type \texttt{u3} to the range \texttt{\{0..7\}} which is then used as the restricted range for the \cspm{} channel representing the first digit. The second digit channel type \texttt{u4} is converted to the range \texttt{\{0..15\}}. In Listing~\ref{lst:channel_range_cspm}, the converted ranges are defining the values of the \cspm{} channels.\\
 
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
@@ -117,7 +116,7 @@ within
     seconds_out_second_digit ! seconds_second_temp ->
     SKIP
 \end{minted}
-\caption{Example of the \texttt{Seconds} process from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
+\caption{Example of the \texttt{Seconds} process from the generated \cspm{} code in the seven segment display example. See the full code in Listing~\ref{lst:cspm} in the appendix.}
 \label{lst:channel_range_cspm}
 \end{listing}
 
@@ -152,18 +151,20 @@ In order to restrict the SMEIL network to include ranges for each SMEIL bus chan
     \caption{The bus grammar defined in \cite{Asheim2018} changed to match the demands of the translation.}
     \label{lst:smeil_bus_grammar_no_option}
 \end{listing}
-The monitor process asserts that the observed values from the SMEIL simulation are the only values communicated on the channels. The two monitors of the \texttt{Seconds} process from the seven segments example can be seen in Listing~\ref{lst:monitor_range_cspm}. The values used for these monitors are 0 through 5 for the first digit monitor and 0 through 9 for the second digit monitor. These values have been defined for each channel in the simulated SMEIL program in Listing~\ref{lst:range_smeil}.
+The monitor process asserts that the observed values from the SMEIL simulation are the only values communicated on the channels. The two monitors of the \texttt{Seconds} process from the seven segments example can be seen in Listing~\ref{lst:monitor_range_cspm}. The values used for these monitors are 0 through 5 for the first digit monitor and 0 through 9 for the second digit monitor. These values have been defined for each channel in the simulated SMEIL program in Listing~\ref{lst:range_smeil} in Chapter \ref{chap:analysis}.
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
-Seconds_out_first_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
-Seconds_out_second_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+seconds_sec_out_first_digit_monitor(c) =
+    c ? x ->
+    (0 <= x and x <= 5) & SKIP
+seconds_sec_out_second_digit_monitor(c) =
+    c ? x ->
+    (0 <= x and x <= 9) & SKIP
 \end{minted}
-\caption{Example of the two generated \texttt{Seconds} monitor processes from the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
+\caption{Example of the two generated \texttt{Seconds} monitor processes from the seven segment display example. See the full code in Listing~\ref{lst:cspm} in the appendix.}
 \label{lst:monitor_range_cspm}
 \end{listing}
-Each monitor asserts values on one channel, and thus the name of the monitor process is the channel name with \texttt{\_monitor} appended. This is a simple but useful solution, because it means that TAPS can easily find the name of the monitor process from the channel name, and vice versa.
+Each monitor asserts values on one channel, and thus the name of the monitor process is the channel name with \texttt{\_monitor} appended. This means that TAPS can easily find the name of the monitor process from the channel name, and vice versa.
 Since no \cspm{} channels can have identical names, this ensures that no monitor processes will have colliding names.\\
 
 Using this monitor process structure in the seven segments display example also expose a limitation to the structure. In the \texttt{Hour} process, the observed values are \{0..2\} for the first digit, and \{0..9\} for the second digit. This combination of values can represent 24 hours, as expected, but it will also accept values from 25 to 29 because the digits are evaluated separately. In order to solve this, it would be necessary to assert values across more than one channel in a monitor process. This has been mentioned in Chapter \ref{chap:future} as future work, since it is not yet implemented.
@@ -187,11 +188,11 @@ N_seconds = clock_out_val ? variable -> Seconds(variable) ...
 \end{listing}
 
 In the last part, TAPS will synchronise the process with the monitor processes over the channels they are asserting.
-For each monitor process TAPS builds a new layer of synchronisation around the network. This is straightforward to auto-generate since TAPS can loop over the list of writes for the process. \\
+For each monitor process TAPS builds a new layer of synchronisation around the network. This is straightforward to automatically generate, since TAPS can loop over the list of writes for the process. \\
 
-Listing \ref{lst:network_example_cspm} shows the network generated from the translated \texttt{Seconds} process in Listing \ref{lst:channel_range_cspm} and the corresponding monitor processes in Listing \ref{lst:monitor_range_cspm}. Adding parentheses around each synchronisation, the \texttt{first digit} monitor process is synchronised on the \texttt{first digit} channel and the \texttt{second digit} monitor process is synchronised on the \texttt{second digit} channel which completes the process monitor network.
+Listing \ref{lst:network_example_cspm} shows the network generated from the translated \texttt{Seconds} process in Listing \ref{lst:channel_range_cspm} and the corresponding monitor processes in Listing \ref{lst:monitor_range_cspm}. Adding parentheses around each synchronisation, the \texttt{first digit} monitor process is synchronised on the \texttt{first digit} channel and the \texttt{second digit} monitor process is synchronised on the \texttt{second digit} channel which completes the process monitor network.\\
 
-Lastly the \cspm{} \texttt{assert} operator is specifying the refinement check for FDR4. The assertion defines a refinement check from the specification process \texttt{SKIP} and the implementation process \texttt{N\_seconds}. The assert statement also indicates that the refinement check should be done using the failures model.\\
+Lastly the \cspm{} \texttt{assert} operator is specifying the refinement check for FDR4. The assertion defines a refinement check from the specification process \texttt{SKIP} and the implementation process \texttt{N\_seconds}. The assert statement also indicates that the refinement check should be performed using the failures model.\\
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 N_seconds = clock_out_val ? variable ->
@@ -203,24 +204,24 @@ N_seconds = clock_out_val ? variable ->
 
 assert SKIP [F= N_seconds \ Events
 \end{minted}
-\caption{Example of the \texttt{Seconds} network processes from the generated \cspm{} code in the seven segment display example. See full example in Listing~\ref{lst:cspm} in the appendix.}
+\caption{Example of the \texttt{Seconds} network processes from the generated \cspm{} code in the seven segment display example. See the full code in Listing~\ref{lst:cspm} in the appendix.}
 \label{lst:network_example_cspm}
 \end{listing}
 
-In SMEIL it is possible to define more than one network within the same SMEIL program. This is not a problem for TAPS to translate as long as the program is still a well-formed SMEIL program. Each instance defines a process and its parameters. This communication will always refer to a specific bus, defined in either a process or a network. This will not change no matter how many networks are defined within the program, because communication cannot span across networks.
+In SMEIL it is possible to define more than one network within the same SMEIL program. This is not a problem for TAPS to translate as long as the program is still a well-formed SMEIL program. Each instance defines a process and its parameters. The communication will always refer to a specific bus, defined in either a process or a network. This will not change no matter how many networks are defined within the program, because communication cannot span across networks.
 In theory, it is possible to create nested networks where a network can instantiate other networks, and thereby allowing communication across networks, but this has not yet been implemented in SMEIL and therefore TAPS does not support this.
 The only situation where several networks can become a problem for TAPS is if the networks have instance names in common. As mentioned above, it is necessary to include the instance name in the name of a generated \cspm{} channel in order to tell the difference between two \cspm{} channels originating from the same process. If there is more than one network using the same instance name for a specific process, the generated code would have identical channel names in one \cspm{} program. To solve this, TAPS could include the network name in the generated \cspm{} channel name to add another layer of separation. This is a corner case, and the current version of TAPS does not support this solution, but since it is a potential problem it is important to indentify.
 
 \section{The Technologies of TAPS}
-The two main parts of TAPS are the parser and the code generator. The parser is created with ANTLR4~\cite{antlr}, which is described further below. The data transformation and code generation have been developed in Python 2.7. The templating language Jinja2~\cite{jinja2} has been used to define and generate the standard \cspm{} structures, which the SMEIL program will be translated into.\\
+The two main parts of TAPS are the parser and the code generator. The parser is created with ANTLR4~\cite{Parr2012}, which is described further below. The data transformation and code generation have been developed in Python 2.7. The templating language Jinja2~\cite{jinja2} has been used to define and generate the standard \cspm{} structures, that the SMEIL program will be translated into.\\
 
-The SMEIL program is parsed using ANTLR4 and the resulting parse tree is traversed, while TAPS collects all relevant data from the SMEIL program. The data is then transformed to match the requirements of the \cspm{} structures used for the code generation. Together with the transformed data TAPS uses the templates to generate the \cspm{} code. The generated code can then can be verified in FDR4. \\
+The SMEIL program is parsed using ANTLR4 and the resulting parse tree is traversed, while TAPS collects all relevant data from the SMEIL program. The data is then transformed to match the requirements of the \cspm{} structures used for the code generation. Together with the transformed data, TAPS uses the templates to generate the \cspm{} code. The generated code can then can be verified in FDR4. \\
 
 Often when developing any form of translation either by a compiler or interpreter, the use of a symbol table is often necessary in order to keep information about variable names, types, values etc. During the translation when reaching a symbol, the system will use the symbol table to look up the symbol and to retrieve its context. The symbol table is usually generated in the analysis section and is used for lookups throughout the compilation or interpretation. TAPS expects the SMEIL program to be well-formed and does not provide any checking of the SMEIL code, and therefore it is not necessary for TAPS to include a symbol table to check if variables have been properly declared in the process declaration, before being used in the body of the process.
 \subsection{ANTLR4}
 For the transpiling from SMEIL to \cspm{}, I have decided to use a parser generator tool to generate a parser for the SMEIL language.\\
 
-I have choosen a parser generator library because it will simplify the parsing process so I can focus more on the development of correct code generation. Parser generators are tools that provide an automatically generated parser from a specified grammar. Using a parser generator is an obvious choice since the SMEIL grammar is already in a well defined and simple Extended Backus-Naur Form, EBNF, format. It is also possible to create a parser from scratch but there seems to be little reason to spend the time writing and debugging a bespoke parser when I can generate it directly. \\
+I have choosen a parser generator library because it will simplify the parsing process so I can focus more on the development of correct code generation. Parser generators are tools that provide an automatically generated parser from a specified grammar. Using a parser generator is an obvious choice since the SMEIL grammar is already in a well defined Extended Backus-Naur Form (EBNF) format. It is also possible to create a parser from scratch but there seems to be little reason to spend the time writing and debugging a bespoke parser when I can generate it directly. \\
 
 I have decided to use the ANTLR4 tool after looking at several other parser generator tools. ANTLR4 is a Java-based parser generator library that, based on a grammar, can generate parsers in Java or another target language, like Python 2.7. ANTLR is a well-used tool which has recently been updated to the new and improved ANTLR4 version. Companies like Twitter and Oracle are using ANTLR~\cite{Parr2012} for different parse tasks. ANTLR4 also has an active user base and there is plenty of documentation and guides for the new ANTLR4 version online. A lot of parser generator tools exists today and some of the most known parser generators are Yacc or Bison but unfortunately a lot of these tools seemed to be a bit outdated and not very user friendly in terms of error messages or simplicity in the grammar structure. ANTLR4 seems to be the right choice for this simple grammar.\\
 

@@ -9,7 +9,7 @@ The required dependencies for generating the ANTLR4 parser, running TAPS and ver
 \end{itemize}
 
 ANTLR4 and FDR4 can both be downloaded from their websites, where installation instructions are also provided.
-The ANTLR4 project can be found at \url{https://www.antlr.org/} and the FDR4 Project at \url{https://www.cs.ox.ac.uk/projects/fdr/}.\\
+The ANTLR4 project can be found at \url{https://www.antlr.org/} and the FDR4 Project at \url{https://www.cs.ox.ac.uk/projects/fdr/}.
 It is also necessary to download the ANTLR4 Python runtime from \url{https://pypi.org/project/antlr4-python2-runtime/}.
 Assuming that an ANTLR4 alias has been created as the ANTLR4 installation suggest, the parser and lexer can be generated with ANTLR4 using the command: {\ttfamily antlr4 -Dlanguage=Python2 - visitor -no-listener Smeil.g4.}
 This will create all the required parser and lexer files, as well as the visitor methods. This step is only necessary if the .g4 grammar file has been modified.\\
@@ -18,7 +18,8 @@ When the ANTLR4 files have been generated, TAPS can be used directly with a well
 
 The resulting \cspm{} file can be verified in FDR4, either by the command line tool or by the FDR4 tool, which is a graphical tool. The command line tool can be used by the command \texttt{refines output.csp}. There are several options to adjust the output of the command. The FDR4 command line tool is mostly used to quickly check if a network passes the verification, because it is difficult to navigate the counterexamples. The FDR4 graphical tool provides a better visualisation of counterexamples, and the ProBE visualiser can be called directly from the FDR4 graphical tool.
 
-\chapter{Seven Segments Display Example Full SMEIL and \cspm code}
+\chapter{Seven Segments Display Example Full code}
+\section*{SMEIL code}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc clock ()
     bus clock_out {val: u17 range 1 to 86401;};
@@ -27,6 +28,7 @@ proc clock ()
     i = i + 1;
     clock_out.val = i;
 }
+
 
 proc hours (in hours_in)
     bus hours_out {first_digit: u2 range 0 to 2;
@@ -41,6 +43,7 @@ proc hours (in hours_in)
     hours_out.first_digit = hours_first_temp;
     hours_out.second_digit = hours_second_temp;
 }
+
 
 proc minutes (in minutes_in)
     bus minutes_out {first_digit: u3 range 0 to 5;
@@ -72,6 +75,7 @@ proc seconds (in seconds_in)
     seconds_out.second_digit = seconds_second_temp;
 }
 
+
 network clock_network ()
 {
     instance g of clock();
@@ -83,6 +87,7 @@ network clock_network ()
 \end{minted}
 \captionof{listing}{The full SMEIL code used for transpiling in the seven segment display example.\label{lst:smeil}}
 
+\section*{Unclocked \cspm{} code}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel clock_out_val : {0..131071}
 
@@ -175,7 +180,7 @@ assert SKIP [F= N_seconds \ Events
 
 \end{minted}
 \captionof{listing}{The full unclocked \cspm{} code after transpiling the seven segment display example, as seen in Listing~\ref{lst:smeil} in the appendix.\label{lst:cspm}}
-
+\section*{Clocked \cspm{} code}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel hours_hours_out_first_digit : {0..3}
 channel hours_hours_out_second_digit : {0..15}
@@ -223,20 +228,18 @@ hours_hours_out_second_digit_monitor(c) =
 N_hours =
         (
             (
-            Hours(clock_c_out_val)
-            [|{| hours_hours_out_first_digit |}|]
-            hours_hours_out_first_digit_monitor(hours_hours_out_first_digit)
+                Hours(clock_c_out_val)
+                [|{| hours_hours_out_first_digit |}|]
+                hours_hours_out_first_digit_monitor(hours_hours_out_first_digit)
             )
-        [|{| hours_hours_out_second_digit |}|]
-        hours_hours_out_second_digit_monitor(hours_hours_out_second_digit)
+            [|{| hours_hours_out_second_digit |}|]
+            hours_hours_out_second_digit_monitor(hours_hours_out_second_digit)
         )
         [|{| sync |}|]
-        (
         Clock(0)
-        )
 
 assert SKIP [F= N_hours \ Events
---------------------------------------------------------------------------
+
 
 Minutes(input_channel) =
     (sync ->
@@ -271,21 +274,17 @@ minutes_min_out_second_digit_monitor(c) =
 N_minutes =
         (
             (
-            Minutes(clock_c_out_val)
-            [|{| minutes_min_out_first_digit |}|]
-            minutes_min_out_first_digit_monitor(minutes_min_out_first_digit)
+                Minutes(clock_c_out_val)
+                [|{| minutes_min_out_first_digit |}|]
+                minutes_min_out_first_digit_monitor(minutes_min_out_first_digit)
             )
-        [|{| minutes_min_out_second_digit |}|]
-        minutes_min_out_second_digit_monitor(minutes_min_out_second_digit)
+            [|{| minutes_min_out_second_digit |}|]
+            minutes_min_out_second_digit_monitor(minutes_min_out_second_digit)
         )
         [|{| sync |}|]
-        (
         Clock(0)
-        )
 
 assert SKIP [F= N_minutes \ Events
-
---------------------------------------------------------------------------
 
 
 Seconds(input_channel) =
@@ -297,8 +296,6 @@ Seconds(input_channel) =
             sec_first_temp = sec / 10
             sec_second_temp = sec % 10
         within
-            -- I might be able to put them together in a if x > 10 or y >10
-            -- But this would probably not be possible to auto generate.
             (sec_first_temp <= 7) &
                 (seconds_sec_out_first_digit ! sec_first_temp ->
                 (sec_second_temp <= 15) &
@@ -324,17 +321,15 @@ sec_sec_out_second_digit_monitor(c) =
 N_seconds =
         (
             (
-            Seconds(clock_c_out_val)
-            [|{| seconds_sec_out_first_digit |}|]
-            sec_sec_out_first_digit_monitor(seconds_sec_out_first_digit)
+                Seconds(clock_c_out_val)
+                [|{| seconds_sec_out_first_digit |}|]
+                sec_sec_out_first_digit_monitor(seconds_sec_out_first_digit)
             )
-        [|{| seconds_sec_out_second_digit |}|]
-        sec_sec_out_second_digit_monitor(seconds_sec_out_second_digit)
+            [|{| seconds_sec_out_second_digit |}|]
+            sec_sec_out_second_digit_monitor(seconds_sec_out_second_digit)
         )
         [|{| sync |}|]
-        (
         Clock(0)
-        )
 
 assert SKIP [F= N_seconds \ Events
 \end{minted}
@@ -342,6 +337,7 @@ assert SKIP [F= N_seconds \ Events
 
 
 \chapter{Addone Example Full SMEIL and \cspm code}
+\section*{SMEIL code}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc add (in input, const constant)
     bus output {
@@ -370,6 +366,7 @@ network addone_network ()
 \end{minted}
 \captionof{listing}{The full SMEIL code used for transpiling in the Addone example.\label{lst:smeil_addone_full}}
 
+\section*{\cspm{} code}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel sync
 channel d_read, c_read : { -1..15} -- u4 and initial value
@@ -471,17 +468,19 @@ System =
 
 assert SKIP [F= System \ Events
 \end{minted}
-\captionof{listing}{The full \cspm{} code after transpiling the Addone example, as seen in Listing~\ref{lst:smeil_addone_full} in the appendix.\label{lst:cspm_addone_full}}
+\captionof{listing}{The full \cspm{} code after transpiling the Addone example, as seen in Listing~\ref{lst:smeil_addone_full} in the appendix. This example have been manually translated. \label{lst:cspm_addone_full}}
 
 
 \chapter{Towards Automatic Program Specification
 Using SME Models}
-\noindent A paper based on this thesis has been submitted for publication as
+\noindent A paper, based on this thesis, has been published as
 
 \begin{center}
 \begin{minipage}{0.8\textwidth}
-    A. Thegler, M. Larsen, K. Skovhede, and B. Vinter. "Towards automatic program specification using sme models". In: {\itshape Proceedings of Communicating Process Architectures
-    2018} (2018)
+    A. Thegler, M. Larsen, K. Skovhede, and B. Vinter. Towards Automatic Program Specification Using SME Models. In: In K. Chalmers, J. Pedersen, M. Smith, K. Skovhede, and P. Welch,
+    editors, {\itshape Proceedings of Communicating Process Architectures
+    2018}. IOS Press, Amsterdam, The Netherlands,
+    August 2018.
 \end{minipage}
 \end{center}
 The following pages contains this paper.

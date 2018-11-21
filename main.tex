@@ -23,7 +23,7 @@
 
 \renewcommand{\headrulewidth}{0.4pt} % thickness of line at header
 \renewcommand{\footrulewidth}{0.4pt} % thickness of line at footer
-\setlength{\belowcaptionskip}{-10pt} % space below captions
+\setlength{\belowcaptionskip}{0pt} % space below captions
 
 
 %%%%%%%%%%%%%%%%%%%%
@@ -47,17 +47,17 @@
 
 \begin{abstract}
 \begin{doublespace}
-This thesis introduces a method to simplify hardware modeling and verification
-thereof in order for software programmers to, more easily, meet the demands of
+This thesis introduce a method to simplify hardware modeling and verification
+thereof, in order for software programmers to, more easily, meet the demands of
 the growing embedded device industry. The system TAPS is presented, which is a
 system for transpiling from the new SME Implementation Language (SMEIL) into the
 machine-readable CSP language (\cspm{}).
 The translated \cspm{} code is augmented with assertion statements, derived from values observed by simulating SME models. Utilising the formal verification
 properties of the FDR4 refinement tool, the assertion statements of the
-translated \cspm{} code are formally verified.
-An extension to the initial version of TAPS is introduced in the thesis. The extension provides the possibility of modeling a globally synchronous clock in
+translated \cspm{} code can be formally verified.
+An extension to the initial version of TAPS is also introduced in the thesis. The extension provides the possibility of modeling a globally synchronous clock in
 \cspm{}, providing the possibility of verifying the internal state of the
-\cspm{} code separately for each clock cycle.
+\cspm{} network separately for each clock cycle.
 A small example consisting of a
 seven segment display clock network is presented, to introduce how to verify the
 widths of channels in the network. A small cyclic network is presented, to
@@ -67,7 +67,7 @@ version of TAPS.
 \end{abstract}
 
 \chapter*{Acknowledgements}
-I would like to thank my supervisors Brian Vinter and Kenneth Skovhede for their support, patience, and guidance throughout this project and for encouraging me to write a paper based on this work.
+I would like to thank my supervisors Brian Vinter and Kenneth Skovhede for their support, patience, and guidance throughout this project, and for encouraging me to write a paper based on this work.
 I'd like to give special thanks to Mads Ohm Larsen for his immense help in writing the paper and for always taking the time to discuss my ideas.
 Another special thanks goes to Truls Asheim for his kind support in introducing me to SMEIL, proofreading my writings, and for patiently answer all of my questions.
 I would also like to thank the employees in the eScience group at the Niels Bohr Institute, for their encouragement and for providing a welcomming environment.
@@ -83,44 +83,44 @@ Last but not least, I would like to thank Lars and Asbj\o rn Thegler for taking 
 % Include Content %
 %%%%%%%%%%%%%%%%%%%
 
-\chapter{Introduction}
-\input{chapters/introduction}
+% \chapter{Introduction}
+% \input{chapters/introduction}
 
-\chapter{Related Work}
-\label{chap:related_work}
-\input{chapters/related_work}
+% \chapter{Related Work}
+% \label{chap:related_work}
+% \input{chapters/related_work}
 %
-\chapter{Approach}
-\input{chapters/approach}
+% \chapter{Approach}
+% \input{chapters/approach}
 %
-\chapter{Background Technologies}
-\label{chap:background}
-\input{chapters/background}
+% \chapter{Background Technologies}
+% \label{chap:background}
+% \input{chapters/background}
 %
-\chapter{Analysis}
-\label{chap:analysis}
-\input{chapters/analysis}
+% \chapter{Analysis}
+% \label{chap:analysis}
+% \input{chapters/analysis}
 %
-\chapter{Designing TAPS}
-\label{chap:design}
-\input{chapters/design}
+% \chapter{Designing TAPS}
+% \label{chap:design}
+% \input{chapters/design}
+%
+% \chapter{Implementation}
+% \label{chap:implementation}
+% \input{chapters/implementation}
+%
+% \chapter{Extending TAPS for Clocked Systems}
+% \label{chap:clock}
+% \input{chapters/clock_cycle_problem}
+%
+% \chapter{Experiments and Results}
+% \label{chap:exp}
+% \input{chapters/experiments_and_results}
 
-\chapter{Implementation}
-\label{chap:implementation}
-\input{chapters/implementation}
-%
-\chapter{Extending TAPS for Clocked Systems}
-\label{chap:clock}
-\input{chapters/clock_cycle_problem}
-%
-\chapter{Experiments and Results}
-\label{chap:exp}
-\input{chapters/experiments_and_results}
-%
 \chapter{Discussion}
 \label{chap:discussion}
 \input{chapters/discussion}
-%
+
 \chapter{Future Work}
 \label{chap:future}
 \input{chapters/future_work}
@@ -132,8 +132,8 @@ Last but not least, I would like to thank Lars and Asbj\o rn Thegler for taking 
 % % Thanks to Uwe Zimmermann who made the seven segment example in TikZ on \url{http://www.texample.net/tikz/examples/segment-display/}.
 
 
-% \newpage
-% citation for citations\cite{Bengtsson1995}
+\newpage
+citation for citations\cite{Bengtsson1995}
 
 
 %%%%%%%%%%%%%%%%
