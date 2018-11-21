@@ -24,7 +24,7 @@ The design approach within the master's thesis project by Skaarup and Frisch was
 \end{figure}
 
 The advantage of using PyCSP for processor simulation is the flexibility and simplicity of the language. It is easy to experiment with various ideas and structures, but with the increased complexity of the added clock process and clock-signal propagation, the advantages of PyCSP seemed to diminish. Therefore the conclusion of the master's thesis project was that using PyCSP alone for building synchronous processor simulators was not ideal since the global clock was forced onto the CSP model. It was also concluded that external choice, which is a powerful and essential part of CSP, was not utilised in the globally synchronous approach. The thesis did, however, conclude that several other CSP concepts were fitting well with the hardware concepts, such as shared-nothing in CSP matching the structure of hardware communication because the network state could only be changed by process communication.
-After this attempt, it became clear that the structure of CSP was poorly suited for modeling clocked systems, and therefore it was decided to create the Synchronous Message Exchange framework, based on the CSP algebra. The idea was to only use the subset of the CSP algebra that provided beneficial functionality to hardware modeling which, most importantly, meant that external choice was omitted while shared-nothing was retained.
+After this attempt, it became clear that the structure of CSP was poorly suited for modelling clocked systems, and therefore it was decided to create the Synchronous Message Exchange framework, based on the CSP algebra. The idea was to only use the subset of the CSP algebra that provided beneficial functionality to hardware modelling which, most importantly, meant that external choice was omitted while shared-nothing was retained.
 \\
 
 In SME, a network is a combination of processes that are connected through buses. The processes communicate through a collection of signals in a bus, instead of CSP's synchronous rendezvous model, but retains the shared-nothing trait of CSP.
@@ -72,7 +72,7 @@ With the different SME implementations, a need arose for a common intermediate l
   \caption{SMEIL transpiler structure.}
   \label{fig:smeil_transpiler}
 \end{figure}
-SMEIL has a C-like syntax with a specialised type system that makes hardware modeling simple. In spite of its simplicity, SMEIL still provides hardware-specific functionality that is more difficult to express with general-purpose languages.\\
+SMEIL has a C-like syntax with a specialised type system that makes hardware modelling simple. In spite of its simplicity, SMEIL still provides hardware-specific functionality that is more difficult to express with general-purpose languages.\\
 
 Programs written in SMEIL are run by using the LIBSME library, either by using the command line utility or through the provided API.
 The different methods of using SMEIL are:\\
@@ -110,7 +110,7 @@ network double_net() {
 \subsubsection{SMEIL Type System}
 The SMEIL language is strongly, statically typed and has a simple type system that is checked at compile-time. The purpose of SMEIL is to be able to model hardware, and since hardware is static, it was important to create a type system that was capable of enforcing as many static invariants as possible.
 Because of this, the only type coercion possible in SMEIL is between signed and unsigned integers. Consequently, only booleans can be used in conditionals.
-The SMEIL type system differs from standard general-purpose languages mainly in the support for bit-precise types. General-purpose languages are typically targeting a CPU which consists of fixed-width registers. Therefore it can not work with data smaller than a byte. However, an important part of modeling hardware is to be able to define the exact widths of the buses, in order to optimise the hardware implementation. SMEIL supports unlimited size integers as well as integers constrained to a specific bit size. SMEIL also supports booleans, double and single precision floating point numbers as well as strings. Currently, floating-point numbers are supported in the SMEIL simulator but have not been extensively tested. \\
+The SMEIL type system differs from standard general-purpose languages mainly in the support for bit-precise types. General-purpose languages are typically targeting a CPU which consists of fixed-width registers. Therefore it can not work with data smaller than a byte. However, an important part of modelling hardware is to be able to define the exact widths of the buses, in order to optimise the hardware implementation. SMEIL supports unlimited size integers as well as integers constrained to a specific bit size. SMEIL also supports booleans, double and single precision floating-point numbers as well as strings. Currently, floating-point numbers are supported in the SMEIL simulator but have not been extensively tested. \\
 
 In SMEIL buses can contain more than one channel and since processes or networks can accept buses passed as parameters, it is important to ensure that no process or network reads or writes to a channel that is not contained within the expected bus.
 In the same way, it is essential to ensure that the directionality of the bus is enforced. When buses are passed as parameters, they are explicitly declared as either an input or an output bus. However, when defining a bus within a process, it is not possible to define the directionality of the bus. Therefore the bus is defined as input or output based on their first use.
@@ -161,7 +161,7 @@ proc double (in inbus)
    \vspace{1cm}
 \end{minipage}
 \subsubsection{Co-simulation}
-Often when modeling hardware in HDLs like VHDL or Verilog, code for testing and verifying are often written in the same language as the design itself. Unfortunately, writing test codes in HDLs are often tedious. Using general-purpose languages for testing hardware models are useful since the range of available libraries is much larger.
+Often when modelling hardware in HDLs like VHDL or Verilog, code for testing and verifying are often written in the same language as the design itself. Unfortunately, writing test codes in HDLs are often tedious. Using general-purpose languages for testing hardware models are useful since the range of available libraries is much larger.
 Therefore the SMEIL simulator provides a simple language-independent API which enables SME implementations written for general-purpose languages to communicate with SME networks written in SMEIL, so-called co-simulation.
 The big advantage of the SMEIL approach to co-simulation is that SME is used on both sides of the co-simulation and therefore can act as a single entity.
 The PySME~\cite{pysme} library has been extended to support co-simulation with SMEIL, thereby providing the possibility of writing networks in PySME which can interact with SME networks written in SMEIL. Currently, only PySME has been extended with this, but is expected to be implemented in the other SME implementations as well.
@@ -178,7 +178,7 @@ It is possible to describe complex concurrent and parallel structures with a few
 
 In CSP, a process is mainly defined by the way it can communicate with its external environment. An essential part of this communication is the \textit{alphabet} of possible communication events. This is the set of events that the process, and related processes, can use for communication. Events in CSP can only occur when both the process and the environment allow, but then they are instantaneous.\\
 
-Here I give a brief introduction to the essential parts of CSP and structures that are used in TAPS, in order to give the reader a basic understanding to build on with \cspm{} and FDR. To learn more in-depth about CSP the reader is encouraged to seek out the books \textit{The Theory and Practice of Concurrency}~\cite{Roscoe1997} or \textit{Understanding Concurrent Systems}~\cite{Roscoe2010} by A. W. Roscoe.
+Here I give a brief introduction to the essential parts of CSP and structures that are used in TAPS, in order to give the reader a basic understanding to build on with \cspm{} and FDR4. To learn more in-depth about CSP the reader is encouraged to seek out the books \textit{The Theory and Practice of Concurrency}~\cite{Roscoe1997} or \textit{Understanding Concurrent Systems}~\cite{Roscoe2010} by A. W. Roscoe.
 \begin{itemize}
     \item \textbf{Prefix:} Given an event $a$ in the alphabet $\Sigma$, and a process $P$, $a \then P$ is the process which will communicate $a$ and then behaves like the process $P$. The process will wait indefinitely to communicate $a$. This is known as prefixing.
     The simplest CSP process possible is the \textit{STOP} process. It never does anything and never communicates and it is also known as the deadlocking process. The process $left \then right \then STOP$ is the process which communicates a left and a right before stopping. Another essential process is the \textit{SKIP} process which is the process that terminates successfully.
@@ -207,7 +207,7 @@ The basics of a \cspm{} program is to define the processes, their functionality,
 \cspm{} does not enforce restrictions on the use of upper/lower-case letters in identifiers, although some standard conventions can be followed if needed. Some conventions define processes either all in capital letters or with an initial capital letter. Channels and function naming are typically all in lowercase lettering.\\
 
 \cspm{} also supports integer arithmetics like addition, subtraction, product, quotient, remainder/modulus, and unary minus. Integer arithmetics are supported within a signed or twos-complement 32-bit representation.
-Floating point numbers are not supported in \cspm. \\
+Floating-point numbers are not supported in \cspm. \\
 
 \cspm{} provides several different built-in functions, like \texttt{concat(s)} or \texttt{elem(x,s)}, which both takes sequences as parameters, or \texttt{card(a)} and \texttt{union(a, b)} which are set functions. All of these functions are common in functional programming languages. \cspm{} support boolean \texttt{and}, \texttt{or}, \texttt{not} operations, equality operations as well as ordering operations and conditional expressions. In \cspm, all types except functions and processes can be compared with the equality operators. Ordering is defined for all but booleans and user-defined types. \\
 
@@ -224,7 +224,7 @@ Generalised parallel is defined by \texttt{P [| A |] Q}, similar to how it is de
 It is also possible to define alphabetised parallel, \texttt{P [A || B] Q}, which means that the set of events, \texttt{A}, are the events that \texttt{P} is allowed to perform and the set of events, \texttt{B} are the events allowed by \texttt{Q}.
 \subsection{FDR4}
 \label{sec:background_fdr}
-\textit{Note that the information represented in this section is based on the information published, which unfortunately does not include a lot of details about the internal workings of FDR4. I have assumed that the internal workings of FDR4 are similar to FDR3, which has been described in ~\cite{fdr}.}\\
+\textit{Note that the information represented in this section is based on the information published, which unfortunately does not include a lot of details about the internal workings of FDR4. I have assumed that the internal workings of FDR4 are similar to FDR3, which has been described in \cite{fdr}.}\\
 
 Today, there exists several tools for formal verification. One of the currently most favored tools is the Failures-Divergences Refinement tool (FDR4). FDR4 is a CSP refinement checker that can analyse programs written in \cspm{}.
 It is an obvious choice as the verification tool for the generated \cspm{} programs from TAPS, as it has the ability to perform parallel refinement-checking, which drastically increase the amount of states it is able to check. FDR4 is also an actively maintained tool, so it is less likely to become obsolete.\\
@@ -241,7 +241,7 @@ After this, FDR4 is ready to check if the implemented process, transformed to a 
 
 FDR4 supports other compression functionalities besides normalisation, which can reduce the state space without changing the overall semantics of the process. This helps improve the runtime of the refinement checks. The reduction in state space is a crucial element of FDR4, since the state space quickly becomes overwhelmingly large, making the refinement check infeasible. The compression algorithms provide the possibility of verifying otherwise absurdly large problems.
 These compression algorithms will not be further introduced in this thesis, but more information on these can be found in \cite{Roscoe2010}.
-FDR4 also supports refinement of Timed CSP~\cite{REED1988249}~\cite{armstrong2014model} which is used within time-critical systems.
+FDR4 also supports refinement of Timed CSP~\cite{REED1988249, armstrong2014model} which is used within time-critical systems.
 \subsubsection{Refinement Checking}
 \label{sec:refinement}
 Refinement checking consists of searching through each of the GLTS, checking that all reachable states within the verification GLTS are compatible with every state within the normalised specification GLTS. It performs a breadth-first search, which has the advantage that when an error is found, the counterexample provided is the smallest possible. In each state, properties are checked according to the semantic model used. The refinement algorithm stores a set of states in order to keep count of what has been checked, what is currently being checked and what is left to be checked. FDR4 uses B-Trees to store data during refinement, and since version 3 of FDR, FDR3, the refinement can also be performed in parallel.
@@ -269,7 +269,7 @@ When looking at Figure \ref{fig:failures_graph} it is clear that both $P_2$ and 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.6\textwidth]{figures/failures_graph.jpg}
-\caption{Four different transition graphs and their refusal sets. Figure from ~\cite{Roscoe2010}.}
+\caption{Four different transition graphs and their refusal sets. Figure from \cite{Roscoe2010}.}
 \label{fig:failures_graph}
 \end{figure}
 \paragraph{Failure-Divergences model and refinement}

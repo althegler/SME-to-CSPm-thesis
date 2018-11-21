@@ -1,6 +1,6 @@
 %!TEX root = ../main.tex
 After developing the initial version of TAPS, I realised that the solution was not broad enough in terms of what type of network it could accurately translate. The type of network that is possible to translate with the initial version of TAPS, is a network that does not keep internal states between clock cycles.
-In the seven segment example, no internal results have any influence on the result from other clock cycles, and therefore it can be correctly translated using the structures described in the previous chapters.
+In the seven segment display example, no internal results have any influence on the result from other clock cycles, and therefore it can be correctly translated using the structures described in the previous chapters.
 However, the original TAPS system was unable to generate semantically equivalent \cspm{} code from networks where the results depend on the internal state of the network. Examples of such networks include the Aaddone example from \cite{smeil}.\\
 
 The \texttt{addone} network is a simple cyclic network that consists of two processes communicating with each other. The SMEIL code for this example can be seen in Listing \ref{lst:addone_smeil_example}. The \texttt{add} process receives a value and increments it by a constant parameter. The \texttt{id} process receives the value and passes it along on its output bus.
@@ -23,7 +23,7 @@ An illustration of the network can be seen in Figure \ref{fig:addone_unclocked}.
     \label{fig:addone_unclocked}
 \end{figure}
 
-As presented in Chapter \ref{chap:design}, all possible communication combinations are represented in the generated \cspm{} code, however, the generated \cspm{} processes are not recursing, and so only one cycle of the loop is simulated in the \texttt{addone} example. This means that if the network was provided with an input that, after several clock cycles, resulted in a failure, this would not be caught by FDR4 because the \cspm{} code only represents one clock cycle. It was, therefore, necessary to extend TAPS so that network with internal states can be verified.\\
+As presented in Chapter \ref{chap:design}, all possible communication combinations are represented in the generated \cspm{} code, however, the generated \cspm{} processes are not recursing, so only one cycle of the loop is simulated in the \texttt{addone} example. This means that if the network was provided with an input that, after several clock cycles, resulted in a failure, this would not be caught by FDR4 because the \cspm{} code only represents one clock cycle. It was, therefore, necessary to extend TAPS so that network with internal states can be verified.\\
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc add (in inbus, const constant)
@@ -77,7 +77,7 @@ In Listing \ref{lst:cspm_recursion}, process \texttt{Inc} performs an endless lo
 
 It is, of course, still necessary for the new version of TAPS to model a \cspm{} network that reflects the SME model, and therefore it must adhere to the SME model structure. To model the global synchronicity in \cspm{}, it is necessary to enforce a synchronising event. This synchronicity can be emulated by having a \texttt{sync} channel, where all processes synchronise and thus they can emulate rising and falling clock signals. All clocked processes in the network will synchronise on the \texttt{sync} channel, and as previously introduced, when two processes are synchronised on a channel, they must agree on communication before any process can continue. The same \texttt{sync} channel is used for syncronising read as well as write, thus all processes syncronise on the \texttt{sync} channel before they read and before they write.
 The \texttt{Clock} process is also synchronising on the \texttt{sync} channel, so when the specified number of clock cycles has passed, the \texttt{Clock} process terminates.
-This means that none of the other processes will be able to synchronise on the \texttt{sync} channel because all processes must synchronise together. They will instead behave as \texttt{SKIP} and so the system terminates successfully.\\
+This means that none of the other processes will be able to synchronise on the \texttt{sync} channel because all processes must synchronise together. They will instead behave as \texttt{SKIP}, so the system terminates successfully.\\
 
 It is possible to design the \texttt{Clock} process to send values to each process, so that the process itself decides to terminate or continue, based on the value received. However, this would increase the complexity of the processes. The \texttt{Clock} process is instead designed to perform the \texttt{sync} event twice, one for read and one for write, for each clock cycle, and then recurse. In Listing \ref{lst:clock_process}, the \cspm{} code for a \texttt{Clock} process can be seen. The \texttt{Clock} process is instantiated with a start value and the desired number of clock cycles, so for each recursion, the internal value is incremented by one. By using pattern matching, the internal value of the \texttt{Clock} process is checked against the number of desired clock cycles, and if it is equal, the process terminates by \texttt{SKIP}. When the \texttt{Clock} process has terminated, all other processes will terminate as well.
 \begin{listing}
@@ -172,7 +172,7 @@ In this thesis, the dummy value is represented by an integer value to simplify t
 
 The \texttt{add} process and the \texttt{id} process are both instantiated with a value, which is used instead of the dummy value from the buffer process. When the process encounters the dummy value, the process ignores it and continues with the value that the process was instantiated with instead. After the first clock cycle, the process loop will continue, and the communication will hold according to the SME model.\\
 
-A clocked version of the \texttt{addone} network can be seen in Figure \ref{fig:addone_clocked}. The clocked \texttt{addone} network consists of four channels, two buffer read channels and two buffer write channels. A buffer process is defined for each original SMEIl channel in the network. \\
+A clocked version of the \texttt{addone} network can be seen in Figure \ref{fig:addone_clocked}. The clocked \texttt{addone} network consists of four channels, two buffer read channels and two buffer write channels. A buffer process is defined for each original SMEIL channel in the network. \\
 
 \begin{figure}
 \centering
@@ -208,7 +208,7 @@ A clocked version of the \texttt{addone} network can be seen in Figure \ref{fig:
 \label{fig:addone_clocked}
 \end{figure}
 \section{Buffer Structure}
-The buffers are designed to adhere to different kinds of process behaviour, and therefore the structure becomes complex. However, the buffer structures are standardized, so that they can be used for all clocked SMEIL channels. Therefore the complexity is not an issue when auto-generating the buffer. A buffer must still comply with the synchronisation of the network, so a buffer is divided into a read and a write structure to simplify the buffer structure, and to comply with some of the requirements that the SME model sets for the processes, which will be explained below.
+The buffers are designed to adhere to different kinds of process behaviour, and therefore the structure becomes complex. However, the buffer structures are standardised, so that they can be used for all clocked SMEIL channels. Therefore the complexity is not an issue when automatically generating the buffer. A buffer must still comply with the synchronisation of the network, so a buffer is divided into a read and a write structure to simplify the buffer structure, and to comply with some of the requirements that the SME model sets for the processes, which will be explained below.
 The buffer structure can be seen in Listing \ref{lst:buffer}.\\
 
 When a network is initialised, all processes will synchronise first and then the \texttt{Write\_buf} process will write its initial value to the corresponding channel. The write can be seen in Listing \ref{lst:buffer} in the \texttt{Writes\_buf} process. The reason for creating a separate process for the actual write event, is that the SME model specifies that several processes can read the same value from the buffer in the same clock cycle. It is therefore necessary to define a recursive structure that enables several buffer writes in the same clock cycle. The \texttt{Writes\_buf} process will write a value to the channel and then either write again or behave as the \texttt{Read\_buf} process.\\
@@ -288,7 +288,7 @@ As in the initial version of TAPS, the clocked version must translate an SMEIL d
 A data generator channel in \cspm{} represents the entire range defined for the original SMEIL channel. As with the initial version of TAPS, FDR4 will check all possible inputs to the network.
 In the clocked version of TAPS, a network is run for a specified number of clock cycles, and in each clock cycle, the entire input range is verified by FDR4.\\
 
-In a clocked version of the seven segments example, there is no reason to run the network for more than one clock cycle because all possible states have been verified after one clock cycle, since the example does not keep internal state. This, however, is not the case with networks that keep internal state between clock cycles, like the \texttt{addone} network.\\
+In a clocked version of the seven segment display example, there is no reason to run the network for more than one clock cycle because all possible states have been verified after one clock cycle, since the example does not keep internal state. This, however, is not the case with networks that keep internal state between clock cycles, like the \texttt{addone} network.\\
 
 In the \texttt{addone} network, each clock cycle represents a new internal state. For each clock cycle, or internal state, FDR4 verifies all possible inputs, which results in the network reading unexpected values. The internal structure of the network must be able to handle corner cases of unexpected values, so by providing this type of verification, these cases are explored. \\
 

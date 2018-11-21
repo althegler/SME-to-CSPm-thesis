@@ -1,9 +1,9 @@
 %!TEX root = ../main.tex
 
-In this chapter, I first present examples of verification for the seven segment display example as well as the addone example. Secondly, an experiment has been conducted to gain further insight into program size and validation time. The experimental setup and results are introduced with the three properties number of states, verification time, and maximum resident set size.
-\section{Seven Segments Display Example Validation}
-The seven segments example has been presented in different sections throughout this thesis. An illustration of the entire translated unclocked seven segments network can be seen in Figure \ref{fig:cspm-network}. The SMEIL representation of the same network can be seen in Chapter \ref{chap:analysis}, in Figure \ref{fig:smeil_network}.
-The unclocked \cspm{} network consists of 12 different processes, all created so that not only the network is simulated correctly, but also so the monitor processes are placed correctly. The input is represented by a triangle, since it transpiles from an SME process to a \cspm{} channel, it is not represented as a process in this network. Each of the dotted squares represents the network of synchronisations for each \texttt{time} process, which in itself is a process in \cspm{}. For each network, we have the \texttt{time} process and two monitor processes, for example, $H$, $M_{H_1}$ and $M_{H_2}$.
+In this chapter, I first present examples of verification for the seven segment display example as well as the addone example. Secondly, an experiment has been conducted to gain further insight into program size and validation time. The experimental setup and results are introduced with the three properties number of visited states, verification time, and maximum resident set size.
+\section{Seven Segment Display Example Validation}
+The seven segment display example has been presented in different sections throughout this thesis. An illustration of the entire translated unclocked seven segment display network can be seen in Figure \ref{fig:cspm-network}. The SMEIL representation of the same network can be seen in Chapter \ref{chap:analysis}, in Figure \ref{fig:smeil_network}.
+The unclocked \cspm{} network consists of 12 different processes, all created so that not only the network is simulated correctly, but also so the monitor processes are placed correctly. The input is represented by a triangle, since it transpiles from an SME process to a \cspm{} channel, it is not represented as a process in this network. Each of the dotted squares represents the network of synchronisations for each \texttt{time} process, which in itself is a process in \cspm{}. For each network, there is the \texttt{time} process and two monitor processes, for example, $H$, $M_{H_1}$ and $M_{H_2}$.
 \\
 
 % Errornous example
@@ -39,7 +39,7 @@ Hours_out_second_digit_monitor(c) =
 
 In order to show that the verification is accurate, the example in Listing~\ref{lst:cspm_error} contains an error that results in FDR4 failing the verification. In Listing~\ref{lst:cspm_error}, the example is only able to handle an input that is less than 24 hours. This is because the calculation in the \texttt{Hours} process does not perform the wrap-around at the 24\textsuperscript{th} hour. An example of such could be the input \texttt{131071}, which represents 36 hours, 24 minutes and 31 seconds. When trying to assert the code from Listing~\ref{lst:cspm_error} in FDR4, the assertion fails. The counterexample, provided by FDR4, shows that the number 3 is communicated on \texttt{hours\_out\_first\_digit}, which is not allowed according to the monitor process in Listing~\ref{lst:cspm_error}.\\
 
-This example of failure shows how verifying the solution with a tool like FDR4 actually catches errors that the developer might have overlooked. In this case, the error is simply corrected by adding \texttt{\% 24} on the end of line 9 in Listing~\ref{lst:cspm_error} and can be seen corrected in Listing~\ref{lst:cspm} in Appendix \ref{app:seven_segments}, at line 15. When we now try to verify the example in FDR4, it passes. By using modulo on the result, we ensure that we still get the accurate time of day, no matter how many full days the input represents.
+This example of failure shows how verifying the solution with a tool like FDR4 actually catches errors that the developer might have overlooked. In this case, the error is simply corrected by adding \texttt{\% 24} on the end of line 9 in Listing~\ref{lst:cspm_error} and can be seen corrected in Listing~\ref{lst:cspm} in Appendix \ref{app:seven_segments}, at line 15. When trying to verify the example in FDR4 now, it passes. Using modulo on the result, ensures that I still get the accurate time of day, no matter how many full days the input represents.
 The full SMEIL and \cspm{} code for the unclocked seven segment display example can be seen in Listing~\ref{lst:smeil} and in Listing~\ref{lst:cspm} in Appendix \ref{app:seven_segments}.
 
 \begin{figure}[!ht]
@@ -104,15 +104,15 @@ The full SMEIL and \cspm{} code for the unclocked seven segment display example 
   \caption{A seven segment display clock network in \cspm{}. $I$ represents the input channel. $N_{hours}$, $N_{minutes}$ and $N_{seconds}$ represent the network processes with $H$, $M$ and $S$ as the \texttt{time} processes. The results from the \texttt{time} processes are communicated to the displays $D$. The displays are represented by a square, since they are not actual \cspm{} processes. Each display communication also has a monitor process $M$, which assert the legal communication values.}
   \label{fig:cspm-network}
 \end{figure}
-\subsection{Clocked Seven Segments Display Example}
+\subsection{Clocked Seven Segment Display Example}
 The internal state does not change between clock cycles in the seven segment display example, so it can be verified with the unclocked version of TAPS. However, it is interesting to see how the network can be translated into a clocked structure. The full \cspm{} code of the clocked seven segment display example can be seen in Listing \ref{lst:cspm_clocked} in Appendix \ref{app:seven_segments}.
-The example is very similar to the unclocked version, however, the processes all synchronise on the \texttt{sync} process as described in Chapter \ref{chap:clock}. Each \texttt{time} process synchronises, then reads a value from the input range, then synchronise again before performing the computation. Then, the value is written to the output channel, that the monitor process reads from, just like in the unclocked seven segments example. This clocked example is a bit different than the \texttt{addone} example introduced in Chapter \ref{chap:clock}, because there are no buffers in the clocked seven segment display network. This is because there is only one synchronised process communicating, and therefore there is no need for buffers. This means that the network is not as complex as it would have been if buffers were added.
+The example is very similar to the unclocked version, however, the processes all synchronise on the \texttt{sync} process as described in Chapter \ref{chap:clock}. Each \texttt{time} process synchronises, then reads a value from the input range, then synchronise again before performing the computation. Then, the value is written to the output channel, that the monitor process reads from, just like in the unclocked seven segment display example. This clocked example is a bit different than the \texttt{addone} example introduced in Chapter \ref{chap:clock}, because there are no buffers in the clocked seven segment display network. This is because there is only one synchronised process communicating, and therefore there is no need for buffers. This means that the network is not as complex as it would have been if buffers were added.
 Because the seven segment display network does not persist a state between each clock cycle, there is no need to verify more than one clock cycle. When the \texttt{Clock} process terminates after one clock cycle, the network will behave the same as the unclocked seven segment display network. By looking through the FDR4 traces and the ProBE visualisations, it is clear that the two networks are equivalent in terms of verification and failures.
 \section{Addone Example Validation}
 The \texttt{addone} example was introduced in Chapter \ref{chap:clock}, and an illustration of the clocked network with its monitor processes can be seen in Figure \ref{fig:addone_clocked_monitor} in the same chapter. As explained, the \texttt{addone} example does not translate well in the initial version of TAPS and therefore the clocked version was created.
 The difference between verifying the \texttt{addone} network with a clocked and unclocked network, is that FDR4 is only able to verify one internal state in the unclocked version, whereas it is able to verify multiple internal states in the clocked version. The possibility of verifying different internal states suits this cyclic network perfectly.\\
 
-The \texttt{addone} example differs from the seven segment example in that it does not require an input range, because the cyclic network is instantiated with initial values instead of a data generator process. The cyclic structure of the \texttt{addone} example causes the values to circulate and increase indefinitely if not restricted. It is not possible to represent an indefinite amount of values on hardware buses and therefore it must be restricted to a specific bit size. If the network is not restricted to specific values, the verification will be based on the values from the simulation of the SMEIL network, even though the network does not fail if the values increase further.  This can cause an unnecessary failure in the verification.
+The \texttt{addone} example differs from the seven segment display example in that it does not require an input range, because the cyclic network is instantiated with initial values instead of a data generator process. The cyclic structure of the \texttt{addone} example causes the values to circulate and increase indefinitely if not restricted. It is not possible to represent an indefinite amount of values on hardware buses and therefore it must be restricted to a specific bit size. If the network is not restricted to specific values, the verification will be based on the values from the simulation of the SMEIL network, even though the network does not fail if the values increase further.  This can cause an unnecessary failure in the verification.
 If an SMEIL simulation of an unrestricted \texttt{addone} network results in the internal values reaching 10 and the FDR4 verification verifies more clock cycles than the SMEIL simulation, this would cause the values of the FDR4 verification to exceed the observed values, which would cause FDR4 to fail the verification, even though it would not cause a failure in the SMEIL network. It is, therefore, necessary that the user makes an informed choice as to the number of clock cycles to simulate in SMEIL but also to verify in FDR4. The number of simulated clock cycles and FDR4 verified clock cycles do not have to be equal, but in most cases, it might be the obvious choice. \\
 
 As mentioned, the \texttt{addone} example should be restricted, so a \texttt{\% 11} was added to the value-incrementing expression in the \texttt{add} process to avoid the value becoming larger than 10. Listing \ref{lst:addone_mod_example} shows the simulated \texttt{addone} network with the restriction added in the \texttt{add} process. Besides the restriction, this example is identical to the example in Listing \ref{lst:addone_smeil_example} in Chapter \ref{chap:clock}.
@@ -196,40 +196,40 @@ c_read_monitor(c) =
 The examples presented in this thesis provide a suitable introduction to the translation and the verification in FDR4. They consist of straightforward structures that are simple to grasp, so the functionality of TAPS can be proved without confusion.
 The challenge with verification via exploration of a state space, is to keep the verification time to a minimum. This does not only apply for FDR4, but for model checking tools in general. FDR4 performs different kinds of internal optimisations on the networks, to minimise the state space before the refinement check. FDR4 also provides several compression algorithms, to provide further compression of larger problems. \\
 
-I have performed some experiments on the seven segments example, to examine the behaviour in FDR4.
+I have performed some experiments on the seven segment display example, to examine the behaviour in FDR4.
 Both experiments have been run on an
 AMD Ryzen Threadripper 1950X processor with 16 cores at 3.4 GHz, with 128 GB 2933 MHz DDR4 ram.
 The experiments consist of measuring three different properties from the FDR4 verification.
 The first property is number of visited states which is a piece of information provided by FDR4.
 As previously presented, FDR4 performs compression to minimise the state space.
 This property provides an insight into the amount of work FDR4 performs when verifying a network, so it is interesting to learn how the number of visited states corresponds with the verification time. This will also give an insight into the inner workings of FDR4 and how the state space compression behaves.
-Because the seven segments example is divided into three different assertions, one for each \texttt{time} process, FDR4 provides a separate number of visited states for each verified \texttt{time} network. \\
+Because the seven segment display example is divided into three different assertions, one for each \texttt{time} process, FDR4 provides a separate number of visited states for each verified \texttt{time} network. \\
 
 The second property is verification time which is measured by the \texttt{time} command. Even though all experiments have been performed on the same machine, to ensure uniformity, the GNU \texttt{time} command was used instead of the built-in \texttt{time} command that shells such as \texttt{bash} and \texttt{zsh} provide. This property will provide insight into the size of feasible inputs for a \cspm{} network.\\
 
-The last property is maximum resident set size, which is also provided by the GNU \texttt{time} command. The maximum resident set size describes the amount of memory the process holds. It will provide an insight into how much memory FDR requires to verify the network, and how the memory usage behaves as the input size increase. If FDR4 requires too much memory, it is not feasible to verify larger problems unless compression algorithms can reduce the state space. \\
+The last property is maximum resident set size, which is also provided by the GNU \texttt{time} command. The maximum resident set size describes the amount of memory the process holds. It will provide an insight into how much memory FDR4 requires to verify the network, and how the memory usage behaves as the input size increase. If FDR4 requires too much memory, it is not feasible to verify larger problems unless compression algorithms can reduce the state space. \\
 
 The experiment has been designed to keep the internal system fixed and only increase the size of the input range for the system. This means that FDR4 will verify increasingly more values, but the network in itself stays the same.
 The lower bound of the input range will be fixed at 0 and the upper bound will be increased with in steps of 500, up to 15000. The input range \{0..15000\} represents 4 hours and 10 seconds. All three property values are gathered after FDR4 finishes the verification.
 \subsection{Unclocked Experiment}
-The full code for the unclocked seven segments display example can be seen in Listing \ref{lst:cspm} in Appendix \ref{app:seven_segments}.
-The unclocked seven segments display example consists of three \texttt{time} processes with associated monitor processes. Each \texttt{assert} function verifies the process monitor network described in Chapter \ref{chap:design}.
+The full code for the unclocked seven segment display example can be seen in Listing \ref{lst:cspm} in Appendix \ref{app:seven_segments}.
+The unclocked seven segment display example consists of three \texttt{time} processes with associated monitor processes. Each \texttt{assert} function verifies the process monitor network described in Chapter \ref{chap:design}.
 \paragraph{Number of visited states}
 For each verification, three assertions are performed within the seven segment display example, one for each \texttt{time} process network. With the unclocked example, all three verifications contain the same number of visited states, so this property will not be divided into three different results.\\
 
-Figure \ref{fig:unclocked_states} presents the results of the number of visited states property. From this graph, it is very clear how the state space increases linearly with the input range. This result means that FDR4 is not able to compress the state space further with the increase of input. A reason for FDR4 not providing any additional state space compression could be that because no input is repeated, it is not possible for FDR4 to provide further compression, so the number of states remains the same. This does, however, show how a problem quickly can become very large within FDR4, which is something a user must consider when choosing the data to verify.
+Figure \ref{fig:unclocked_states} presents the results of the number of visited states property. From this graph, it is very clear how the state space increases linearly with the input range. This result means that FDR4 is not able to compress the state space further with the increase of input. A reason for FDR4 not providing any additional state space compression could be that because no input is repeated, it is not possible for FDR4 to provide further compression, so the number of visited states remains the same. This does, however, show how a problem quickly can become very large within FDR4, which is something a user must consider when choosing the data to verify.
 \begin{figure}
     \centering
     \includegraphics[scale=0.6]{./figures/plots/unclocked_states.png}
-\caption{Graph of the number of visited states property from the unclocked seven segments experiment.}
+\caption{Graph of the number of visited states property from the unclocked seven segment display experiment.}
 \label{fig:unclocked_states}
 \end{figure}
 \paragraph{Verification time}
-In Figure \ref{fig:unclocked_verification} the verification time results can be seen. The graph represents the verification time in seconds for each increase in the input range. As can be seen, the verification time increases exponentially with the input values. Since the number of states visited is increasing linearly, it can seem odd that the verification time does not follow that same pattern. However, besides the refinement checking of the Generalised LTS (GLTS), which will increase with the number of states, FDR4 must compile the network and generate the GLTS. It is reasonable to expect that the larger the state space, the more effort for FDR4 to complete all the steps of the verification. Therefore these results are consistent with what could be expected.
+In Figure \ref{fig:unclocked_verification} the verification time results can be seen. The graph represents the verification time in seconds for each increase in the input range. As can be seen, the verification time increases exponentially with the input values. Since the number of visited states is increasing linearly, it can seem odd that the verification time does not follow that same pattern. However, besides the refinement checking of the Generalised LTS (GLTS), which will increase with the number of visited states, FDR4 must compile the network and generate the GLTS. It is reasonable to expect that the larger the state space, the more effort for FDR4 to complete all the steps of the verification. Therefore these results are consistent with what could be expected.
 \begin{figure}
     \centering
     \includegraphics[scale=0.6]{./figures/plots/unclocked_verification_time.png}
-\caption{Graph of the verification time property from the unclocked seven segments experiment.}
+\caption{Graph of the verification time property from the unclocked seven segment display experiment.}
 \label{fig:unclocked_verification}
 \end{figure}
 \paragraph{Maximum resident set size}
@@ -237,24 +237,24 @@ The result from this property can be seen in Figure \ref{fig:unclocked_resident_
 \begin{figure}
     \centering
     \includegraphics[scale=0.6]{./figures/plots/unclocked_size.png}
-\caption{Graph of the maximum resident set size property from the unclocked seven segments experiment.}
+\caption{Graph of the maximum resident set size property from the unclocked seven segment display experiment.}
 \label{fig:unclocked_resident_size}
 \end{figure}
 
 \subsection{Clocked Experiment}
-The full code for the clocked seven segments display example can be seen in Listing \ref{lst:cspm_clocked} in Appendix \ref{app:seven_segments}.
-As in the unclocked seven segments display example, the clocked example also consists of three \texttt{time} processes with associated monitor processes.
-In order to make the clocked seven segment experiment equivalent with the unclocked seven segments example, the \texttt{Clock} process in the clocked network only verifies one clock cycle and therefore the two networks should be equivalent in the verification.
+The full code for the clocked seven segment display example can be seen in Listing \ref{lst:cspm_clocked} in Appendix \ref{app:seven_segments}.
+As in the unclocked seven segment display example, the clocked example also consists of three \texttt{time} processes with associated monitor processes.
+In order to make the clocked seven segment display experiment equivalent with the unclocked seven segment display example, the \texttt{Clock} process in the clocked network only verifies one clock cycle and therefore the two networks should be equivalent in the verification.
 \paragraph{Number of visited states}
 In Figure \ref{fig:clocked_states}, the results of the clocked number of visited states property can be seen for each \texttt{time} verification. As can be seen, they differ quite a lot from each other.
 The results of the experiment, show an increase in the number of visited states for \texttt{Hours} in input values between 3500 and 4000. Further investigation show that the number of visited states increase precisely every 3600 increase.
 This corresponds to the number of seconds in an hour, meaning that the number of visited states increases linearly with the number of hours.
-The number of visited states for \texttt{Minutes} increase linearly until between 3500 and 4000. Also in this case, further investigation show that the number of states visited increase until exactly 3539 where it levels out and stays at 134 for the rest of the verifications.
-It is very clear from this result that the number of states reaches its maximum when the input range represents the maximum amount of minutes. The input range \{0..3539\} represents 59 minutes which is maximum. The number of visited states for \texttt{Seconds} is constant at 134, however if the input range was decreased to \{0..59\} the same result could be seen as with the \texttt{Minutes} graph. These results make it clear that FDR4 is able to decrease the number of states to the number of \texttt{Hours}, \texttt{Minutes} and \texttt{Seconds} represented by the input.
+The number of visited states for \texttt{Minutes} increase linearly until between 3500 and 4000. Also in this case, further investigation show that the number of visited states increase until exactly 3539 where it levels out and stays at 134 for the rest of the verifications.
+It is very clear from this result that the number of visited states reaches its maximum when the input range represents the maximum amount of minutes. The input range \{0..3539\} represents 59 minutes which is maximum. The number of visited states for \texttt{Seconds} is constant at 134, however if the input range was decreased to \{0..59\} the same result could be seen as with the \texttt{Minutes} graph. These results make it clear that FDR4 is able to decrease the number of states to the number of \texttt{Hours}, \texttt{Minutes} and \texttt{Seconds} represented by the input.
 \begin{figure}
     \centering
     \includegraphics[scale=0.6]{./figures/plots/clocked_states.png}
-\caption{Graphs of the three number of visited states properties from the clocked seven segments experiment.}
+\caption{Graphs of the three number of visited states properties from the clocked seven segment display experiment.}
 \label{fig:clocked_states}
 \end{figure}
 \paragraph{Verification time}
@@ -264,7 +264,7 @@ This graph is very similar to the verification time results for the unclocked ex
 \begin{figure}
     \centering
     \includegraphics[scale=0.6]{./figures/plots/clocked_verification_time.png}
-\caption{Graph of the verification time property from the clocked seven segments experiment.}
+\caption{Graph of the verification time property from the clocked seven segment display experiment.}
 \label{fig:clocked_verification}
 \end{figure}
 \paragraph{Maximum resident set size}
@@ -272,11 +272,11 @@ Figure \ref{fig:clocked_resident_size} shows the clocked maximum resident set si
 \begin{figure}
     \centering
     \includegraphics[scale=0.6]{./figures/plots/clocked_size.png}
-\caption{Graph of the maximum resident set size property from the clocked seven segments experiment.}
+\caption{Graph of the maximum resident set size property from the clocked seven segment display experiment.}
 \label{fig:clocked_resident_size}
 \end{figure}
 \subsection{Results}
-As explained above, the number of visited states property from the unclocked seven segments experiment showed to be equal for all three \texttt{time} verifications whereas, for the clocked experiment, the number of visited states varied between the three verifications. Figure \ref{fig:combined_states} represents all four graphs, but the unclocked values are several order of magnitude larger than the clocked values, making the clocked values hard to discern in the graph.\\
+As explained above, the number of visited states property from the unclocked seven segment display experiment showed to be equal for all three \texttt{time} verifications whereas, for the clocked experiment, the number of visited states varied between the three verifications. Figure \ref{fig:combined_states} represents all four graphs, but the unclocked values are several order of magnitude larger than the clocked values, making the clocked values hard to discern in the graph.\\
 
 In Figure \ref{fig:combined_verification} the combined verification time graph can be seen. Here, the difference also shows very clearly. The clocked experiment verifies much faster than the unclocked. Again it is difficult to see the actual values of the clocked version in the graph because they are significantly lower. The same case can be seen in Figure \ref{fig:combined_resident_size} which represents the combined maximum resident set size. \\
 
@@ -297,32 +297,32 @@ It is quite surprising that the clocked experiment has such a drastic difference
 In this aspect, FDR4 is a black box, and it is therefore not possible to learn exactly why FDR4 is able to perform compression on the clocked network and not on the unclocked. It is, of course, interesting to experiment further to find patterns in the \cspm{} structures that suits the compression algorithm best.
 \begin{figure}
     \includegraphics[width=0.98\textwidth]{./figures/unclocked_compression.jpg}
-\caption{Screen dump of the results of the unclocked seven segments display network in the FDR4 machine structure viewer.}
+\caption{Screen dump of the results of the unclocked seven segment display network in the FDR4 machine structure viewer.}
 \label{fig:unclocked_compression}
 \end{figure}
 \begin{figure}
     \includegraphics[width=1.02\textwidth]{./figures/clocked_compression.jpg}
-\caption{Screen dump of the results of the clocked seven segments display network in the FDR4 machine structure viewer.}
+\caption{Screen dump of the results of the clocked seven segment display network in the FDR4 machine structure viewer.}
 \label{fig:clocked_compression}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[scale=0.6]{./figures/plots/combined_states.png}
-\caption{Graphs of the number of states properties combined from both the unclocked and clocked seven segments display experiment.}
+\caption{Graphs of the number of visited states properties combined from both the unclocked and clocked seven segment display experiment.}
 \label{fig:combined_states}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[scale=0.6]{./figures/plots/combined_verification_time.png}
-\caption{Graphs of the verification time properties combined from both the unclocked and clocked seven segments display experiment.}
+\caption{Graphs of the verification time properties combined from both the unclocked and clocked seven segment display experiment.}
 \label{fig:combined_verification}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[scale=0.6]{./figures/plots/combined_size.png}
-\caption{Graphs of the maximum resident size set properties combined from both the unclocked and clocked seven segments display experiment.}
+\caption{Graphs of the maximum resident size set properties combined from both the unclocked and clocked seven segment display experiment.}
 \label{fig:combined_resident_size}
 \end{figure}
