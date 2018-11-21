@@ -112,7 +112,6 @@ channel seconds_out_first_digit : {0..7}
 channel seconds_out_second_digit : {0..15}
 
 
-
 Hours(hours_in) =
 let
     hours = hours_in / 3600  % 24
@@ -122,7 +121,6 @@ within
     hours_out_first_digit ! hours_first_temp ->
     hours_out_second_digit ! hours_second_temp ->
     SKIP
-
 
 Hours_out_first_digit_monitor(c) =
     c ? x ->
@@ -267,7 +265,7 @@ assert SKIP [F= N_hours \ Events
 
 Minutes(input_channel) =
     (sync ->
-     clock_out_val ? min_in ->
+     input_channel ? min_in ->
      sync ->
         let
             minutes = (minutes_in / 60)  % 60
@@ -313,7 +311,7 @@ assert SKIP [F= N_minutes \ Events
 
 Seconds(input_channel) =
     (sync ->
-     clock_out_val ? sec_in ->
+     input_channel ? sec_in ->
      sync ->
         let
             seconds = seconds_in % 60
