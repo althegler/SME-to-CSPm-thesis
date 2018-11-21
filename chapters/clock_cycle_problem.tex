@@ -19,7 +19,7 @@ An illustration of the network can be seen in Figure \ref{fig:addone_unclocked}.
        \node[align=center, below, text width=1.7cm] at (2.2,1.3){\footnotesize\texttt{channel d}};
        \node[align=center, below, text width=1.7cm] at (2.2,-0.9){\footnotesize\texttt{channel c}};
    \end{tikzpicture}
-    \caption{The \texttt{addone} network consists of two proceses that communicate to each other on channel \texttt{c} and \texttt{d}.}
+    \caption{The \texttt{addone} network consists of two proceses that communicate with each other on channel \texttt{c} and \texttt{d}.}
     \label{fig:addone_unclocked}
 \end{figure}
 
@@ -51,7 +51,7 @@ network addone_network ()
     instance add of add(id.outbus, constant: 1);
 }
 \end{minted}
-\caption{The simulated SMEIL network \texttt{addone\_network} with two processes. The example is similar with the addone example in \cite{smeil}.}
+\caption{The simulated SMEIL network \texttt{addone\_network} with two processes. The example is similar to the addone example in \cite{smeil}.}
 \label{lst:addone_smeil_example}
 \end{listing}
 
@@ -258,7 +258,7 @@ Add = sync ->
 Clock(11) = SKIP
 Clock(n) =  sync -> sync -> Clock(n+1)
 \end{minted}
-\caption{A simplified example of the \texttt{Add} process in the \texttt{Addone} network. See the full code in Listing~\ref{lst:cspm_addone_full} in Appendix \ref{app:addone}.}
+\caption{A simplified example of the \texttt{Add} process in the \texttt{Addone} \cspm{} network. See the full code in Listing~\ref{lst:cspm_addone_full} in Appendix \ref{app:addone}.}
 \label{lst:simplified_addone}
 \end{listing}
 A simplified example can be seen in Listing \ref{lst:simplified_addone}, where the channels are defined with the range \{0..5\}, the \texttt{Clock} process is running for 11 clock cycles, and the \texttt{add} process is incrementing by 1.

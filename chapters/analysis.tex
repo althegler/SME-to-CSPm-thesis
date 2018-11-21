@@ -354,6 +354,8 @@ As described in Section \ref{sec:analysis_verification}, one of the goals of thi
 As introduced in Chapter \ref{chap:background} during the simulation of an SMEIL program, all observed values on each channel are tracked and turned into a range of the maximum and minimum values for that specific channel. During the simulation, the type representing the values of the channel will also be restricted to the shortest representation possible. For example, if a channel was originally set to be \texttt{int} (unbounded), and the observed values from the simulation showed that it did not take on other values than the range -110 to 110, the type could be changed to an \texttt{i8} instead, which represents a signed 8-bit integer with a range of -128 to 127.\\
 
 In Listing \ref{lst:range_smeil} an example of the simulated \texttt{seconds} process from the seven segment example can be seen. As explained previously, the seven segment displays can only display digits from 0 through 9, but in this example, the simulation of the system results in a more restricted range of values. As explained in Section \ref{sec:analysis_verification}, the \texttt{seconds} process cannot write values over 5 for the first digit and 9 for the second. This is also the result from the simulation, as can be seen in Listing \ref{lst:range_smeil}. It is crucial that TAPS gather the type and range of observed values for each channel in the SMEIL program, in order to create the proper assertions for FDR4.\\
+
+The main challenge lies in constructing \cspm{} structures that can provide simple assertions of the communicated values while still being applicable to the CSP refinement models.
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc seconds (in seconds_in)
@@ -374,5 +376,4 @@ proc seconds (in seconds_in)
 \label{lst:range_smeil}
 \end{listing}
 
-The main challenge lies in constructing \cspm{} structures that can provide simple assertions of the communicated values while still being applicable to the CSP refinement models.
 

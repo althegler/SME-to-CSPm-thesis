@@ -174,7 +174,7 @@ Add(i, inbus_channel) =
                         c_read ! var -> Add(i, inbus_channel))
             else (
                 let
-                    var = (x + 1) % 11 -- observed value + 1 restriction
+                    var = (x + 1) % 11 -- (observed value + 1) restriction
                 within
                     var <= 15 & -- upper limit
                         c_read ! var -> Add(i, inbus_channel))
@@ -189,7 +189,7 @@ c_read_monitor(c) =
     ) [] SKIP
 
 \end{minted}
-\caption{Sections of the translated \texttt{addone} network. The \texttt{Add} process has restrictions included to ensure no values above 10. The monitor process defines this range along with the acceptance of the dummy value -1. This example has been manually translated due to limitations of the clocked version of TAPS. See the full code in Listing~\ref{lst:cspm_addone_full} in Appendix \ref{app:addone}.}
+\caption{Sections of the translated \texttt{addone} network. The \texttt{Add} process has a restriction included to ensure no values above 10. The monitor process defines this range along with the acceptance of the dummy value -1. This example has been manually translated due to implementation limitations in the clocked version of TAPS. See the full code in Listing~\ref{lst:cspm_addone_full} in Appendix \ref{app:addone}.}
 \label{lst:cspm_addone_restricted}
 \end{listing}
 \section{Problem Size Experiments}
@@ -301,7 +301,7 @@ In this aspect, FDR4 is a black box, and it is therefore not possible to learn e
 \label{fig:unclocked_compression}
 \end{figure}
 \begin{figure}
-    \includegraphics[width=0.98\textwidth]{./figures/clocked_compression.jpg}
+    \includegraphics[width=1.02\textwidth]{./figures/clocked_compression.jpg}
 \caption{Screen dump of the results of the clocked seven segments display network in the FDR4 machine structure viewer.}
 \label{fig:clocked_compression}
 \end{figure}
