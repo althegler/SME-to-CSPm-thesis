@@ -29,7 +29,7 @@ FDR is able to run in parallel as well as do state compression in order to avoid
 \end{itemize}
 
 \section{Verification Tools}
-The programming language Occam~\cite{Occam1995}, which was first released in 1983, is a concurrent programming language that is also based on the CSP process algebra. Occam's strong basis in CSP makes it a well suited choice for formal proof of correctness.
+The programming language Occam~\cite{Occam1995}, which was first released in 1983, is a concurrent programming language that is also based on the CSP process algebra. Occam's strong basis in CSP makes it a well-suited choice for formal proof of correctness.
 Occam have been continuously developed during the years, and at Kent University the Kent Retargetable occam Compiler (KRoC) team created the Occam-$\pi$~\cite{UniveristyofKent} variant of the Occam programming language.
 Occam-$\pi$ is an Occam variant that extends the ideas of CSP from the original Occam language but adding mobility features from pi-calculus~\cite{Milner1992}.
 \\
@@ -61,9 +61,9 @@ Even though the translation between a specification language and an HDL or other
 
 In 2000 W. Zhou and G. S. Stiles presented the paper \textit{The Automated Serialization of Concurrent CSP Scripts using Mathematica}~\cite{Zhou2000} where they present a package of Mathematica based tools to translate concurrent CSP into equivalent sequential code.
 In relation to this, V. Raju, L. Rong, and G. S. Stiles presented the paper \textit{Automatic Conversion of CSP to CTJ, JCSP, and CCSP}~\cite{Raju2003} in 2003. They present a tool that can generate executable C or Java code from a \cspm{} program. In both cases, the implementation presented in the papers are using a subset of the CSP algebra. Raju,
-Rong, and Stiles use the packages CTJ, JCSP, and CCSP to resemble CSP structure in their paper. The packages are all Java or C packages which are created with the purpose of adding CSP-like features to C and Java. Neither of these systems have, to my knowledge, been extended or used in the industry.\\
+Rong, and Stiles use the packages CTJ, JCSP, and CCSP to resemble CSP structure in their paper. The packages are all Java or C packages which are created with the purpose of adding CSP-like features to C and Java. Neither of these systems has, to my knowledge, been extended or used in the industry.\\
 
-In the paper \textit{An Automatic Translation of CSP to Handel-C}~\cite{Phillips2004} Jonathan D. Phillips and G. S. Stiles describe how their translator, CSPtoHC, can translate a small subset of \cspm{} to Handel-C~\cite{Celoxia2002}, which can then be compiled into files for programming a FPGA.
+In the paper \textit{An Automatic Translation of CSP to Handel-C}~\cite{Phillips2004} Jonathan D. Phillips and G. S. Stiles describe how their translator, CSPtoHC, can translate a small subset of \cspm{} to Handel-C~\cite{Celoxia2002}, which can then be compiled into files for programming an FPGA.
 Marcel Oliveria and Jim Woodcock present, in the paper \textit{Automatic Generation of Verified Concurrent Hardware}~\cite{Oliveira2007}, the system csp2hc. It is an automatic translator from \cspm{} to Handel-C which, according to Oliveria and Woodcock, have a very similar methodology to the \texttt{CSPtoHC} translator by Phillips and Stiles, however the subset of \cspm{} supported by the two solutions is different which makes comparisons impossible.\\
 
 Another example of translation between specification languages and HDLs is the translation between CSP\textbar\textbar B to Handel-C~\cite{Schneider08}. CSP\textbar\textbar B~\cite{Schneider2002a} is an approach that combines the descriptions of events from CSP and the state from the B-method. The ProB system~\cite{Leuschel2003} directly supports simulating CSP\textbar\textbar B models. In the paper, Schneider et al. present two different case studies which introduce different aspects of translating from CSP\textbar\textbar B to Handel-C. The translations, presented in the paper, are carried out by hand and are thus not automatically generated.\\
