@@ -295,7 +295,7 @@ In the \texttt{addone} network, the internal state of the network changes for ea
 
 It would of course not be possible to know when all possible state combinations have been verified in a network, and it will be up tp the user to define how many clock cycles to verify with FDR4.
 \section{Verifying Clocked Networks}
-It is, of course, also necessary to add verification structures to the clocked \cspm{} network and even though the structure has changed, there is no reason for changing the verification structure. The clocked version of TAPS model the monitor processes as described in Chapter \ref{chap:design} with one small change. The values to verify do not change, but since the initial value of the buffer processes is a dummy value, this value must be defined as an acceptable value in the monitor process. \\
+It is, of course, also necessary to add verification structures to the clocked \cspm{} network and even though the communication structure has changed, there is no reason for changing the verification structure. The clocked version of TAPS model the monitor processes as described in Chapter \ref{chap:design} with one small change. The values to verify do not change, but since the initial value of the buffer processes is a dummy value, this value must be defined as an acceptable value in the monitor process. \\
 
 The monitor process will read the same value as the buffer process, and therefore it is possible to add the monitor verification inside the buffer processes, but there are several reasons why this is not a feasible solution. It is necessary to keep separation of concerns, and even though it would reduce the number of processes to have the monitor processes also perform the verification, the complexity would increase. The most important reason why it is not a feasible solution is that it is not a requirement that a channel has a buffer. If no process reads from a channel, the channel does not need a buffer to keep the value. All channels must have a monitor process, but not all channels must have a buffer process, and therefore the monitors and buffers are separated.
 Also a channel is not required to have both a write and a read end, but the values communicated on the channel should still be verified. Therefore the monitor must be in the write end of the channel to ensure that the monitor will be added, no matter if there is a process to read from it. \\
@@ -339,6 +339,19 @@ An illustration of the clocked \texttt{addone} network with monitor processes ca
 \caption{The clocked \texttt{addone} network as in Figure \ref{fig:addone_clocked}. The two monitor processes are connected to the \texttt{read} channels.}
 \label{fig:addone_clocked_monitor}
 \end{figure}
+
+
+\section{Extensions for TAPS}
+For TAPS to be able to verify clocked networks, it must be extended with the structures described in this chapter. The buffer structure is a general structure which, does not need much adaption. For each SMEIL channel, two \cspm{} channels must be created, one for the buffer write and one for the read. The dummy value is currently chosen as an integer, but should be updated so it does not restrict the channel range. \\
+
+The process structure is updated to include the synchronisations on the \texttt{sync} channel and the process read is included inside the process. Each process will be augmented with the input channel, in the network structure.
+To ensure that no problems arise with the out of bounds problem, the process structure will also be augmented to include a \cspm{} bound on all writes. \\
+
+The \texttt{Clock} process must be defined with the number of clock cycles to verify, which the user should provide via the command line as argument for TAPS. It is also possible to create a structure that will allow the developer to define the number of clock cycles in a comment within the SMEIL program, but as the number of clock cycles to verify is not necessary the same as the number of clock cycles to simulate, this information might not belong within the SMEIL program itself. \\
+
+The network structure will also be including the \texttt{Clock} process as well as the buffer processes. Lastly, all processes will be expanded with a \texttt{[] SKIP} around the entire body of the process, to ensure that the process can either synchronise for a new clock cycle or terminate.
+
+
 %
 % % TODO: Consider if this section provide any important information
 % \section{Generating Clocked Network}
