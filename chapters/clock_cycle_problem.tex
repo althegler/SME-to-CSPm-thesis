@@ -258,7 +258,7 @@ Add = sync ->
 Clock(11) = SKIP
 Clock(n) =  sync -> sync -> Clock(n+1)
 \end{minted}
-\caption{A simplified example of the \texttt{Add} process in the \texttt{Addone} network. See the full code in Listing~\ref{lst:cspm_addone_full} in the appendix.}
+\caption{A simplified example of the \texttt{Add} process in the \texttt{Addone} network. See the full code in Listing~\ref{lst:cspm_addone_full} in Appendix \ref{app:addone}.}
 \label{lst:simplified_addone}
 \end{listing}
 A simplified example can be seen in Listing \ref{lst:simplified_addone}, where the channels are defined with the range \{0..5\}, the \texttt{Clock} process is running for 11 clock cycles, and the \texttt{add} process is incrementing by 1.

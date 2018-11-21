@@ -84,7 +84,7 @@ print(time( 66666)) # =>  [18,31,06] or 18:31:06
   \vspace{-3mm}
   \label{fig:smeil_network}
 \end{figure}
-In this example, the properties we wish to assert with FDR4, are the width of the channels. That is, we want to prove that certain values will never be communicated on certain channels. One could imagine that 4 bits can be communicated between the \texttt{time} processes and the seven segment displays. But 4 bits can represent the numbers 0 through 15, and our seven segment displays can only display the numbers 0 through 9. Therefore we wish to assert that even though the channels can carry 4 bits, the actual communication on the six output channels does not exceed 9. In general, the displays will always be able to display 0 through 9, but since the example is a clock showing a 24-hour interval, the displays will of course not be able to show minutes and seconds above 59 and hours above 23. The full SMEIL code for this example can be seen in Listing~\ref{lst:smeil} in the appendix.
+In this example, the properties we wish to assert with FDR4, are the width of the channels. That is, we want to prove that certain values will never be communicated on certain channels. One could imagine that 4 bits can be communicated between the \texttt{time} processes and the seven segment displays. But 4 bits can represent the numbers 0 through 15, and our seven segment displays can only display the numbers 0 through 9. Therefore we wish to assert that even though the channels can carry 4 bits, the actual communication on the six output channels does not exceed 9. In general, the displays will always be able to display 0 through 9, but since the example is a clock showing a 24-hour interval, the displays will of course not be able to show minutes and seconds above 59 and hours above 23. The full SMEIL code for this example can be seen in Listing~\ref{lst:smeil} in Appendix \ref{app:seven_segments}.
 \section{Transpiling from SMEIL to \cspm{}}
 \label{sec:transpiling}
 Since I am translating code from SMEIL to \cspm{}, the challenge is to find \cspm{} structures that correspond to the SMEIL structures. The ultimate goal is to find methods for transpiling, that can be generalised to most problems. From the introduction to both SMEIL and \cspm, it is clear that the main intention of each language is different and therefore the transpiling of a process in SMEIL to a \cspm{} process might not be completely trivial.\\
@@ -370,7 +370,7 @@ proc seconds (in seconds_in)
     seconds_out.second_digit = seconds_second_temp;
 }
 \end{minted}
-\caption{Example of the simulated \texttt{seconds} process from the SMEIL seven segment display example. See full example in Listing~\ref{lst:smeil} in the appendix.}
+\caption{Example of the simulated \texttt{seconds} process from the SMEIL seven segment display example. See the full code in Listing~\ref{lst:smeil} in Appendix \ref{app:seven_segments}.}
 \label{lst:range_smeil}
 \end{listing}
 

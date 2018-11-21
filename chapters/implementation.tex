@@ -116,7 +116,7 @@ within
     seconds_out_second_digit ! seconds_second_temp ->
     SKIP
 \end{minted}
-\caption{Example of the \texttt{Seconds} process from the generated \cspm{} code in the seven segment display example. See the full code in Listing~\ref{lst:cspm} in the appendix.}
+\caption{Example of the \texttt{Seconds} process from the generated \cspm{} code in the seven segment display example. See the full code in Listing~\ref{lst:cspm} in Appendix \ref{app:seven_segments}.}
 \label{lst:channel_range_cspm}
 \end{listing}
 
@@ -161,7 +161,7 @@ seconds_sec_out_second_digit_monitor(c) =
     c ? x ->
     (0 <= x and x <= 9) & SKIP
 \end{minted}
-\caption{Example of the two generated \texttt{Seconds} monitor processes from the seven segment display example. See the full code in Listing~\ref{lst:cspm} in the appendix.}
+\caption{Example of the two generated \texttt{Seconds} monitor processes from the seven segment display example. See the full code in Listing~\ref{lst:cspm} in Appendix \ref{app:seven_segments}.}
 \label{lst:monitor_range_cspm}
 \end{listing}
 Each monitor asserts values on one channel, and thus the name of the monitor process is the channel name with \texttt{\_monitor} appended. This means that TAPS can easily find the name of the monitor process from the channel name, and vice versa.
@@ -204,7 +204,7 @@ N_seconds = clock_out_val ? variable ->
 
 assert SKIP [F= N_seconds \ Events
 \end{minted}
-\caption{Example of the \texttt{Seconds} network processes from the generated \cspm{} code in the seven segment display example. See the full code in Listing~\ref{lst:cspm} in the appendix.}
+\caption{Example of the \texttt{Seconds} network processes from the generated \cspm{} code in the seven segment display example. See the full code in Listing~\ref{lst:cspm} in Appendix \ref{app:seven_segments}.}
 \label{lst:network_example_cspm}
 \end{listing}
 

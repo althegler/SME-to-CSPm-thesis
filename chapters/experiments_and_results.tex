@@ -31,14 +31,14 @@ Hours_out_second_digit_monitor(c) =
     c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
 
 \end{minted}
-\caption{Example of an erroneous version of the \texttt{Hours} process from the \cspm{} seven segment display example seen in Listing~\ref{lst:smeil} and in Listing~\ref{lst:cspm} in the appendix.}
+\caption{Example of an erroneous version of the \texttt{Hours} process from the \cspm{} seven segment display example. A corrected an full version of the code can be seen in Listing~\ref{lst:cspm} in Appendix \ref{app:seven_segments}.}
 \label{lst:cspm_error}
 \end{listing}
 
 In order to show that the verification is accurate, the example in Listing~\ref{lst:cspm_error} contains an error that results in FDR4 failing the verification. In Listing~\ref{lst:cspm_error}, the example is only able to handle an input that is less than 24 hours. This is because the calculation in the \texttt{Hours} process does not perform the wrap-around at the 24\textsuperscript{th} hour. An example of such could be the input \texttt{131071}, which represents 36 hours, 24 minutes and 31 seconds. When trying to assert the code from Listing~\ref{lst:cspm_error} in FDR4, the assertion fails. The counterexample, provided by FDR4, shows that the number 3 is communicated on \texttt{hours\_out\_first\_digit}, which is not allowed according to the monitor process in Listing~\ref{lst:cspm_error}.\\
 
-This example of failure shows how verifying the solution with a tool like FDR4 actually catches errors that the developer might have overlooked. In this case, the error is simply corrected by adding \texttt{\% 24} on the end of line 9 in Listing~\ref{lst:cspm_error} and can be seen corrected in Listing~\ref{lst:cspm} in the appendix at line 15. When we now try to verify the example in FDR4, it passes. By using modulo on the result, we ensure that we still get the accurate time of day, no matter how many full days the input represents.
-The full SMEIL and \cspm{} code for the unclocked seven segment display example can be seen in Listing~\ref{lst:smeil} and in Listing~\ref{lst:cspm} in the appendix.
+This example of failure shows how verifying the solution with a tool like FDR4 actually catches errors that the developer might have overlooked. In this case, the error is simply corrected by adding \texttt{\% 24} on the end of line 9 in Listing~\ref{lst:cspm_error} and can be seen corrected in Listing~\ref{lst:cspm} in Appendix \ref{app:seven_segments}, at line 15. When we now try to verify the example in FDR4, it passes. By using modulo on the result, we ensure that we still get the accurate time of day, no matter how many full days the input represents.
+The full SMEIL and \cspm{} code for the unclocked seven segment display example can be seen in Listing~\ref{lst:smeil} and in Listing~\ref{lst:cspm} in Appendix \ref{app:seven_segments}.
 
 \begin{figure}[!ht]
   \centering
@@ -103,7 +103,7 @@ The full SMEIL and \cspm{} code for the unclocked seven segment display example 
   \label{fig:cspm-network}
 \end{figure}
 \subsection{Clocked Seven Segments Display Example}
-The internal state does not change between clock cycles in the seven segment display example, so it can be verified with the unclocked version of TAPS. However, it is interesting to see how the network can be translated into a clocked structure. The full \cspm{} code of the clocked seven segment display example can be seen in Listing \ref{lst:cspm_clocked} in the appendix.
+The internal state does not change between clock cycles in the seven segment display example, so it can be verified with the unclocked version of TAPS. However, it is interesting to see how the network can be translated into a clocked structure. The full \cspm{} code of the clocked seven segment display example can be seen in Listing \ref{lst:cspm_clocked} in Appendix \ref{app:seven_segments}.
 The example is very similar to the unclocked version, however, the processes all synchronise on the \texttt{sync} process as described in Chapter \ref{chap:clock}. Each \texttt{time} process synchronises, then reads a value from the input range, then synchronise again before performing the computation. Then, the value is written to the output channel, that the monitor process reads from, just like in the unclocked seven segments example. This clocked example is a bit different than the \texttt{addone} example introduced in Chapter \ref{chap:clock}, because there are no buffers in the clocked seven segment display network. This is because there is only one synchronised process communicating, and therefore there is no need for buffers. This means that the network is not as complex as it would have been if buffers were added.
 Because the seven segment display network does not persist a state between each clock cycle, there is no need to verify more than one clock cycle. When the \texttt{Clock} process terminates after one clock cycle, the network will behave the same as the unclocked seven segment display network. By looking through the FDR4 traces and the ProBE visualisations, it is clear that the two networks are equivalent in terms of verification and failures.
 \section{Addone Example Validation}
@@ -114,7 +114,7 @@ The \texttt{addone} example differs from the seven segment example in that it do
 If an SMEIL simulation of an unrestricted \texttt{addone} network results in the internal values reaching 10 and the FDR4 verification verifies more clock cycles than the SMEIL simulation, this would cause the values of the FDR4 verification to exceed the observed values, which would cause FDR4 to fail the verification, even though it would not cause a failure in the SMEIL network. It is, therefore, necessary that the user makes an informed choice as to the number of clock cycles to simulate in SMEIL but also to verify in FDR4. The number of simulated clock cycles and FDR4 verified clock cycles do not have to be equal, but in most cases, it might be the obvious choice. \\
 
 As mentioned, the \texttt{addone} example should be restricted, so a \texttt{\% 11} was added to the value-incrementing expression in the \texttt{add} process to avoid the value becoming larger than 10. Listing \ref{lst:addone_mod_example} shows the simulated \texttt{addone} network with the restriction added in the \texttt{add} process. Besides the restriction, this example is identical to the example in Listing \ref{lst:addone_smeil_example} in Chapter \ref{chap:clock}.
-With this enhanced example, the SMEIL simulation provides reasonable observed values which can be used for the verification in FDR4. In Listing \ref{lst:cspm_addone_restricted}, a subset of the translated \texttt{addone} example can be seen which includes the restriction. The full \cspm{} example can be seen in Listing~\ref{lst:cspm_addone_full} in the appendix.\\
+With this enhanced example, the SMEIL simulation provides reasonable observed values which can be used for the verification in FDR4. In Listing \ref{lst:cspm_addone_restricted}, a subset of the translated \texttt{addone} example can be seen which includes the restriction. The full \cspm{} example can be seen in Listing~\ref{lst:cspm_addone_full} in Appendix \ref{app:addone}.\\
 
 After 21 clock cycles, of the example in Listing \ref{lst:addone_mod_example}, the value becomes larger than 10, but the restriction ensures that the verification will succeed even if verified for more than 21 clock cycles. The value will simply wrap around and continue at 0. If the restriction is removed and FDR4 verifies more than 21 clock cycles, the verification fails as expected. \\
 
@@ -187,7 +187,7 @@ c_read_monitor(c) =
     ) [] SKIP
 
 \end{minted}
-\caption{Sections of the translated \texttt{addone} network. The \texttt{Add} process has restrictions included to ensure no values above 10. The monitor process defines this range along with the acceptance of the dummy value -1. This example has been manually translated due to limitations of the clocked version of TAPS. See full example in Listing~\ref{lst:cspm_addone_full} in the appendix.}
+\caption{Sections of the translated \texttt{addone} network. The \texttt{Add} process has restrictions included to ensure no values above 10. The monitor process defines this range along with the acceptance of the dummy value -1. This example has been manually translated due to limitations of the clocked version of TAPS. See the full code in Listing~\ref{lst:cspm_addone_full} in Appendix \ref{app:addone}.}
 \label{lst:cspm_addone_restricted}
 \end{listing}
 \section{Problem Size Experiments}
@@ -211,7 +211,7 @@ The last property is maximum resident set size, which is also provided by the GN
 The experiment has been designed to keep the internal system fixed and only increase the size of the input range for the system. This means that FDR4 will verify increasingly more values, but the network in itself stays the same.
 The lower bound of the input range will be fixed at 0 and the upper bound will be increased with in steps of 500, up to 15000. The input range \{0..15000\} represents 4 hours and 10 seconds. All three property values are gathered after FDR4 finishes the verification.
 \subsection{Unclocked Experiment}
-The full code for the unclocked seven segments display example can be seen in Listing \ref{lst:cspm} in Appendix.
+The full code for the unclocked seven segments display example can be seen in Listing \ref{lst:cspm} in Appendix \ref{app:seven_segments}.
 The unclocked seven segments display example consists of three \texttt{time} processes with associated monitor processes. Each \texttt{assert} function verifies the process monitor network described in Chapter \ref{chap:design}.
 \paragraph{Number of visited states}
 For each verification, three assertions are performed within the seven segment display example, one for each \texttt{time} process network. With the unclocked example, all three verifications contain the same number of visited states, so this property will not be divided into three different results.\\
@@ -241,7 +241,7 @@ The result from this property can be seen in Figure \ref{fig:unclocked_resident_
 \end{figure}
 
 \subsection{Clocked Experiment}
-The full code for the clocked seven segments display example can be seen in Listing \ref{lst:cspm_clocked} in Appendix.
+The full code for the clocked seven segments display example can be seen in Listing \ref{lst:cspm_clocked} in Appendix \ref{app:seven_segments}.
 As in the unclocked seven segments display example, the clocked example also consists of three \texttt{time} processes with associated monitor processes.
 In order to make the clocked seven segment experiment equivalent with the unclocked seven segments example, the \texttt{Clock} process in the clocked network only verifies one clock cycle and therefore the two networks should be equivalent in the verification.
 \paragraph{Number of visited states}
