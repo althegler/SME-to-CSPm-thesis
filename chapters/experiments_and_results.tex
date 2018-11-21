@@ -26,9 +26,11 @@ Hours(hours_in) =
         SKIP
 
 Hours_out_first_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 2 then SKIP else STOP
+    c ? x ->
+    (0 <= x and x <= 2) & SKIP
 Hours_out_second_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+    c ? x ->
+    (0 <= x and x <= 9) & SKIP
 
 \end{minted}
 \caption{Example of an erroneous version of the \texttt{Hours} process from the \cspm{} seven segment display example. A corrected an full version of the code can be seen in Listing~\ref{lst:cspm} in Appendix \ref{app:seven_segments}.}

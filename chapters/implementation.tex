@@ -154,10 +154,10 @@ In order to restrict the SMEIL network to include ranges for each SMEIL bus chan
 The monitor process asserts that the observed values from the SMEIL simulation are the only values communicated on the channels. The two monitors of the \texttt{Seconds} process from the seven segments example can be seen in Listing~\ref{lst:monitor_range_cspm}. The values used for these monitors are 0 through 5 for the first digit monitor and 0 through 9 for the second digit monitor. These values have been defined for each channel in the simulated SMEIL program in Listing~\ref{lst:range_smeil} in Chapter \ref{chap:analysis}.
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
-seconds_sec_out_first_digit_monitor(c) =
+Seconds_out_first_digit_monitor(c) =
     c ? x ->
     (0 <= x and x <= 5) & SKIP
-seconds_sec_out_second_digit_monitor(c) =
+Seconds_out_second_digit_monitor(c) =
     c ? x ->
     (0 <= x and x <= 9) & SKIP
 \end{minted}

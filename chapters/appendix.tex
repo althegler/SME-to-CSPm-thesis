@@ -113,9 +113,11 @@ within
     SKIP
 
 Hours_out_first_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 2 then SKIP else STOP
+    c ? x ->
+    (0 <= x and x <= 2) & SKIP
 Hours_out_second_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+    c ? x ->
+    (0 <= x and x <= 9) & SKIP
 
 
 Minutes(minutes_in) =
@@ -129,9 +131,11 @@ within
     SKIP
 
 Minutes_out_first_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
+    c ? x ->
+    (0 <= x and x <= 5) & SKIP
 Minutes_out_second_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+    c ? x ->
+    (0 <= x and x <= 9) & SKIP
 
 
 Seconds(seconds_in) =
@@ -145,9 +149,11 @@ within
     SKIP
 
 Seconds_out_first_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
+    c ? x ->
+    (0 <= x and x <= 5) & SKIP
 Seconds_out_second_digit_monitor(c) =
-    c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+    c ? x ->
+    (0 <= x and x <= 9) & SKIP
 
 
 N_hours = clock_out_val ? variable ->
