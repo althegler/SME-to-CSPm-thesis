@@ -284,14 +284,13 @@ In the \texttt{Addone} network, only the upper channel range limit is affected, 
 (0 <= value and value <= 500) & channel ! value
 \end{minted}
 \section{Generating Data for Clocked Networks}
-As in the initial version of TAPS, the clocked version must translate an SMEIL data generator process into a \cspm{} data generator channel, instead of a separate process. In a clocked network, the number of clock cycles makes it possible to represent the various internal states in the circuit.\\
-
+As in the initial version of TAPS, the clocked version must translate an SMEIL data generator process into a \cspm{} data generator channel, instead of a separate process. In a clocked network, the number of clock cycles makes it possible to represent the various internal states in the circuit.
 A data generator channel in \cspm{} represents the entire range defined for the original SMEIL channel. As with the initial version of TAPS, FDR4 will check all possible inputs to the network.
-In the clocked version of TAPS, a network is run for a specified number of clock cycles, and in each clock cycle, the entire input range is verified by FDR4.
+In the clocked version of TAPS, a network is run for a specified number of clock cycles, and in each clock cycle, the entire input range is verified by FDR4.\\
+
 In a clocked version of the seven segments example, there is no reason to run the network for more than one clock cycle because all possible states have been verified after one clock cycle, since the example does not keep internal state. This, however, is not the case with networks that keep internal state between clock cycles, like the \texttt{addone} network.\\
 
-% TODO: Figur?
-In the \texttt{addone} network, the internal state of the network changes for each clock cycle, and so for each clock cycle, FDR4 will verify all possible inputs for the network. Verifying all possible input values for the network in each clock cycle will have the effect that the network must handle unexpected input. The internal structure of the network must be able to handle corner cases of unexpected values. Providing this type of verification can show if there are missing corner cases to handle in the network.\\
+In the \texttt{addone} network, each clock cycle represents a new internal state. For each clock cycle, or internal state, FDR4 verifies all possible inputs, which results in the network reading unexpected values. The internal structure of the network must be able to handle corner cases of unexpected values, so by providing this type of verification, these cases are explored. \\
 
 It would of course not be possible to know when all possible state combinations have been verified in a network, and it will be up to the user to define how many clock cycles to verify with FDR4.
 \section{Verifying Clocked Networks}
