@@ -196,8 +196,7 @@ The challenge with verification via exploration of a state space, is to keep the
 
 I have performed some experiments on the seven segments example, to examine the behaviour in FDR4.
 Both experiments have been run on an
-AMD Ryzen Threadripper 1950X processor with 16 cores at 3.4 GHz, with 128 GB 2933 MHz DDR4 ram. %TODO: REMEMBER THIS !
-
+AMD Ryzen Threadripper 1950X processor with 16 cores at 3.4 GHz, with 128 GB 2933 MHz DDR4 ram.
 The experiments consist of measuring three different properties from the FDR4 verification.
 The first property is number of visited states which is a piece of information provided by FDR4.
 As previously presented, FDR4 performs compression to minimise the state space.
@@ -292,8 +291,8 @@ Because all events are hidden in the network, as explained in Chapter \ref{chap:
 
 Figure \ref{fig:clocked_compression} represents the clocked network and, as can be seen, the \texttt{N\_hours} process includes compression information. It provides an estimate that the reduced machine is around 17\% the size of the original machine. On the second to last line, it can be seen that the \texttt{sbisim} compression algorithm is not applied to \texttt{Hours(0)} as in the unclocked experiment, but to \texttt{Hours(..)}, which indicates that FDR4 represents the two networks differently. The \texttt{sbisim} compression algorithm is able to compress the state space from 36 states to 6 states. It clearly shows that because FDR4 is able to perform compression on the clocked system, the performance also increases dramatically.\\
 
-It is quite surprising that the clocked experiment has such a drastic difference and that it actually performs better than the unclocked version. As the network increases in complexity, the state space should also increase, and it is because of the compression that the clocked version performs so well. It is, however, not possible to learn exactly why FDR4 is able to perform compression on the clocked network and not on the unclocked. There is a lot of different aspects in the way FDR4 structures the network and generates the GLTS. Somehow the clocked network is structured in a way that fits better into the compression algorithm than the unclocked network.
-% TODO: Add something here?
+It is quite surprising that the clocked experiment has such a drastic difference and that it actually performs better than the unclocked version. As the network increases in complexity, the state space should also increase, and it is because of the compression that the clocked version performs so well.
+In this aspect, FDR4 is a black box, and it is therefore not possible to learn exactly why FDR4 is able to perform compression on the clocked network and not on the unclocked. It is, of course, interesting to experiment further to find patterns in the \cspm{} structures that suits the compression algorithm best.
 \begin{figure}
     \includegraphics[width=0.98\textwidth]{./figures/unclocked_compression.jpg}
 \caption{Screen dump of the results of the unclocked seven segments display network in the FDR4 machine structure viewer.}
