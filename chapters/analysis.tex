@@ -359,8 +359,10 @@ The main challenge lies in constructing \cspm{} structures that can provide simp
 \begin{listing}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc seconds (in seconds_in)
-    bus seconds_out {first_digit: u3 range 0 to 5;
-                     second_digit: u4 range 0 to 9;};
+    bus out {
+        first_digit: u3 range 0 to 5;
+        second_digit: u4 range 0 to 9;
+    };
     var seconds: u6 range 1 to 59;
     var seconds_first_temp: u3 range 0 to 5;
     var seconds_second_temp: u4 range 0 to 9;
@@ -368,8 +370,8 @@ proc seconds (in seconds_in)
     seconds = seconds_in.val % 60;
     seconds_first_temp = seconds / 10;
     seconds_second_temp = seconds % 10;
-    seconds_out.first_digit = seconds_first_temp;
-    seconds_out.second_digit = seconds_second_temp;
+    out.first_digit = seconds_first_temp;
+    out.second_digit = seconds_second_temp;
 }
 \end{minted}
 \caption{Example of the simulated \texttt{seconds} process from the SMEIL seven segment display example. See the full code in Listing~\ref{lst:smeil} in Appendix \ref{app:seven_segments}.}

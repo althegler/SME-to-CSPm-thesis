@@ -25,17 +25,21 @@ The resulting \cspm{} file can be verified in FDR4, either by the command line t
 \section*{SMEIL Code}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc clock ()
-    bus clock_out {val: u17 range 1 to 86401;};
+    bus out {
+        val: u17 range 1 to 86401;
+    };
     var i: u17 = 0 range 0 to 86401;
 {
     i = i + 1;
-    clock_out.val = i;
+    out.val = i;
 }
 
 
 proc hours (in hours_in)
-    bus hours_out {first_digit: u2 range 0 to 2;
-                   second_digit: u4 range 0 to 9;};
+    bus out {
+        first_digit: u2 range 0 to 2;
+        second_digit: u4 range 0 to 9;
+    };
     var hours: u5 range 0 to 23;
     var hours_first_temp: u2 range 0 to 2;
     var hours_second_temp: u4 range 0 to 9;
@@ -43,14 +47,16 @@ proc hours (in hours_in)
     hours = hours_in.val / 3600 % 24;
     hours_first_temp = hours / 10;
     hours_second_temp = hours % 10;
-    hours_out.first_digit = hours_first_temp;
-    hours_out.second_digit = hours_second_temp;
+    out.first_digit = hours_first_temp;
+    out.second_digit = hours_second_temp;
 }
 
 
 proc minutes (in minutes_in)
-    bus minutes_out {first_digit: u3 range 0 to 5;
-                     second_digit: u4 range 0 to 9;};
+    bus out {
+        first_digit: u3 range 0 to 5;
+        second_digit: u4 range 0 to 9;
+    };
     var minutes: u6 range 0 to 59;
     var minutes_first_temp: u3 range 0 to 5;
     var minutes_second_temp: u4 range 0 to 9;
@@ -59,14 +65,16 @@ proc minutes (in minutes_in)
     minutes = minutes_in.val / 60 % 60;
     minutes_first_temp = minutes / 10;
     minutes_second_temp = minutes % 10;
-    minutes_out.first_digit = minutes_first_temp;
-    minutes_out.second_digit = minutes_second_temp;
+    out.first_digit = minutes_first_temp;
+    out.second_digit = minutes_second_temp;
 }
 
 
 proc seconds (in seconds_in)
-    bus seconds_out {first_digit: u3 range 0 to 5;
-                     second_digit: u4 range 0 to 9;};
+    bus out {
+        first_digit: u3 range 0 to 5;
+        second_digit: u4 range 0 to 9;
+    };
     var seconds: u6 range 0 to 59;
     var seconds_first_temp: u3 range 0 to 5;
     var seconds_second_temp: u4 range 0 to 9;
@@ -74,17 +82,17 @@ proc seconds (in seconds_in)
     seconds = seconds_in.val % 60;
     seconds_first_temp = seconds / 10;
     seconds_second_temp = seconds % 10;
-    seconds_out.first_digit = seconds_first_temp;
-    seconds_out.second_digit = seconds_second_temp;
+    out.first_digit = seconds_first_temp;
+    out.second_digit = seconds_second_temp;
 }
 
 
 network clock_network ()
 {
     instance g of clock();
-    instance h of hours(g.clock_out);
-    instance m of minutes(g.clock_out);
-    instance s of seconds(g.clock_out);
+    instance h of hours(g.out);
+    instance m of minutes(g.out);
+    instance s of seconds(g.out);
 }
 
 \end{minted}
@@ -104,6 +112,7 @@ channel seconds_out_first_digit : {0..7}
 channel seconds_out_second_digit : {0..15}
 
 
+
 Hours(hours_in) =
 let
     hours = hours_in / 3600  % 24
@@ -113,6 +122,7 @@ within
     hours_out_first_digit ! hours_first_temp ->
     hours_out_second_digit ! hours_second_temp ->
     SKIP
+
 
 Hours_out_first_digit_monitor(c) =
     c ? x ->
@@ -124,7 +134,7 @@ Hours_out_second_digit_monitor(c) =
 
 Minutes(minutes_in) =
 let
-    minutes = minutes_in / 60  % 60
+    minutes = (minutes_in / 60)  % 60
     minutes_first_temp = minutes / 10
     minutes_second_temp = minutes % 10
 within
@@ -191,14 +201,19 @@ assert SKIP [F= N_seconds \ Events
 \captionof{listing}{The full unclocked \cspm{} code after transpiling the seven segment display example, as seen in Listing~\ref{lst:smeil} in Appendix \ref{app:seven_segments}.\label{lst:cspm}}
 \section*{Clocked \cspm{} Code}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
-channel hours_hours_out_first_digit : {0..3}
-channel hours_hours_out_second_digit : {0..15}
-channel minutes_min_out_first_digit : {0..7}
-channel minutes_min_out_second_digit : {0..15}
-channel seconds_sec_out_first_digit : {0..7}
-channel seconds_sec_out_second_digit : {0..15}
-channel clock_c_out_val : { 0..1000}
+channel clock_out_val : { 0..1000}
 channel sync
+
+channel hours_out_first_digit : {0..3}
+channel hours_out_second_digit : {0..15}
+
+channel minutes_out_first_digit : {0..7}
+channel minutes_out_second_digit : {0..15}
+
+channel seconds_out_first_digit : {0..7}
+channel seconds_out_second_digit : {0..15}
+
+
 
 Clock(1) = SKIP
 Clock(n) =  sync -> sync -> Clock(n+1)
@@ -213,36 +228,36 @@ Hours(input_channel) =
             hours_second_temp = hours % 10
         within
             (hours_first_temp <= 3) &
-                (hours_hours_out_first_digit ! hours_first_temp ->
+                (hours_out_first_digit ! hours_first_temp ->
                 (hours_second_temp <= 15) &
-                    (hours_hours_out_second_digit ! hours_second_temp ->
+                    (hours_out_second_digit ! hours_second_temp ->
                     Hours(input_channel)
                     )
                 )
     ) [] SKIP
 
-hours_hours_out_first_digit_monitor(c) =
+Hours_out_first_digit_monitor(c) =
     (c ? x ->
     (0 <= x and x <= 2 or x == -1) &
-        hours_hours_out_first_digit_monitor(c)
+        Hours_out_first_digit_monitor(c)
     ) [] SKIP
 
-hours_hours_out_second_digit_monitor(c) =
+Hours_out_second_digit_monitor(c) =
     (c ? x ->
     (0 <= x and x <= 9 or x == -1) &
-        hours_hours_out_second_digit_monitor(c)
+        Hours_out_second_digit_monitor(c)
     ) [] SKIP
 
 
 N_hours =
         (
             (
-                Hours(clock_c_out_val)
-                [|{| hours_hours_out_first_digit |}|]
-                hours_hours_out_first_digit_monitor(hours_hours_out_first_digit)
+                Hours(clock_out_val)
+                [|{| hours_out_first_digit |}|]
+                Hours_out_first_digit_monitor(hours_out_first_digit)
             )
-            [|{| hours_hours_out_second_digit |}|]
-            hours_hours_out_second_digit_monitor(hours_hours_out_second_digit)
+            [|{| hours_out_second_digit |}|]
+            Hours_out_second_digit_monitor(hours_out_second_digit)
         )
         [|{| sync |}|]
         Clock(0)
@@ -252,43 +267,43 @@ assert SKIP [F= N_hours \ Events
 
 Minutes(input_channel) =
     (sync ->
-     clock_c_out_val ? min_in ->
+     clock_out_val ? min_in ->
      sync ->
         let
-            min = ( min_in / 60 ) % 60
-            min_first_temp = min / 10
-            min_second_temp = min % 10
+            minutes = (minutes_in / 60)  % 60
+            minutes_first_temp = minutes / 10
+            minutes_second_temp = minutes % 10
         within
-            (min_first_temp <= 7) &
-                (minutes_min_out_first_digit ! min_first_temp ->
-                (min_second_temp <= 15) &
-                    (minutes_min_out_second_digit ! min_second_temp ->
+            (minutes_first_temp <= 7) &
+                (minutes_out_first_digit ! minutes_first_temp ->
+                (minutes_second_temp <= 15) &
+                    (minutes_out_second_digit ! minutes_second_temp ->
                     Minutes(input_channel)
                     )
                 )
     ) [] SKIP
 
-minutes_min_out_first_digit_monitor(c) =
+Minutes_out_first_digit_monitor(c) =
     (c ? x ->
     (0 <= x and x <= 5 or x == -1) &
-        minutes_min_out_first_digit_monitor(c)
+        Minutes_out_first_digit_monitor(c)
     ) [] SKIP
 
-minutes_min_out_second_digit_monitor(c) =
+Minutes_out_second_digit_monitor(c) =
     (c ? x ->
     (0 <= x and x <= 9 or x == -1) &
-        minutes_min_out_second_digit_monitor(c)
+        Minutes_out_second_digit_monitor(c)
     ) [] SKIP
 
 N_minutes =
         (
             (
-                Minutes(clock_c_out_val)
-                [|{| minutes_min_out_first_digit |}|]
-                minutes_min_out_first_digit_monitor(minutes_min_out_first_digit)
+                Minutes(clock_out_val)
+                [|{| minutes_out_first_digit |}|]
+                Minutes_out_first_digit_monitor(minutes_out_first_digit)
             )
-            [|{| minutes_min_out_second_digit |}|]
-            minutes_min_out_second_digit_monitor(minutes_min_out_second_digit)
+            [|{| minutes_out_second_digit |}|]
+            Minutes_out_second_digit_monitor(minutes_out_second_digit)
         )
         [|{| sync |}|]
         Clock(0)
@@ -298,51 +313,51 @@ assert SKIP [F= N_minutes \ Events
 
 Seconds(input_channel) =
     (sync ->
-     clock_c_out_val ? sec_in ->
+     clock_out_val ? sec_in ->
      sync ->
         let
-            sec = sec_in % 60
-            sec_first_temp = sec / 10
-            sec_second_temp = sec % 10
+            seconds = seconds_in % 60
+            seconds_first_temp = seconds / 10
+            seconds_second_temp = seconds % 10
         within
-            (sec_first_temp <= 7) &
-                (seconds_sec_out_first_digit ! sec_first_temp ->
-                (sec_second_temp <= 15) &
-                    (seconds_sec_out_second_digit ! sec_second_temp ->
+            (seconds_first_temp <= 7) &
+                (seconds_out_first_digit ! seconds_first_temp ->
+                (seconds_second_temp <= 15) &
+                    (seconds_out_second_digit ! seconds_second_temp ->
                     Seconds(input_channel)
                     )
                 )
     ) [] SKIP
 
 
-sec_sec_out_first_digit_monitor(c) =
+Seconds_out_first_digit_monitor(c) =
     (c ? x ->
     (0 <= x and x <= 5) &
-        sec_sec_out_first_digit_monitor(c)
+        Seconds_out_first_digit_monitor(c)
     ) [] SKIP
 
-sec_sec_out_second_digit_monitor(c) =
+Seconds_out_second_digit_monitor(c) =
     (c ? x ->
     (0 <= x and x <= 9) &
-        sec_sec_out_second_digit_monitor(c)
+        Seconds_out_second_digit_monitor(c)
     ) [] SKIP
 
 N_seconds =
         (
             (
-                Seconds(clock_c_out_val)
-                [|{| seconds_sec_out_first_digit |}|]
-                sec_sec_out_first_digit_monitor(seconds_sec_out_first_digit)
+                Seconds(clock_out_val)
+                [|{| seconds_out_first_digit |}|]
+                Seconds_out_first_digit_monitor(seconds_out_first_digit)
             )
-            [|{| seconds_sec_out_second_digit |}|]
-            sec_sec_out_second_digit_monitor(seconds_sec_out_second_digit)
+            [|{| seconds_out_second_digit |}|]
+            Seconds_out_second_digit_monitor(seconds_out_second_digit)
         )
         [|{| sync |}|]
         Clock(0)
 
 assert SKIP [F= N_seconds \ Events
 \end{minted}
-\captionof{listing}{The full clocked \cspm{} code after transpiling the seven segment display example, as seen in Listing~\ref{lst:smeil} in Appendix \ref{app:seven_segments}.\label{lst:cspm_clocked}}
+\captionof{listing}{The full clocked \cspm{} code after transpiling the seven segment display example, as seen in Listing~\ref{lst:smeil} in Appendix \ref{app:seven_segments}.This example have been manually translated. \label{lst:cspm_clocked}}
 
 
 \chapter{Addone Example Full \cspm Code}
@@ -405,18 +420,24 @@ d_read_monitor(c) =
     ) [] SKIP
 
 
+Buf_d_write(x) = sync -> (Writes_d_write(x) [] Buf_d_read) [] SKIP
+
+Writes_d_write(x) = d_write ! x -> (Writes_d_write(x)
+                                    [] Buf_d_read)
+
 Buf_d_read = sync -> ((d_read ? x -> (d_read ? x -> STOP [] Buf_d_write(x))
                     [] sync -> Buf_d_read) [] SKIP)
 
-Writes_d_write(x) = d_write ! x -> ((Writes_d_write(x) [] Buf_d_read) [] SKIP)
-Buf_d_write(x) = sync -> (Writes_d_write(x) [] Buf_d_read) [] SKIP
 
+
+Buf_c_write(x) = sync -> (Writes_c_write(x) [] Buf_c_read) [] SKIP
+
+Writes_c_write(x) = c_write ! x -> (Writes_c_write(x)
+                                    [] Buf_c_read)
 
 Buf_c_read = sync -> ((c_read ? x -> (c_read ? x -> STOP [] Buf_c_write(x))
                     [] sync -> Buf_c_read) [] SKIP)
 
-Writes_c_write(x) = c_write ! x -> ((Writes_c_write(x) [] Buf_c_read) [] SKIP)
-Buf_c_write(x) = sync -> (Writes_c_write(x) [] Buf_c_read) [] SKIP
 
 Clock(21) = SKIP
 Clock(n) =  sync -> sync -> Clock(n+1)
@@ -449,7 +470,7 @@ System =
 
 assert SKIP [F= System \ Events
 \end{minted}
-\captionof{listing}{The full \cspm{} code after transpiling the Addone example, as seen in Listing~\ref{lst:smeil_addone_full} in Appendix \ref{app:addone}. This example have been manually translated. \label{lst:cspm_addone_full}}
+\captionof{listing}{The full \cspm{} code after transpiling the Addone example, as seen in Listing~\ref{lst:addone_mod_example} in Chapter \ref{chap:exp}. This example have been manually translated. \label{lst:cspm_addone_full}}
 
 
 \chapter{Published Paper}
