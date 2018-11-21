@@ -1,6 +1,6 @@
 The Internet of Things, computerised medical implants, and the omnipresent growth in robotics, bring with them an increased demand for programmers, cabable of developing software for these devices. While this observation may not in itself appear to present a new challenge, many other areas have previously presented a need for more programmers. The new challenge is that these new growth areas are all focused on small size, low power consumption, and high reliability. This means that traditional software engineering methods, and thus traditionally trained programmers, are often not sufficiently qualified to work with these technologies.
 In previous decades, such systems have been developed by electronic engineers that apply far more rigid development approaches. Especially for hardware solutions like Very-Large-Scale Integration (VLSI) and Field-Programmable Gate Array (FPGA), correctness has always been favored over productivity due to a more rigid environment, than traditional software developers are used to.
-While tools have obviously improved and methods refined, the VLSI process is still mostly the same as presented in~\cite{Agrawal:1985:VDP:320599.322570}. The primary workflow from~\cite{Agrawal:1985:VDP:320599.322570} is shown in Figure~\ref{fig:Agrawal}; note the focus on verification in each step.
+While tools have obviously improved and methods refined, the VLSI process is still mostly the same as presented in~\cite{Agrawal:1985:VDP:320599.322570}. The primary workflow from~\cite{Agrawal:1985:VDP:320599.322570} is shown in Figure~\ref{fig:Agrawal}; note the focus on verification in each step.\\
 \begin{figure}[!ht]
   \centering
   \begin{tikzpicture}[auto, scale=0.8, every node/.style={scale=0.8}]
@@ -42,7 +42,7 @@ While the VLSI community is fundamentally following this 1980's design approach,
 There is no denying that the subjectively slow and rigid development process in the VLSI world~\cite{kepner2004hpc} is highly successful in producing correct and reliable circuits. At the same time, conventional software development is highly focused on productivity and time-to-market, for example, smartphone applications are often developed for continuous release, where bug patches and new features are rolled out daily. This is of course not possible with hardware.\\
 
 Thus, a growing chasm exists between the way most programmers are trained, and the competencies that are needed to support the growth in mission critical embedded devices.\\
-\begin{figure}[!ht]
+\begin{figure}
   \centering
   \begin{tikzpicture}[auto]
     \node[myrectangle, text width=3cm, minimum height=1cm, inner sep=5pt, inner ysep=5pt] (specification) {Specification};
@@ -103,7 +103,9 @@ The first type of treatment, provided by the Therac-25, was an electron-beam tre
 The Therac-25 was based on the previous Therac-20 and Therac-6, which had been very successful. The Therac-20 and Therac-6 both had hardware safety interlocks to avoid failures but unfortunately, this had been removed in the Therac-25 in favor of software-based security. AECL put more faith in software reliability than on hardware. \\
 
 After the Therac-25 had been operational for a couple of years, a series of incidents happened, where patients were overexposed to radiation, leading to six cases of serious injury, resulting in death for some of them. Friz Hager, a physicist at East Texas Cancer Center, tested the Therac-25 rigorously to reproduce the errors they had experienced. He was able to demonstrate the error showing that if the user selected the X-Ray mode on the Therac-25, the machine began setting up for high-powered X-rays, which would take about 8 seconds. If the user switched to Electron-beam mode before the machine finished setting up for X-ray mode, i.e within 8 seconds, the turntable that controlled the amount of radiation, would not switch to the correct position causing an enormous amount of radiation to reach the patient.\\
+
 After solving the problem and releasing a new version of the Therac-25, another problem emerged where a patient was overexposed. This time it turned out to be a counter overflow within the system and if a command was sent at the exact moment the counter overflowed, the machine would not set up properly, again resulting in an overexposure of radiation for the patient. \\
+
 After this incident with the Therac-25, it was found that some of the same software problems existed in Therac-20, but due to the hardware precautions, the problems never occurred.
 This example shows how important it is for critical systems to be well-designed, as well as well-tested or verified.
 
@@ -111,7 +113,7 @@ This example shows how important it is for critical systems to be well-designed,
 During the Persian Gulf war, on February 25, 1991, an American Patriot missile failed to intercept an incoming Iraqi Scud missile, which caused the Scud to hit an American Army barracks injuring around 100 people and killing 28 soldiers~\cite{patriot1991}.\\
 
 The Patriot missile failed due to an error in converting an integer, representing time since last boot, to a floating-point number using a 24-bit register. As time since last boot increased, the limited 24-bit register did not represent enough precision, so the chopping error increased. At the time of the incident, the Patriot missile battery had been on for approximately 100 hours, which caused the chopping inaccuracy to be around 0.34 seconds. The Scud travels at around 1.676 meters per second, and therefore in the 0.34 seconds, it travels more than a half kilometer.
-The inaccuracy of the 24-bit representation caused the Patriot missile to perform inaccurate calculations, and thereby wrongly predict the location of the Scud. The consequence of this was that the Patriot missile missed its target Scud missile.
+The inaccuracy of the 24-bit representation caused the Patriot missile to perform inaccurate calculations, and thereby wrongly predict the location of the Scud. The consequence of this was that the Patriot missile missed its target Scud missile.\\
 
 This example shows how it is impossible to test 100\% of any system and how that can cause horrible failures. If the Patriot missile systems had been verified or had been subject to long-term testing, this accident might have been avoided. An example, similar to the Patriot missile failure, will be introduced in this thesis and will be verified to show potentiel failures.
 %Intels-division bug \\

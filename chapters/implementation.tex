@@ -169,7 +169,7 @@ Since no \cspm{} channels can have identical names, this ensures that no monitor
 
 Using this monitor process structure in the seven segment display example also expose a limitation to the structure. In the \texttt{Hour} process, the observed values are \{0..2\} for the first digit, and \{0..9\} for the second digit. This combination of values can represent 24 hours, as expected, but it will also accept values from 25 to 29 because the digits are evaluated separately. In order to solve this, it would be necessary to assert values across more than one channel in a monitor process. This has been mentioned in Chapter \ref{chap:future} as future work, since it is not yet implemented.
 \section{Generating a \cspm{} Network}
-The process monitor network consists of three parts. The first part consists of reading input values for the process. As explained previously, all reads will be performed outside the process itself. From the instance parameters, defined in SMEIL, TAPS will look up the name of the SMEIL process where the input is defined. The read within the SMEIL process defines the specific channel to read from. This information is gathered to clarify which \cspm{} channel the process monitor network should read from. Each read is added using prefixing, so it would also work if there are more than one input bus for the process. An example of the first part of the network can be seen in Listing \ref{lst:network_first_part}.
+The process monitor network consists of three parts. The first part consists of reading input values for the process. As explained previously, all reads will be performed outside the process itself. From the instance parameters, defined in SMEIL, TAPS will look up the name of the SMEIL process where the input is defined. The read within the SMEIL process defines the specific channel to read from. This information is gathered to clarify which \cspm{} channel the process monitor network should read from. Each read is added using prefixing, so it would also work if there are more than one input bus for the process. An example of the first part of the network can be seen in Listing \ref{lst:network_first_part}. The second part is to add the process name with the expected parameters, both input values, output channels as well as constants and internal values. The example in Listing \ref{lst:network_second_part} is a continuation of the example in Listing \ref{lst:network_first_part}.
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 N_seconds = clock_out_val ? variable -> ...
@@ -178,7 +178,6 @@ N_seconds = clock_out_val ? variable -> ...
 \label{lst:network_first_part}
 \end{listing}
 % NOTE: TAPS does not currently support more than one input channel
-The second part is to add the process name with the expected parameters, both input values, output channels as well as constants and internal values. The example in Listing \ref{lst:network_second_part} is a continuation of the example in Listing \ref{lst:network_first_part}.
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 N_seconds = clock_out_val ? variable -> Seconds(variable) ...

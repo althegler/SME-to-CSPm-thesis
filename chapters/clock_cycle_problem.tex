@@ -57,13 +57,15 @@ network addone_network ()
 
 The purpose of the initial design of TAPS was to model a synchronous network in \cspm{} without having to model a global synchronous clock. As described in Chapter \ref{chap:background}, the results from the master's thesis \textit{Generation of FPGA Hardware
 Specifications from PyCSP Networks}~\cite{Skaarup14} by E. Skaarup and A. Frisch, established how much the complexity of the network would increase when trying to model this in CSP.
-However, the \texttt{addone} example shows that it is necessary to extend TAPS to model a global synchronous structure in \cspm{}. As Skaarup and Frisch already learned, enforcing a global synchronous model onto CSP is not trivial, and even simple networks quickly become very complex. The reason for implementing this structure in spite of the results from \cite{Skaarup14}, is that TAPS will automatically generate the \cspm{} code and therefore the complexity and size of the corresponding \cspm{} network are less of an issue. However, the extra complexity might become a problem when verifying with FDR4. It is possible that the added complexity of the network increases the requirements for FDR4, and that the size of problems verifiable with FDR4, becomes smaller with this solution. \\
-
+However, the \texttt{addone} example shows that it is necessary to extend TAPS to model a global synchronous structure in \cspm{}. As Skaarup and Frisch already learned, enforcing a global synchronous model onto CSP is not trivial, and even simple networks quickly become very complex. The reason for implementing this structure in spite of the results from \cite{Skaarup14}, is that TAPS will automatically generate the \cspm{} code and therefore the complexity and size of the corresponding \cspm{} network are less of an issue. However, the extra complexity might become a problem when verifying with FDR4. It is possible that the added complexity of the network increases the requirements for FDR4, and that the size of problems verifiable with FDR4, becomes smaller with this solution.
 In this chapter, I will introduce the approach for extending TAPS to translate clocked systems.
 \section{Global Synchronisation}
 In order to verify networks for more than one clock cycle, it is necessary to translate the SMEIL processes to recursive \cspm{} processes. As explained in the CSP background section in Chapter \ref{chap:background}, these types of processes do not terminate with \texttt{SKIP} but will behave as itself forever, unless the network informs otherwise.
 An example of this can be seen in Listing \ref{lst:cspm_recursion}.
 An actual SME process will never terminate, but it is of course not possible to simulate endless runtime, so when simulating the SMEIL network the developer indicates the number of clock cycles to simulate. The results of the simulation can be seen as a snapshot of the process trace. The SMEIL simulation consists of a finite number of clock cycles and it is not possible to verify an infinite state space with FDR4, therefore, it is necessary to introduce process termination to the translation, even though this is not the reality of actual hardware. \\
+
+In Listing \ref{lst:cspm_recursion}, process \texttt{Inc} performs an endless loop with no option to terminate. As previously mentioned, it is important to limit the range of values for FDR4 to verify, in order to avoid running out of space. If the example in Listing \ref{lst:cspm_recursion} was verified with FDR4, it would eventually run out of space. It is therefore crucial to model a structure that can drive the network synchronisation, and that can ensure that the processes terminate at a specified time. This structure is represented by a \texttt{Clock} process added to the generated network in \cspm{}. The \texttt{Clock} process drives the network for a specific number of clock cycles and then terminates, causing all other processes to do the same. \\
+
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 Init = d ! 1 -> Inc(1)
@@ -72,9 +74,6 @@ Inc(x) = d ! (x+1) -> Inc(x+1)
 \caption{Example of the a recursive \cspm{} process that is initialised by the \texttt{Init} process.}
 \label{lst:cspm_recursion}
 \end{listing}
-
-In Listing \ref{lst:cspm_recursion}, process \texttt{Inc} performs an endless loop with no option to terminate. As previously mentioned, it is important to limit the range of values for FDR4 to verify, in order to avoid running out of space. If the example in Listing \ref{lst:cspm_recursion} was verified with FDR4, it would eventually run out of space. It is therefore crucial to model a structure that can drive the network synchronisation, and that can ensure that the processes terminate at a specified time. This structure is represented by a \texttt{Clock} process added to the generated network in \cspm{}. The \texttt{Clock} process drives the network for a specific number of clock cycles and then terminates, causing all other processes to do the same. \\
-
 It is, of course, still necessary for the new version of TAPS to model a \cspm{} network that reflects the SME model, and therefore it must adhere to the SME model structure. To model the global synchronicity in \cspm{}, it is necessary to enforce a synchronising event. This synchronicity can be emulated by having a \texttt{sync} channel, where all processes synchronise and thus they can emulate rising and falling clock signals. All clocked processes in the network will synchronise on the \texttt{sync} channel, and as previously introduced, when two processes are synchronised on a channel, they must agree on communication before any process can continue. The same \texttt{sync} channel is used for syncronising read as well as write, thus all processes syncronise on the \texttt{sync} channel before they read and before they write.
 The \texttt{Clock} process is also synchronising on the \texttt{sync} channel, so when the specified number of clock cycles has passed, the \texttt{Clock} process terminates.
 This means that none of the other processes will be able to synchronise on the \texttt{sync} channel because all processes must synchronise together. They will instead behave as \texttt{SKIP}, so the system terminates successfully.\\
@@ -160,8 +159,8 @@ As can be seen in Figure \ref{fig:addone_unclocked}, both the \texttt{id} proces
 To solve this problem, TAPS defines a buffer structure for each SMEIL channel. A buffer is a process that stores data between clock cycles. The buffer first writes a value to a channel and then reads a value from a channel, all in one clock cycle. Thus, the buffer structure is the reverse of a 'normal' process, because it will write first and then read in a clock cycle. Figure \ref{fig:clock_cycle} illustrates the relationship between a process and a buffer.\\
 
 \begin{figure}
-\centering
-\includegraphics[width=0.75\textwidth]{./figures/clock_cycle_thesis.png}
+
+\includegraphics[width=0.85\textwidth]{./figures/clock_cycle_thesis.png}
 \caption{Illustration of the relationship between a process and a buffer. In one clock cycle the buffer writes a value which the process reads, and after the computation the process writes the value to the buffer which holds it for the next clock cycle.}
 \label{fig:clock_cycle}
 \end{figure}
@@ -292,7 +291,8 @@ In a clocked version of the seven segment display example, there is no reason to
 
 In the \texttt{addone} network, each clock cycle represents a new internal state. For each clock cycle, or internal state, FDR4 verifies all possible inputs, which results in the network reading unexpected values. The internal structure of the network must be able to handle corner cases of unexpected values, so by providing this type of verification, these cases are explored. \\
 
-It would of course not be possible to know when all possible state combinations have been verified in a network, and it will be up to the user to define how many clock cycles to verify with FDR4.
+It would of course not be possible to know when all possible state combinations have been verified in a network, and it will be up to the user to define how many clock cycles to verify with FDR4.\\
+
 \section{Verifying Clocked Networks}
 It is, of course, also necessary to add verification structures to the clocked \cspm{} network and even though the communication structure has changed, there is no reason for changing the verification structure. The clocked version of TAPS model the monitor processes as described in Chapter \ref{chap:design} with one small change. The values to verify do not change, but since the initial value of the buffer processes is a dummy value, this value must be defined as an acceptable value in the monitor process. \\
 

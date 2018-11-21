@@ -85,9 +85,7 @@ However, if the processes are synchronised, FDR4 will still allocate all 100 pos
 Adding a data generator process, the data generated for the network could be made more complex which, in some cases, could be an advantage. However, the current goals are to verify that the hardware model handles all communicated data as expected. For this kind of verification, it is necessary to have FDR4 search a larger value space to find potential problems. It is important to find a balance between verifying input values outside of the expected range space and verification runtime. The larger the state space in FDR4, the longer the verification time.\\
 
 To summarise, when generating data in \cspm{} from an SMEIL data generator process, the two possibilities are either to define the data in \cspm{} by one or more data generator channels or by a data generator process and synchronisation.
-Currently TAPS only support generating a data generator channel from the SMEIL network, but translating the SMEIL data generator process to a \cspm{} data generator process would be the same as translating other SMEIL processes to \cspm{}.\\
-
-Listing \ref{lst:clock_data_generation_example_cspm} shows the translated code of the SMEIL network in Listing \ref{lst:clock_data_generation_example_smeil} in Chapter \ref{chap:analysis}. Here it can be seen that the \texttt{clock} process from the SMEIL network is translated into a data generator channel \texttt{clock} in \cspm{}. The translation of the range values defined for each channel is described later in this section.
+Currently TAPS only support generating a data generator channel from the SMEIL network, but translating the SMEIL data generator process to a \cspm{} data generator process would be the same as translating other SMEIL processes to \cspm{}.
 \begin{listing}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel clock : {0..100}
@@ -104,6 +102,8 @@ within
 \caption{Example of the translated \texttt{Minutes} process defined in Listing \ref{lst:clock_data_generation_example_smeil} in Chapter \ref{chap:analysis}.}
 \label{lst:clock_data_generation_example_cspm}
 \end{listing}
+Listing \ref{lst:clock_data_generation_example_cspm} shows the translated code of the SMEIL network in Listing \ref{lst:clock_data_generation_example_smeil} in Chapter \ref{chap:analysis}. Here it can be seen that the \texttt{clock} process from the SMEIL network is translated into a data generator channel \texttt{clock} in \cspm{}. The translation of the range values defined for each channel is described later in this section.\\
+
 In the case where the SMEIL network does not have a data generator process but is instantiated with constants as parameters or internal values, the \cspm{} processes would also be instantiated with these values as parameters.\\
 
 If there are several data generation processes in the SMEIL program, TAPS will not handle the processes any differently than if there was only one data generator process. Each data generator process will be translated into a \cspm{} channel, and the communication to the rest of the network will be kept intact because of the communication specified in the SMEIL network structure.
@@ -112,8 +112,8 @@ If there are several data generation processes in the SMEIL program, TAPS will n
 As has previously been introduced, the SMEIL bus channel and the \cspm{} channel are equivalent, and can therefore be translated almost directly. However, when the bus is defined as a process parameter within the SMEIL process, the translation becomes more complex, because the parameter name, used inside the process, is a placeholder for the formal bus channel name. It is therefore not possible to translate the channel without either knowing the formal name of the bus channel or changing the structure of the SMEIL process.
 When translating the SMEIL process to \cspm{}, it is important to design a well-formed structure to handle these processes parameters.\\
 
-If a process contains an input bus parameter, there are several different methods for translating this input bus parameter to \cspm{}, each with its own advantages and disadvantages.\\
-
+If a process contains an input bus parameter, there are several different methods for translating this input bus parameter to \cspm{}, each with its own advantages and disadvantages.
+Listing \ref{lst:smeil_input_parameter} shows a simple SMEIL process which takes an input bus as parameter. The three other examples in Listing \ref{lst:cspm_input_values_examples} show different translations.\\
 \begin{minipage}[t]{.98\linewidth}
     \centering
 \begin{minipage}[t]{0.45\linewidth}
@@ -177,7 +177,6 @@ inbus_channel ? value ->
 \label{lst:cspm_input_values_examples}
 \vspace{1cm}
 \end{minipage}
-Listing \ref{lst:smeil_input_parameter} shows a simple SMEIL process which takes an input bus as parameter. The three other examples in Listing \ref{lst:cspm_input_values_examples} show different translations.\\
 
 In Listing \ref{lst:cspm_input_value} the value itself is the parameter, which means that the value can be used directly inside the \texttt{let} section.
 This translation results in a simpler translation process within TAPS, because all the information needed to translate lies within the SMEIL process itself. However, when using this structure, the channel read must happen outside of the process, which does not match the original SME model structure. \\

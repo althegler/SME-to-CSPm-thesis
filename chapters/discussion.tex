@@ -13,7 +13,6 @@ In the clocked version of TAPS, additional information must be provided to the s
 The user must ultimately determine the balance between verification and verification time, based on the program at hand. \\
 
 The reason that it is possible to create the relatively simple translations from SMEIL to \cspm{}, lies in the fact that SME is defined from the CSP model and therefore, as previously mentioned, all SME models will have an equivalent CSP model. Having the same basis on both sides of the translation results in a much smoother translation.
-
 \section{Clocked or Unclocked \cspm{} Systems}
 The initial idea for the design of TAPS was to build a system which did not have to enforce a global synchronous clock structure, since it would increase the complexity drastically. As the implementation of the initial version of TAPS progressed, it was clear that the design was too simple. The set of verifiable problems in the initial version of TAPS are too small to have an actual impact.
 The clocked version of TAPS is still able to verify the set of problems verifiable with the initial version of TAPS. By only verifying one clock cycle, the results are the same as for the unclocked version of TAPS.

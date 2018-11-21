@@ -266,12 +266,6 @@ bus day {
 \caption{Example of an SMEIL bus channel with three channels.}
 \label{lst:smeil_three_channels}
 \end{listing}
-A single SMEIL bus channel corresponds to a single \cspm{} channel and since the channel is a more general structure than the bus structure, it should be relatively simple to translate.
-\paragraph{SMEIL Input Bus}
-There are two different methods for accessing an input bus in an SMEIL process. The name of the input bus can be given as a process parameter, which the process can use to read from the actual bus channel, as can be seen in the \texttt{add} and \texttt{id} processes in Listing \ref{lst:addone_data_generation_example}. In this example, the processes reads the data from the channel \texttt{val} in the bus \texttt{inbus} and writes the data to the channel \texttt{val} on the \texttt{outbus} bus.\\
-
-It is also possible to use the formal identifier of the bus in the process body, thereby not accessing it through the input parameter. An example of this can be seen in Listing \ref{lst:smeil_example_formal_channel_name}. Here the \texttt{add} process reads the input by accessing the formal name of the bus channel \texttt{val} within the bus \texttt{outbus} defined in process \texttt{id}. As a result of this, the process can be instantiated several times in the network but it will always read from the channel \texttt{id.outbus.val}.
-% TODO: Can this be the clock example in stead?
 \begin{listing}
 \begin{minted}[escapeinside=&&, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
 proc add ()
@@ -298,6 +292,11 @@ network add_id_net ()
 \caption{Example showing how processes can read from a channel using its formal identifier.}
 \label{lst:smeil_example_formal_channel_name}
 \end{listing}
+A single SMEIL bus channel corresponds to a single \cspm{} channel and since the channel is a more general structure than the bus structure, it should be relatively simple to translate.
+\paragraph{SMEIL Input Bus}
+There are two different methods for accessing an input bus in an SMEIL process. The name of the input bus can be given as a process parameter, which the process can use to read from the actual bus channel, as can be seen in the \texttt{add} and \texttt{id} processes in Listing \ref{lst:addone_data_generation_example}. In this example, the processes reads the data from the channel \texttt{val} in the bus \texttt{inbus} and writes the data to the channel \texttt{val} on the \texttt{outbus} bus.\\
+
+It is also possible to use the formal identifier of the bus in the process body, thereby not accessing it through the input parameter. An example of this can be seen in Listing \ref{lst:smeil_example_formal_channel_name}. Here the \texttt{add} process reads the input by accessing the formal name of the bus channel \texttt{val} within the bus \texttt{outbus} defined in process \texttt{id}. As a result of this, the process can be instantiated several times in the network but it will always read from the channel \texttt{id.outbus.val}.
 \paragraph{SMEIL Output Bus}
 As with the input bus in SMEIL, there are several methods for defining and accessing the output bus in SMEIL.
 As seen in Listing \ref{lst:smeil_example_formal_channel_name}, the output bus can be defined inside the process itself using the keyword \texttt{bus} along with channel definitions. As with input buses, it is also possible to reference the formal name of the channel directly inside the process body in the same way as can be seen in Listing \ref{lst:smeil_example_formal_channel_name}. Lastly, it is possible to give the output bus as a process parameter.
