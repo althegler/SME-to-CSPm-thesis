@@ -1,5 +1,5 @@
 % Appendix
-\chapter{How to use TAPS}
+\chapter{How To Use TAPS}
 The required dependencies for generating the ANTLR4 parser, running TAPS and verification with FDR4 are listed below:
 \begin{itemize}
     \item ANTLR4
@@ -18,9 +18,9 @@ When the ANTLR4 files have been generated, TAPS can be used directly with a well
 
 The resulting \cspm{} file can be verified in FDR4, either by the command line tool or by the FDR4 tool, which is a graphical tool. The command line tool can be used by the command \texttt{refines output.csp}. There are several options to adjust the output of the command. The FDR4 command line tool is mostly used to quickly check if a network passes the verification, because it is difficult to navigate the counterexamples. The FDR4 graphical tool provides a better visualisation of counterexamples, and the ProBE visualiser can be called directly from the FDR4 graphical tool.
 
-\chapter{Seven Segments Display Example Full code}
+\chapter{Seven Segments Display Example Full Code}
 \label{app:seven_segments}
-\section*{SMEIL code}
+\section*{SMEIL Code}
 \begin{minted}{smeil_lexer.py:SMEILLexer -x}
 proc clock ()
     bus clock_out {val: u17 range 1 to 86401;};
@@ -88,7 +88,7 @@ network clock_network ()
 \end{minted}
 \captionof{listing}{The full SMEIL code used for transpiling in the seven segment display example.\label{lst:smeil}}
 
-\section*{Unclocked \cspm{} code}
+\section*{Unclocked \cspm{} Code}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel clock_out_val : {0..131071}
 
@@ -181,7 +181,7 @@ assert SKIP [F= N_seconds \ Events
 
 \end{minted}
 \captionof{listing}{The full unclocked \cspm{} code after transpiling the seven segment display example, as seen in Listing~\ref{lst:smeil} in Appendix \ref{app:seven_segments}.\label{lst:cspm}}
-\section*{Clocked \cspm{} code}
+\section*{Clocked \cspm{} Code}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel hours_hours_out_first_digit : {0..3}
 channel hours_hours_out_second_digit : {0..15}
@@ -337,38 +337,9 @@ assert SKIP [F= N_seconds \ Events
 \captionof{listing}{The full clocked \cspm{} code after transpiling the seven segment display example, as seen in Listing~\ref{lst:smeil} in Appendix \ref{app:seven_segments}.\label{lst:cspm_clocked}}
 
 
-\chapter{Addone Example Full SMEIL and \cspm code}
+\chapter{Addone Example Full \cspm Code}
 \label{app:addone}
-\section*{SMEIL code}
-\begin{minted}{smeil_lexer.py:SMEILLexer -x}
-proc add (in input, const constant)
-    bus output {
-        val: u4 = 0 range 0 to 10;
-    };
-{
-    output.val = (input.val + constant) % 11; // upper limit + 1
-}
-
-proc id (in input)
-    bus output {
-        val: u4 = 0 range 0 to 10;
-    };
-    var from_add: u4 range 0 to 10;
-{
-    from_add = input.val;
-    output.val = from_add;
-}
-
-
-network addone_network ()
-{
-    instance id of id(add.output);
-    instance add of add(id.output, constant: 1);
-}
-\end{minted}
-\captionof{listing}{The full SMEIL code used for transpiling in the Addone example.\label{lst:smeil_addone_full}}
-
-\section*{\cspm{} code}
+\section*{\cspm{} Code}
 \begin{minted}{cspm_lexer.py:CSPmLexer -x}
 channel sync
 channel d_read, c_read : { -1..15} -- u4 and initial value
@@ -473,8 +444,7 @@ assert SKIP [F= System \ Events
 \captionof{listing}{The full \cspm{} code after transpiling the Addone example, as seen in Listing~\ref{lst:smeil_addone_full} in Appendix \ref{app:addone}. This example have been manually translated. \label{lst:cspm_addone_full}}
 
 
-\chapter{Towards Automatic Program Specification
-Using SME Models}
+\chapter{Published Paper}
 \label{app:paper}
 \noindent A paper, based on this thesis, has been published as
 
