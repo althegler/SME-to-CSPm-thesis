@@ -349,95 +349,136 @@
 %%% TOC
 % \begin{frame}{Table of Contents}
 %   \begin{enumerate}
-%     \item Why should we verify hardware?
-%     \item What have we done
-%     \item What can SME do?
-%     \item SMEIL
-%     \item Simple example
-%     \item SMEIL bus to \cspm{} channel
-%     \item \cspm{} process structure
-%     \item Monitor process
-%     \item Example continued
-%     \item Results - time to verify in FDR4?
-%     \item Conclusion
+%     \item Intro to TAPS
+%     \item Motivation to SME
+%     \item Motivation examples
+%     \item Stuff from the project
+%     \item Linedetect example introduction
+%     \item Show that Linedetect works
+%     \item Show new runtime results for the seven segments example
+%     \item Runtime experiments Conclusion
 %     \item Future work
+%     \item Thank you
 %   \end{enumerate}
 % \end{frame}
 %%% /TOC
 %%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%
-%%% Why should we verify hardware?
-% \begin{frame}{Ariane-5}
-%   \begin{block}{}
-%     Picture?
-%   \end{block}
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%
 %
-% \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% What have we done
+\begin{frame}{TAPS}
+ \begin{block}{}
+   A transpiler (Source-to-source compiler) which transpiles SMEIL to \cspm{} in order to verify SME models with FDR4.
+\end{block}
+ \begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}[auto]
+    \node [mysquare] (SME) at (0, 2.5) {$SME$};
+    \node [mysquare] (SMEIL) at (0, 0) {$SMEIL$};
+    \node [draw, black, thick, rounded corners, dotted, inner sep=0.2cm] (Q) at (2.5, 1.3){$Questions$};
+    \draw [myarrow, dashed] (SME) to[out=270, in=90] (SMEIL);
+    \draw [myarrow, dotted] (Q) to[out=180, in=90] (SMEIL);
 
-\begin{frame}{Ariane-5}
+
+    \node [mysquare] (Parser) at (3, -1.3) {$Parser$};
+    \node [mysquare] (Codegen) at (5.5, -1.3) {$Code Gen$};
+    \node [draw, red, thick, dotted, fit=(Parser)(Codegen), inner sep=0.5cm] (TAPS) {};
+    \node [red] at (4.4, -0.2) {$TAPS$};
+    \draw [myarrow, smooth] (SMEIL) to[out=270, in=180] (Parser);
+    \draw [myarrow, smooth] (Parser) to[out=0, in=180] (Codegen);
+
+    \node [mysquare] (cspm) at (8.5, 0) {$CSP_M$};
+    \draw [myarrow, smooth] (Codegen) to[out=0, in=270] (cspm);
+    \node [mysquare] (FDR) at (8.5, 2.5) {$FDR4$};
+    \node [draw, black, thick, rounded corners, dotted, inner sep=0.2cm] (A) at (5.5, 2.5){$Answers$};
+    \draw [myarrow, smooth] (cspm) to[out=90, in=270] (FDR);
+    \draw [myarrow, dotted] (FDR) to[out=180, in=0] (A);
+
+  \end{tikzpicture}
+  \caption{SME to \cspm{} transpiler.}
+  \label{fig:sme-to-cspm}
+\end{figure}
+\end{frame}
+
+\begin{frame}{TAPS}
   \begin{block}{}
-    4th June 1996.
+    Transpiler from SMEIL to \cspm.
   \end{block}
 
   \pause
 
   \begin{block}{}
-     Total failure on launch.
+     Original version - simulating values for one clock cycle.
   \end{block}
 
   \pause
 
   \begin{block}{}
-     Converting a 64-bit floating point number to signed 16-bit integer.
+     Clocked version - simulating values for more than one clock cycles.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Motivation}
+  \begin{block}{}
+    SME was created to bridge the gap between traditional developers and hardware development.
   \end{block}
 
   \pause
 
   \begin{block}{}
-    Overflow caused the self-destruct mechanism in both primary and backup computer.
+     Traditional software developers are not used to same type of testing as hardware developers.
   \end{block}
 
   \pause
 
   \begin{block}{}
-     No people were harmed.
+     The need for automatic testing rise.
   \end{block}
 
+  \pause
+
+  \begin{block}{}
+     TAPS removes the need to manually write tests for the hardware model.
+  \end{block}
+
+  \pause
+
+  \begin{block}{}
+     TAPS also provides better coverage than the standard tests.
+  \end{block}
 \end{frame}
 
 
-% \begin{frame}{The Patriot Missile Failure}
-%   \begin{block}{}
-%     Picture?
-%   \end{block}
-%
-% \end{frame}
 
-\begin{frame}{The Patriot Missile Failure}
+\begin{frame}{Unfortunate failures}
   \begin{block}{}
-    25th February 1991 in the Persian Gulf war.
+     Therac-25 (1980's): Unfortunate key combination caused hardware not to set up properly.
   \end{block}
 
   \pause
 
   \begin{block}{}
-     A Patriot missile failed to intercept an incomming "Scud".
+     The Patriot Missile Failure (1991): Converting a integer to a real number within a 24 bit register.
   \end{block}
 
   \pause
 
   \begin{block}{}
-     Conversion of time since last boot from an integer to a real number was performed using a 24 bit register.
+    Ariane-5 (1996): Converting a 64-bit floating point to signed 16-bit integer.
   \end{block}
 
   \pause
 
   \begin{block}{}
-     The patriot missile missed the Scud which struck a U.S Army barracks, killing 28 soldiers.
+    Still a problem today, but hardware problems might be kept out of the press.
   \end{block}
+
 
 \end{frame}
+
 
 \begin{frame}{Why should we verify hardware?}
     \begin{block}{}
@@ -454,27 +495,198 @@
 %%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% What have we done
-\begin{frame}{What have we done?}
- \begin{block}{}
-   A transpiler (Source-to-source compiler) which transpiles SMEIL to \cspm{} in order to verify SME models with FDR4.
- \begin{figure}[!ht]
-  \centering
-  \begin{tikzpicture}[auto]
-    \node[myrectangle, text width=1cm, minimum height=0.8cm, inner sep=5pt, inner ysep=5pt] (sme) {SME};
-    \node[myrectangle, text width=1cm, minimum height=0.8cm, inner sep=5pt, inner ysep=5pt] (smeil) [right=1cm of sme] {SMEIL};
-    \node[mycircle, text width=2cm, inner sep=5pt, inner ysep=5pt] (transpiler) [right=1cm of smeil] {Transpiler};
-    \node[myrectangle, text width=1cm, minimum height=0.8cm, inner sep=5pt, inner ysep=5pt] (cspm) [right=1cm of transpiler] {CSP$_M$};
+%%% Stuff from the project
 
-    \draw[myarrow] (sme) -- (smeil);
-    \draw[myarrow] (smeil) -- (transpiler);
-    \draw[myarrow] (transpiler) -- (cspm);
+% TODO!
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Linedetect example
+% TODO: Change to my own linedetect figure
+\begin{frame}{Linedetector}
+     \begin{figure}[!ht]
+          \centering
+          \includegraphics[scale=0.295]{figures/LineDetect.pdf}
+          \caption{The linedetector structure.}
+     \end{figure}
+\end{frame}
+
+\begin{frame}{Linedetector code}
+     % TODO add code
+\end{frame}
+
+\begin{frame}{Linedetector verification}
+     % TODO add video or similar
+\end{frame}
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Runtime experiments - seven segments display example
+\begin{frame}{Seven segment display clock}
+ \begin{block}{}
+   \begin{figure}[!ht]
+        \tikz{
+          \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
+            \sevensegnum[size=2em, shrink=0.1]{1}
+            \sevensegnum[size=2em, shrink=0.1]{2}
+          }
+        }
+        \tikz{
+          \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
+            \sevensegnum[size=2em, shrink=0.1]{3}
+            \sevensegnum[size=2em, shrink=0.1]{4}
+          }
+        }
+        \tikz{
+          \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
+            \sevensegnum[size=2em, shrink=0.1]{5}
+            \sevensegnum[size=2em, shrink=0.1]{6}
+          }
+        }
+      \caption{Digital clock with six seven segment displays, displaying 12:34:56.}
+      \label{fig:6_displays}
+   \end{figure}
+ \end{block}
+
+ \pause
+
+ \begin{block}{}
+   Seconds since midnight.
+ \end{block}
+
+ \pause
+
+ \begin{block}{}
+   Arithmetics calculate hours, minutes and seconds respectively.
+ \end{block}
+
+ \pause
+
+ \begin{block}{}
+  Two seven segment displays pr. \texttt{time} process.
+ \end{block}
+
+\end{frame}
+
+
+\begin{frame}{Seven segment display clock}
+ \begin{block}{}
+  \begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}
+    \node [mycircle] (I) at (0,0) {$I$};
+
+    \node [mycircle] (H) at (2.5,  1.50) {$H$};
+    \node [mycircle] (M) at (2.5,  0.00) {$M$};
+    \node [mycircle] (S) at (2.5, -1.50) {$S$};
+
+    \draw [myarrow] (I) -- (M);
+
+    \draw [myarrow, smooth] (I) to[out=0, in=180] (H);
+    \draw [myarrow, smooth] (I) to[out=0, in=180] (S);
+
+    % Output arrows without processes
+    \draw [myarrow] (3.125,  1.625) -- (4.000,  1.750);
+    \draw [myarrow] (3.125,  1.375) -- (4.000,  1.250);
+    \draw [myarrow] (3.125,  0.125) -- (4.000,  0.250);
+    \draw [myarrow] (3.125, -0.125) -- (4.000, -0.250);
+    \draw [myarrow] (3.125, -1.375) -- (4.000, -1.250);
+    \draw [myarrow] (3.125, -1.625) -- (4.000, -1.750);
   \end{tikzpicture}
-  \caption{SME to \cspm{} transpiler.}
-  \label{fig:sme-to-cspm}
+  \caption{SMEIL network for a seven segment display clock. Each SMEIL process is represented by a cicle with a letter corresponding to the processes Input, Hours, Minutes and Seconds respectively.}
+  \label{fig:smeil_network}
 \end{figure}
  \end{block}
 \end{frame}
+
+\begin{frame}{What are we verifying?}
+ \begin{block}{}
+   One seven segment display can only display the numbers 0-9. \\
+   4 bits can represent 0-15, which is more than needed.
+ \end{block}
+
+ \pause
+
+ \begin{block}{}
+   We can verify that the values communicated to all the seven segment displays does not exceed the expected values.
+ \end{block}
+
+  \pause
+
+  \begin{block}{}
+    In this case we can restrict the assertions further. \\
+    The time will never be more than 23:59:59.
+  \end{block}
+
+
+ \pause
+
+ \begin{block}{}
+   In general, we verify the values comnmunicated on \cspm{} channels.
+ \end{block}
+\end{frame}
+
+\begin{frame}{Seven Segment display clock}
+ \begin{block}{}
+  \texttt{SMEIL} code:
+    \vspace{5mm}
+
+     \scalebox{0.8}{\usebox{\smeilexamplecode}}
+ \end{block}
+\end{frame}
+
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Runtime experiments - new results
+
+\begin{frame}{Original version of TAPS}
+     % TODO graph
+\end{frame}
+
+\begin{frame}{Clocked version of TAPS}
+     % TODO graph
+\end{frame}
+
+\begin{frame}{Original version of TAPS benchmark}
+     % TODO graph
+\end{frame}
+
+\begin{frame}{Clocked version of TAPS benchmark}
+     % TODO graph
+\end{frame}
+
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Runtime experiments - conclusion
+\begin{frame}{Clocked version of TAPS benchmark}
+     % TODO conclude something - can it be used?
+\end{frame}
+
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Future work
+\begin{frame}{Future work}
+     % TODO add future work
+\end{frame}
+
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The end
+\begin{frame}{Thank you}
+     Questions
+\end{frame}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %
