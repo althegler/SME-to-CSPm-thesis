@@ -332,12 +332,12 @@
 
 
 
-\title[Towards Automatic Program Specification From SME Models]{Towards Automatic Program Specification \\ From SME Models}
-\subtitle{\tiny Master's thesis defense}
-\author[A. Thegler]
-{\textbf{Alberte Thegler}}
+\title[Master's thesis defense]{Master's thesis defense}
+\subtitle{Towards Automatic Program Specification \\ From SME Models}
+\author[Alberte Thegler]
+{Alberte Thegler}
 \institute[Niels Bohr Institute]{Niels Bohr Institute, University of Copenhagen, Denmark}
-\date[December 13]{13 December 2018}
+\date[December 13, 2018]{13 December 2018}
 
 \newcommand{\cspm}{CSP$_M$}
 
@@ -404,12 +404,6 @@
 \end{frame}
 
 \begin{frame}{TAPS}
-  \begin{block}{}
-    Transpiler from SMEIL to \cspm.
-  \end{block}
-
-  \pause
-
   \begin{block}{}
      Original version - simulating values for one clock cycle.
   \end{block}
@@ -628,7 +622,7 @@
  \end{block}
 \end{frame}
 
-\begin{frame}{Seven Segment display clock}
+\begin{frame}{Seven segment display clock}
  \begin{block}{}
   \texttt{SMEIL} code:
     \vspace{5mm}
@@ -648,7 +642,11 @@
 \end{frame}
 
 \begin{frame}{Clocked version of TAPS}
-     % TODO graph
+          \begin{figure}[!ht]
+               \centering
+               \includegraphics[scale=0.2]{figures/clocked_new_states.png}
+               \caption{Clocked seven segment display}
+          \end{figure}
 \end{frame}
 
 \begin{frame}{Original version of TAPS benchmark}
@@ -664,8 +662,32 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Runtime experiments - conclusion
-\begin{frame}{Clocked version of TAPS benchmark}
-     % TODO conclude something - can it be used?
+\begin{frame}{How can we use this?}
+
+\begin{block}{}
+% TODO conclude something - can it be used?
+Original vs. clocked - big difference
+\end{block}
+
+\pause
+
+\begin{block}{}
+% TODO conclude something - can it be used?
+"some data to show difference"
+\end{block}
+
+\pause
+
+\begin{block}{}
+The original version does not seem to be feasible to use, but the clocked version show great promise.
+\end{block}
+
+\pause
+
+\begin{block}{}
+More experimentation is needed
+\end{block}
+
 \end{frame}
 
 %%%
@@ -674,17 +696,41 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Future work
 \begin{frame}{Future work}
-     % TODO add future work
+
+\begin{block}{}
+Advanced assertions
+\end{block}
+
+\pause
+
+\begin{block}{}
+Extend for co-simulation
+\end{block}
+
+\pause
+
+\begin{block}{}
+Compositioning with CSP processes might reduce verification time
+\end{block}
+
+
 \end{frame}
 
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% The end
-\begin{frame}{Thank you}
-     Questions
+%%% Conclusions
+\begin{frame}{Conclusions}
+        \begin{itemize}
+            \item I have developed a translation model from SMEIL to \cspm{}
+            \item TAPS include verification properties in order to verify the program in FDR4
+            \item Extended the solution to verify more than one clock cycle
+            \item Runtime experiments show promising results
+        \end{itemize}
+\textbf{Questions?}
 \end{frame}
+
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%
