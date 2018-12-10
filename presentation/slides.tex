@@ -1,4 +1,4 @@
-\documentclass[13pt]{beamer}
+\documentclass[11pt]{beamer}
 \usetheme[nat,greyfoot,footstyle=low,headstyle=institute,style=alternative]{Frederiksberg}
 
 \usepackage[utf8]{inputenc}
@@ -326,23 +326,31 @@
   \end{minipage}
 \end{lrbox}
 
+\AtBeginSection[]{
+  \begin{frame}[plain,noframenumbering]
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
 
 
 
 
 
 
-\title[Master's thesis defense]{Master's thesis defense}
+\title{Master's thesis defence}
 \subtitle{Towards Automatic Program Specification \\ From SME Models}
-\author[Alberte Thegler]
-{Alberte Thegler}
+\author{Alberte Thegler}
 \institute[Niels Bohr Institute]{Niels Bohr Institute, University of Copenhagen, Denmark}
 \date[December 13, 2018]{13 December 2018}
 
 \newcommand{\cspm}{CSP$_M$}
 
 \begin{document}
-
 \frame[plain]{\titlepage}
 
 %%%%%%%
@@ -363,6 +371,70 @@
 % \end{frame}
 %%% /TOC
 %%%%%%%%
+
+\begin{frame}{Overview}
+\tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}{Motivation}
+  \begin{block}{}
+    SME was created to bridge the gap between traditional developers and hardware development.
+  \end{block}
+
+  \pause
+
+  \begin{block}{}
+     Traditional software developers are not trained in same level of testing as hardware developers.
+  \end{block}
+
+  \pause
+
+  \begin{block}{}
+     The rising need for automatic testing.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Unfortunate failures}
+  \begin{block}{}
+     Therac-25 (1980's): Unfortunate key combination caused hardware not to set up properly.
+  \end{block}
+
+  \pause
+
+  \begin{block}{}
+     The Patriot Missile Failure (1991): Converting a integer to a real number within a 24 bit register.
+  \end{block}
+
+  \pause
+
+  \begin{block}{}
+    Ariane-5 (1996): Converting a 64-bit floating point to signed 16-bit integer.
+  \end{block}
+
+  \pause
+
+  \begin{block}{}
+    Still a problem today, but hardware problems might be kept out of the press.
+  \end{block}
+
+
+\end{frame}
+
+
+\begin{frame}{Why should we verify hardware?}
+    \begin{block}{}
+        Because, as these examples have shown, the consequences of not verifying can be devastating.
+            \vspace{5mm}
+
+        Loss of milions of money.
+            \vspace{5mm}
+
+        Loss of human life.
+    \end{block}
+\end{frame}
+
 
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -404,35 +476,33 @@
 \end{frame}
 
 \begin{frame}{TAPS}
-  \begin{block}{}
-     Original version - simulating values for one clock cycle.
-  \end{block}
+    \begin{columns}[t, totalwidth=1.02\textwidth]
 
-  \pause
+        \begin{column}{0.45\linewidth}
+            \begin{block}{Original TAPS}
+                \begin{itemize}
 
-  \begin{block}{}
-     Clocked version - simulating values for more than one clock cycles.
-  \end{block}
-\end{frame}
+                    \item Formally verify the widths of \cspm{} channels
+                    \item One clock cycle verification
+                \end{itemize}
+            \end{block}
+        \end{column}
 
-\begin{frame}{Motivation}
-  \begin{block}{}
-    SME was created to bridge the gap between traditional developers and hardware development.
-  \end{block}
+        \pause
 
-  \pause
+        \begin{column}{0.45\linewidth}
+            \begin{block}{Clocked TAPS}
+                \begin{itemize}
+                    \item Several clock cycles verification
+                    \item simulating a global synchronous clock
+                    \item Buffer structure
+                \end{itemize}
+            \end{block}
+        \end{column}
 
-  \begin{block}{}
-     Traditional software developers are not used to same type of testing as hardware developers.
-  \end{block}
+    \end{columns}
 
-  \pause
-
-  \begin{block}{}
-     The need for automatic testing rise.
-  \end{block}
-
-  \pause
+\pause
 
   \begin{block}{}
      TAPS removes the need to manually write tests for the hardware model.
@@ -446,45 +516,7 @@
 \end{frame}
 
 
-
-\begin{frame}{Unfortunate failures}
-  \begin{block}{}
-     Therac-25 (1980's): Unfortunate key combination caused hardware not to set up properly.
-  \end{block}
-
-  \pause
-
-  \begin{block}{}
-     The Patriot Missile Failure (1991): Converting a integer to a real number within a 24 bit register.
-  \end{block}
-
-  \pause
-
-  \begin{block}{}
-    Ariane-5 (1996): Converting a 64-bit floating point to signed 16-bit integer.
-  \end{block}
-
-  \pause
-
-  \begin{block}{}
-    Still a problem today, but hardware problems might be kept out of the press.
-  \end{block}
-
-
-\end{frame}
-
-
-\begin{frame}{Why should we verify hardware?}
-    \begin{block}{}
-        Because, as these examples have shown, the consequences of not verifying can be devastating.
-            \vspace{5mm}
-
-        Loss of milions of money.
-            \vspace{5mm}
-
-        Loss of human life.
-    \end{block}
-\end{frame}
+\section{?}
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -492,6 +524,10 @@
 %%% Stuff from the project
 
 % TODO!
+
+
+
+\section{Example}
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -513,6 +549,9 @@
 \begin{frame}{Linedetector verification}
      % TODO add video or similar
 \end{frame}
+
+
+\section{Runtime results}
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -523,22 +562,23 @@
    \begin{figure}[!ht]
         \tikz{
           \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
-            \sevensegnum[size=2em, shrink=0.1]{1}
-            \sevensegnum[size=2em, shrink=0.1]{2}
+            \sevensegnum[size=1.7em, shrink=0.1]{1}
+            \sevensegnum[size=1.7em, shrink=0.1]{2}
           }
         }
         \tikz{
           \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
-            \sevensegnum[size=2em, shrink=0.1]{3}
-            \sevensegnum[size=2em, shrink=0.1]{4}
+            \sevensegnum[size=1.7em, shrink=0.1]{3}
+            \sevensegnum[size=1.7em, shrink=0.1]{4}
           }
         }
         \tikz{
           \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
-            \sevensegnum[size=2em, shrink=0.1]{5}
-            \sevensegnum[size=2em, shrink=0.1]{6}
+            \sevensegnum[size=1.7em, shrink=0.1]{5}
+            \sevensegnum[size=1.7em, shrink=0.1]{6}
           }
         }
+      \setlength{\belowcaptionskip}{-4pt}
       \caption{Digital clock with six seven segment displays, displaying 12:34:56.}
       \label{fig:6_displays}
    \end{figure}
@@ -547,89 +587,32 @@
  \pause
 
  \begin{block}{}
-   Seconds since midnight.
+   Seconds since midnight are calculated into hours, minutes and seconds respectively.
  \end{block}
 
  \pause
 
- \begin{block}{}
-   Arithmetics calculate hours, minutes and seconds respectively.
- \end{block}
-
- \pause
-
- \begin{block}{}
-  Two seven segment displays pr. \texttt{time} process.
- \end{block}
-
-\end{frame}
-
-
-\begin{frame}{Seven segment display clock}
- \begin{block}{}
-  \begin{figure}[!ht]
-  \centering
-  \begin{tikzpicture}
-    \node [mycircle] (I) at (0,0) {$I$};
-
-    \node [mycircle] (H) at (2.5,  1.50) {$H$};
-    \node [mycircle] (M) at (2.5,  0.00) {$M$};
-    \node [mycircle] (S) at (2.5, -1.50) {$S$};
-
-    \draw [myarrow] (I) -- (M);
-
-    \draw [myarrow, smooth] (I) to[out=0, in=180] (H);
-    \draw [myarrow, smooth] (I) to[out=0, in=180] (S);
-
-    % Output arrows without processes
-    \draw [myarrow] (3.125,  1.625) -- (4.000,  1.750);
-    \draw [myarrow] (3.125,  1.375) -- (4.000,  1.250);
-    \draw [myarrow] (3.125,  0.125) -- (4.000,  0.250);
-    \draw [myarrow] (3.125, -0.125) -- (4.000, -0.250);
-    \draw [myarrow] (3.125, -1.375) -- (4.000, -1.250);
-    \draw [myarrow] (3.125, -1.625) -- (4.000, -1.750);
-  \end{tikzpicture}
-  \caption{SMEIL network for a seven segment display clock. Each SMEIL process is represented by a cicle with a letter corresponding to the processes Input, Hours, Minutes and Seconds respectively.}
-  \label{fig:smeil_network}
-\end{figure}
- \end{block}
-\end{frame}
-
-\begin{frame}{What are we verifying?}
  \begin{block}{}
    One seven segment display can only display the numbers 0-9. \\
    4 bits can represent 0-15, which is more than needed.
  \end{block}
 
- \pause
-
- \begin{block}{}
-   We can verify that the values communicated to all the seven segment displays does not exceed the expected values.
- \end{block}
-
   \pause
 
   \begin{block}{}
-    In this case we can restrict the assertions further. \\
-    The time will never be more than 23:59:59.
+    We can verify that the values communicated does not exceed the expected values.
   \end{block}
 
-
- \pause
-
- \begin{block}{}
-   In general, we verify the values comnmunicated on \cspm{} channels.
- \end{block}
 \end{frame}
 
-\begin{frame}{Seven segment display clock}
- \begin{block}{}
-  \texttt{SMEIL} code:
-    \vspace{5mm}
-
-     \scalebox{0.8}{\usebox{\smeilexamplecode}}
- \end{block}
-\end{frame}
+% \begin{frame}{Seven segment display clock}
+%  \begin{block}{}
+%   \texttt{SMEIL} code:
+%     \vspace{5mm}
+%
+%      \scalebox{0.8}{\usebox{\smeilexamplecode}}
+%  \end{block}
+% \end{frame}
 
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -637,7 +620,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Runtime experiments - new results
 
-\begin{frame}{Original version of TAPS}
+\begin{frame}{Original seven segments example version of TAPS}
      % TODO graph
 \end{frame}
 
@@ -649,6 +632,10 @@
           \end{figure}
 \end{frame}
 
+\begin{frame}{Unclocked vs. clocked}
+     % TODO Sammenlign med to grafer paa en
+\end{frame}
+
 \begin{frame}{Original version of TAPS benchmark}
      % TODO graph
 \end{frame}
@@ -657,6 +644,9 @@
      % TODO graph
 \end{frame}
 
+\begin{frame}{Unclocked vs. clocked}
+     % TODO Sammenlign med to grafer paa en
+\end{frame}
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -667,13 +657,6 @@
 \begin{block}{}
 % TODO conclude something - can it be used?
 Original vs. clocked - big difference
-\end{block}
-
-\pause
-
-\begin{block}{}
-% TODO conclude something - can it be used?
-"some data to show difference"
 \end{block}
 
 \pause
@@ -690,6 +673,8 @@ More experimentation is needed
 
 \end{frame}
 
+
+\section{Future work}
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -720,16 +705,16 @@ Compositioning with CSP processes might reduce verification time
 %%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Conclusions
-\begin{frame}{Conclusions}
-        \begin{itemize}
-            \item I have developed a translation model from SMEIL to \cspm{}
-            \item TAPS include verification properties in order to verify the program in FDR4
-            \item Extended the solution to verify more than one clock cycle
-            \item Runtime experiments show promising results
-        \end{itemize}
-\textbf{Questions?}
-\end{frame}
+%%% The end
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}Thank you!\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+
 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -738,374 +723,374 @@ Compositioning with CSP processes might reduce verification time
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% What can SME do?
-\begin{frame}{How do we use SME?}
- \begin{block}{}
-   The SME model builds on the CSP algebra and therefore all SME models have a corresponding CSP model.
-
- \end{block}
-
- \pause
-
-  \begin{block}{}
-    We transpile not only the SME network, but also all the SME processes and their content.
-  \end{block}
-
- \pause
-
-  \begin{block}{}
-    We can translate SME sequentially which simplifies the transpilation.
-  \end{block}
-\end{frame}
+% \begin{frame}{How do we use SME?}
+%  \begin{block}{}
+%    The SME model builds on the CSP algebra and therefore all SME models have a corresponding CSP model.
+%
+%  \end{block}
+%
+%  \pause
+%
+%   \begin{block}{}
+%     We transpile not only the SME network, but also all the SME processes and their content.
+%   \end{block}
+%
+%  \pause
+%
+%   \begin{block}{}
+%     We can translate SME sequentially which simplifies the transpilation.
+%   \end{block}
+% \end{frame}
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% SMEIL
-\begin{frame}{How do we use SMEIL?}
- \begin{block}{}
-    Introduced by Truls Asheim in the previous presentation.
- \end{block}
-
- \pause
-
- \begin{block}{}
-   We transpile from SMEIL to \cspm{}.\\
-   And then verify it in FDR4.
- \end{block}
-
- \pause
-
- \begin{block}{}
-   The transpiler currently only works with pure SMEIL programs.
- \end{block}
-\end{frame}
+% \begin{frame}{How do we use SMEIL?}
+%  \begin{block}{}
+%     Introduced by Truls Asheim in the previous presentation.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    We transpile from SMEIL to \cspm{}.\\
+%    And then verify it in FDR4.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    The transpiler currently only works with pure SMEIL programs.
+%  \end{block}
+% \end{frame}
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Simple example
-\begin{frame}{Seven segment display clock}
- \begin{block}{}
-   \begin{figure}[!ht]
-        \tikz{
-          \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
-            \sevensegnum[size=2em, shrink=0.1]{1}
-            \sevensegnum[size=2em, shrink=0.1]{2}
-          }
-        }
-        \tikz{
-          \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
-            \sevensegnum[size=2em, shrink=0.1]{3}
-            \sevensegnum[size=2em, shrink=0.1]{4}
-          }
-        }
-        \tikz{
-          \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
-            \sevensegnum[size=2em, shrink=0.1]{5}
-            \sevensegnum[size=2em, shrink=0.1]{6}
-          }
-        }
-      \caption{Digital clock with six seven segment displays, displaying 12:34:56.}
-      \label{fig:6_displays}
-   \end{figure}
- \end{block}
-
- \pause
-
- \begin{block}{}
-   Seconds since midnight.
- \end{block}
-
- \pause
-
- \begin{block}{}
-   Arithmetics calculate hours, minutes and seconds respectively.
- \end{block}
-
- \pause
-
- \begin{block}{}
-  Two seven segment displays pr. \texttt{time} process.
- \end{block}
-
-\end{frame}
-
-
-\begin{frame}{Seven segment display clock}
- \begin{block}{}
-  \begin{figure}[!ht]
-  \centering
-  \begin{tikzpicture}
-    \node [mycircle] (I) at (0,0) {$I$};
-
-    \node [mycircle] (H) at (2.5,  1.50) {$H$};
-    \node [mycircle] (M) at (2.5,  0.00) {$M$};
-    \node [mycircle] (S) at (2.5, -1.50) {$S$};
-
-    \draw [myarrow] (I) -- (M);
-
-    \draw [myarrow, smooth] (I) to[out=0, in=180] (H);
-    \draw [myarrow, smooth] (I) to[out=0, in=180] (S);
-
-    % Output arrows without processes
-    \draw [myarrow] (3.125,  1.625) -- (4.000,  1.750);
-    \draw [myarrow] (3.125,  1.375) -- (4.000,  1.250);
-    \draw [myarrow] (3.125,  0.125) -- (4.000,  0.250);
-    \draw [myarrow] (3.125, -0.125) -- (4.000, -0.250);
-    \draw [myarrow] (3.125, -1.375) -- (4.000, -1.250);
-    \draw [myarrow] (3.125, -1.625) -- (4.000, -1.750);
-  \end{tikzpicture}
-  \caption{SMEIL network for a seven segment display clock. Each SMEIL process is represented by a cicle with a letter corresponding to the processes Input, Hours, Minutes and Seconds respectively.}
-  \label{fig:smeil_network}
-\end{figure}
- \end{block}
-\end{frame}
-
-\begin{frame}{What are we verifying?}
- \begin{block}{}
-   One seven segment display can only display the numbers 0-9. \\
-   4 bits can represent 0-15, which is more than needed.
- \end{block}
-
- \pause
-
- \begin{block}{}
-   We can verify that the values communicated to all the seven segment displays does not exceed the expected values.
- \end{block}
-
-  \pause
-
-  \begin{block}{}
-    In this case we can restrict the assertions further. \\
-    The time will never be more than 23:59:59.
-  \end{block}
-
-
- \pause
-
- \begin{block}{}
-   In general, we verify the values comnmunicated on \cspm{} channels.
- \end{block}
-\end{frame}
-
-\begin{frame}{Seven Segment display clock}
- \begin{block}{}
-  \texttt{SMEIL} code:
-    \vspace{5mm}
-
-     \scalebox{0.8}{\usebox{\smeilexamplecode}}
- \end{block}
-\end{frame}
+% \begin{frame}{Seven segment display clock}
+%  \begin{block}{}
+%    \begin{figure}[!ht]
+%         \tikz{
+%           \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
+%             \sevensegnum[size=2em, shrink=0.1]{1}
+%             \sevensegnum[size=2em, shrink=0.1]{2}
+%           }
+%         }
+%         \tikz{
+%           \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
+%             \sevensegnum[size=2em, shrink=0.1]{3}
+%             \sevensegnum[size=2em, shrink=0.1]{4}
+%           }
+%         }
+%         \tikz{
+%           \node[inner sep=5pt, outer sep=2pt, draw=blue, fill=black] {
+%             \sevensegnum[size=2em, shrink=0.1]{5}
+%             \sevensegnum[size=2em, shrink=0.1]{6}
+%           }
+%         }
+%       \caption{Digital clock with six seven segment displays, displaying 12:34:56.}
+%       \label{fig:6_displays}
+%    \end{figure}
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    Seconds since midnight.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    Arithmetics calculate hours, minutes and seconds respectively.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%   Two seven segment displays pr. \texttt{time} process.
+%  \end{block}
+%
+% \end{frame}
+%
+%
+% \begin{frame}{Seven segment display clock}
+%  \begin{block}{}
+%   \begin{figure}[!ht]
+%   \centering
+%   \begin{tikzpicture}
+%     \node [mycircle] (I) at (0,0) {$I$};
+%
+%     \node [mycircle] (H) at (2.5,  1.50) {$H$};
+%     \node [mycircle] (M) at (2.5,  0.00) {$M$};
+%     \node [mycircle] (S) at (2.5, -1.50) {$S$};
+%
+%     \draw [myarrow] (I) -- (M);
+%
+%     \draw [myarrow, smooth] (I) to[out=0, in=180] (H);
+%     \draw [myarrow, smooth] (I) to[out=0, in=180] (S);
+%
+%     % Output arrows without processes
+%     \draw [myarrow] (3.125,  1.625) -- (4.000,  1.750);
+%     \draw [myarrow] (3.125,  1.375) -- (4.000,  1.250);
+%     \draw [myarrow] (3.125,  0.125) -- (4.000,  0.250);
+%     \draw [myarrow] (3.125, -0.125) -- (4.000, -0.250);
+%     \draw [myarrow] (3.125, -1.375) -- (4.000, -1.250);
+%     \draw [myarrow] (3.125, -1.625) -- (4.000, -1.750);
+%   \end{tikzpicture}
+%   \caption{SMEIL network for a seven segment display clock. Each SMEIL process is represented by a cicle with a letter corresponding to the processes Input, Hours, Minutes and Seconds respectively.}
+%   \label{fig:smeil_network}
+% \end{figure}
+%  \end{block}
+% \end{frame}
+%
+% \begin{frame}{What are we verifying?}
+%  \begin{block}{}
+%    One seven segment display can only display the numbers 0-9. \\
+%    4 bits can represent 0-15, which is more than needed.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    We can verify that the values communicated to all the seven segment displays does not exceed the expected values.
+%  \end{block}
+%
+%   \pause
+%
+%   \begin{block}{}
+%     In this case we can restrict the assertions further. \\
+%     The time will never be more than 23:59:59.
+%   \end{block}
+%
+%
+%  \pause
+%
+%  \begin{block}{}
+%    In general, we verify the values comnmunicated on \cspm{} channels.
+%  \end{block}
+% \end{frame}
+%
+% \begin{frame}{Seven Segment display clock}
+%  \begin{block}{}
+%   \texttt{SMEIL} code:
+%     \vspace{5mm}
+%
+%      \scalebox{0.8}{\usebox{\smeilexamplecode}}
+%  \end{block}
+% \end{frame}
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Now for the transpiling
-\begin{frame}{The transpiling}
- \begin{block}{}
-   SMEIL bus to \cspm{} channel.
- \end{block}
-
- \pause
-
- \begin{block}{}
-   \cspm{} process structure.
- \end{block}
-
- \pause
-
- \begin{block}{}
-   The monitor process.
- \end{block}
-\end{frame}
+% \begin{frame}{The transpiling}
+%  \begin{block}{}
+%    SMEIL bus to \cspm{} channel.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    \cspm{} process structure.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%    The monitor process.
+%  \end{block}
+% \end{frame}
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% SMEIL bus to \cspm{} channel
-\begin{frame}{SMEIL bus to \cspm{} channel}
- \begin{block}{}
-   \texttt{SMEIL} code:
-     \vspace{5mm}
-
-      \scalebox{0.8}{\usebox{\smeilchannelexample}}
- \end{block}
- \pause
- \begin{block}{}
-    \texttt{\cspm{}} code:
-      \vspace{5mm}
-
-       \scalebox{0.8}{\usebox{\cspmchannelexample}}
- \end{block}
-\end{frame}
+% \begin{frame}{SMEIL bus to \cspm{} channel}
+%  \begin{block}{}
+%    \texttt{SMEIL} code:
+%      \vspace{5mm}
+%
+%       \scalebox{0.8}{\usebox{\smeilchannelexample}}
+%  \end{block}
+%  \pause
+%  \begin{block}{}
+%     \texttt{\cspm{}} code:
+%       \vspace{5mm}
+%
+%        \scalebox{0.8}{\usebox{\cspmchannelexample}}
+%  \end{block}
+% \end{frame}
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% \cspm{} process structure
-\begin{frame}{\cspm{} process structure}
- \begin{block}{}
-   \texttt{SMEIL} code:
-     \vspace{5mm}
-
-      \scalebox{0.8}{\usebox{\smeilprocessexample}}
- \end{block}
- \pause
- \begin{block}{}
-    \texttt{\cspm{}} code:
-      \vspace{5mm}
-
-       \scalebox{0.8}{\usebox{\cspmprocessexample}}
- \end{block}
-
-\end{frame}
+% \begin{frame}{\cspm{} process structure}
+%  \begin{block}{}
+%    \texttt{SMEIL} code:
+%      \vspace{5mm}
+%
+%       \scalebox{0.8}{\usebox{\smeilprocessexample}}
+%  \end{block}
+%  \pause
+%  \begin{block}{}
+%     \texttt{\cspm{}} code:
+%       \vspace{5mm}
+%
+%        \scalebox{0.8}{\usebox{\cspmprocessexample}}
+%  \end{block}
+%
+% \end{frame}
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Monitor process
-\begin{frame}{The monitor process}
- \begin{block}{}
-     \begin{figure}[!ht]
-      \centering
-      \begin{tikzpicture}[auto]
-        \node[mycircle] (P) at (-1.5, 0.0) {$P$};
-        \node[mycircle] (Q) at ( 2.5, 0.0) {$Q$};
-        \node[mycircle, shape=rectangle] (M) at ( 0.5, 1.5) {$M$};
-
-        \node[draw, shape=circle, inner sep=0pt, minimum size=5pt] (m) at (0.5, 0.0) {};
-
-
-        \draw (M) -- (P -| M) [black!50];
-        \draw [myarrow] (P) -- (Q);
-      \end{tikzpicture}
-      \caption{The monitor process \textit{M} listens in on the communication between \textit{P} and \textit{Q} in order to assert the communicated values.}
-      \label{fig:assertion_process}
-    \end{figure}
- \end{block}
-\end{frame}
-\begin{frame}{The monitor process}
- \begin{block}{}
-   \texttt{SMEIL} code:
-     \vspace{5mm}
-
-      \scalebox{0.8}{\usebox{\smeilchannelexample}}
- \end{block}
- \pause
- \begin{block}{}
-    \texttt{\cspm{}} code:
-      \vspace{5mm}
-
-       \scalebox{0.8}{\usebox{\cspmmonitorexample}}
- \end{block}
-
-\end{frame}
+% \begin{frame}{The monitor process}
+%  \begin{block}{}
+%      \begin{figure}[!ht]
+%       \centering
+%       \begin{tikzpicture}[auto]
+%         \node[mycircle] (P) at (-1.5, 0.0) {$P$};
+%         \node[mycircle] (Q) at ( 2.5, 0.0) {$Q$};
+%         \node[mycircle, shape=rectangle] (M) at ( 0.5, 1.5) {$M$};
+%
+%         \node[draw, shape=circle, inner sep=0pt, minimum size=5pt] (m) at (0.5, 0.0) {};
+%
+%
+%         \draw (M) -- (P -| M) [black!50];
+%         \draw [myarrow] (P) -- (Q);
+%       \end{tikzpicture}
+%       \caption{The monitor process \textit{M} listens in on the communication between \textit{P} and \textit{Q} in order to assert the communicated values.}
+%       \label{fig:assertion_process}
+%     \end{figure}
+%  \end{block}
+% \end{frame}
+% \begin{frame}{The monitor process}
+%  \begin{block}{}
+%    \texttt{SMEIL} code:
+%      \vspace{5mm}
+%
+%       \scalebox{0.8}{\usebox{\smeilchannelexample}}
+%  \end{block}
+%  \pause
+%  \begin{block}{}
+%     \texttt{\cspm{}} code:
+%       \vspace{5mm}
+%
+%        \scalebox{0.8}{\usebox{\cspmmonitorexample}}
+%  \end{block}
+%
+% \end{frame}
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Example continued
-\begin{frame}{Seven segment display clock}
- \begin{block}{}
-  \texttt{\cspm{}} code:
-    \vspace{3mm}
-
-     \scalebox{0.7}{\usebox{\cspmexample}}
- \end{block}
-\end{frame}
+% \begin{frame}{Seven segment display clock}
+%  \begin{block}{}
+%   \texttt{\cspm{}} code:
+%     \vspace{3mm}
+%
+%      \scalebox{0.7}{\usebox{\cspmexample}}
+%  \end{block}
+% \end{frame}
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Example continued
-\begin{frame}{Seven segment display clock}
-     \begin{figure}[!ht]
-          \centering
-          \includegraphics[scale=0.295]{cspm_figure.jpg}
-          \caption{A seven segment display clock network in \cspm{}.}
-          \label{fig:cspm-network}
-     \end{figure}
-\end{frame}
+% \begin{frame}{Seven segment display clock}
+%      \begin{figure}[!ht]
+%           \centering
+%           \includegraphics[scale=0.295]{cspm_figure.jpg}
+%           \caption{A seven segment display clock network in \cspm{}.}
+%           \label{fig:cspm-network}
+%      \end{figure}
+% \end{frame}
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Results - time to verify in FDR4?
-\begin{frame}{Verification in FDR4}
- \begin{block}{}
-     The seven segment example have been run on a Intel(R) Xeon(R) CPU E5-2698 v4 @ 2.20GHz.
-
-     \vspace{5mm}
-     We had a few problems with FDR4, but dividing the task was possible in this case.
-
-     \vspace{5mm}
-     When dividing the task, 0 to 131071 seconds can be verified in $\approx$ 2 hours 40 minutes.
- \end{block}
-\end{frame}
+% \begin{frame}{Verification in FDR4}
+%  \begin{block}{}
+%      The seven segment example have been run on a Intel(R) Xeon(R) CPU E5-2698 v4 @ 2.20GHz.
+%
+%      \vspace{5mm}
+%      We had a few problems with FDR4, but dividing the task was possible in this case.
+%
+%      \vspace{5mm}
+%      When dividing the task, 0 to 131071 seconds can be verified in $\approx$ 2 hours 40 minutes.
+%  \end{block}
+% \end{frame}
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%
 %% Conclusion
-\begin{frame}{Conclusion}
- \begin{block}{}
-  With this system we can transpile hardware models to \cspm{}.
- \end{block}
-
- \pause
-
- \begin{block}{}
-  Verify values on the \cspm{} channels.
- \end{block}
-
- \pause
-
- \begin{block}{}
-  Verify the original hardware model.
- \end{block}
-
- \pause
-
- \begin{block}{}
-  Extract specification.
- \end{block}
-
-\end{frame}
+% \begin{frame}{Conclusion}
+%  \begin{block}{}
+%   With this system we can transpile hardware models to \cspm{}.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%   Verify values on the \cspm{} channels.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%   Verify the original hardware model.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%   Extract specification.
+%  \end{block}
+%
+% \end{frame}
 %% /Conclusion
 %%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%
 %% Future work
-\begin{frame}{Future work}
- \begin{block}{}
-     Hardware/software co-simulation.
- \end{block}
-
- \pause
-
- \begin{block}{}
-     Creating more extensive examples to show the possibilities of the system.
- \end{block}
-
-\end{frame}
+% \begin{frame}{Future work}
+%  \begin{block}{}
+%      Hardware/software co-simulation.
+%  \end{block}
+%
+%  \pause
+%
+%  \begin{block}{}
+%      Creating more extensive examples to show the possibilities of the system.
+%  \end{block}
+%
+% \end{frame}
 %% /Future work
 %%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%
 %%%% Questions?
-\begin{frame}{Questions?}
-	\begin{block}{}
-        Thank you!
-	\end{block}
-	% \begin{block}{}
-	% 	Contact:
-    %     tpq587@alumni.ku.dk
-    %     alberte@thegler.dk
-	% \end{block}
-\end{frame}
+% \begin{frame}{Questions?}
+% 	\begin{block}{}
+%         Thank you!
+% 	\end{block}
+% 	% \begin{block}{}
+% 	% 	Contact:
+%     %     tpq587@alumni.ku.dk
+%     %     alberte@thegler.dk
+% 	% \end{block}
+% \end{frame}
 %%%% /Questions?
 %%%%%%%%%%%%%%%%
 
