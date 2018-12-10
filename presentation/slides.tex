@@ -27,7 +27,7 @@
 \usepackage[caption=false,font=footnotesize]{subfig}
 \newsubfloat{figure}
 
-
+\usepackage{cspsymb}
 
 \normalfont
 %\usepackage[T1]{fontenc}
@@ -198,133 +198,189 @@
   every axis plot post/.style={/pgf/number format/fixed}
 }
 
-\newsavebox{\smeilexamplecode}
-\begin{lrbox}{\smeilexamplecode}
-  \begin{minipage}{1.1\textwidth}
-    \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-        proc seconds (in seconds_in)
-            bus seconds_out {first_digit: u3 range 0 to 5;
-                             second_digit: u4 range 0 to 9;};
-            var seconds: u6 range 1 to 59;
-            var seconds_first_temp: u3 range 0 to 5;
-            var seconds_second_temp: u4 range 0 to 9;
-        {
-            seconds = seconds_in.val % 60;
-            seconds_first_temp = seconds / 10;
-            seconds_second_temp = seconds % 10;
-            seconds_out.first_digit = seconds_first_temp;
-            seconds_out.second_digit = seconds_second_temp;
-        }
-    \end{minted}
-  \end{minipage}
-\end{lrbox}
+% \newsavebox{\smeilexamplecode}
+% \begin{lrbox}{\smeilexamplecode}
+%   \begin{minipage}{1.1\textwidth}
+%     \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+%         proc seconds (in seconds_in)
+%             bus seconds_out {first_digit: u3 range 0 to 5;
+%                              second_digit: u4 range 0 to 9;};
+%             var seconds: u6 range 1 to 59;
+%             var seconds_first_temp: u3 range 0 to 5;
+%             var seconds_second_temp: u4 range 0 to 9;
+%         {
+%             seconds = seconds_in.val % 60;
+%             seconds_first_temp = seconds / 10;
+%             seconds_second_temp = seconds % 10;
+%             seconds_out.first_digit = seconds_first_temp;
+%             seconds_out.second_digit = seconds_second_temp;
+%         }
+%     \end{minted}
+%   \end{minipage}
+% \end{lrbox}
+%
+% \newsavebox{\smeilchannelexample}
+% \begin{lrbox}{\smeilchannelexample}
+%   \begin{minipage}{1.1\textwidth}
+%     \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+%         proc seconds (in seconds_in)
+%             bus seconds_out {first_digit: u3 range 0 to 5;
+%                              second_digit: u4 range 0 to 9;};
+%     \end{minted}
+%   \end{minipage}
+% \end{lrbox}
+%
+%
+% \newsavebox{\smeilprocessexample}
+% \begin{lrbox}{\smeilprocessexample}
+%   \begin{minipage}{1.1\textwidth}
+%     \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
+%         proc seconds (in seconds_in)
+%             |$\vdots$|
+%         {
+%             seconds = seconds_in.val % 60;
+%             seconds_first_temp = seconds / 10;
+%             seconds_second_temp = seconds % 10;
+%             seconds_out.first_digit = seconds_first_temp;
+%             seconds_out.second_digit = seconds_second_temp;
+%         }
+%     \end{minted}
+%   \end{minipage}
+% \end{lrbox}
+%
+%
+%
+% \newsavebox{\cspmchannelexample}
+% \begin{lrbox}{\cspmchannelexample}
+%   \begin{minipage}{1.1\textwidth}
+%         \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+%         channel seconds_out_first_digit : {0..7}
+%         channel seconds_out_second_digit : {0..15}
+%         \end{minted}
+%   \end{minipage}
+% \end{lrbox}
+%
+%
+% \newsavebox{\cspmprocessexample}
+% \begin{lrbox}{\cspmprocessexample}
+%   \begin{minipage}{1.1\textwidth}
+%         \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+%         Seconds(seconds_in) =
+%         let
+%             seconds = seconds_in % 60
+%             seconds_first_temp = seconds / 10
+%             seconds_second_temp = seconds % 10
+%         within
+%             seconds_out_first_digit ! seconds_first_temp ->
+%             seconds_out_second_digit ! seconds_second_temp ->
+%             SKIP
+%         \end{minted}
+%   \end{minipage}
+% \end{lrbox}
+%
+%
+% \newsavebox{\cspmmonitorexample}
+% \begin{lrbox}{\cspmmonitorexample}
+%   \begin{minipage}{1.1\textwidth}
+%         \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+%         Seconds_out_first_digit_monitor(c) =
+%             c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
+%         Seconds_out_second_digit_monitor(c) =
+%             c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+%         \end{minted}
+%   \end{minipage}
+% \end{lrbox}
+%
+% \newsavebox{\cspmexample}
+% \begin{lrbox}{\cspmexample}
+%   \begin{minipage}{1.1\textwidth}
+%         \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+%         channel seconds_out_first_digit : {0..7}
+%         channel seconds_out_second_digit : {0..15}
+%
+%         Seconds(seconds_in) =
+%         let
+%             seconds = seconds_in % 60
+%             seconds_first_temp = seconds / 10
+%             seconds_second_temp = seconds % 10
+%         within
+%             seconds_out_first_digit ! seconds_first_temp ->
+%             seconds_out_second_digit ! seconds_second_temp ->
+%             SKIP
+%
+%         Seconds_out_first_digit_monitor(c) =
+%             c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
+%         Seconds_out_second_digit_monitor(c) =
+%             c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
+%
+%         N_seconds = clock_out_val ? variable ->
+%                     (Seconds(variable)
+%                     [| {| seconds_out_first_digit|} |]
+%                     Seconds_out_first_digit_monitor(seconds_out_first_digit))
+%                     [| {| seconds_out_second_digit|} |]
+%                     Seconds_out_second_digit_monitor(seconds_out_second_digit)
+%
+%         assert SKIP [F= N_seconds \ Events
+%
+%         \end{minted}
+%   \end{minipage}
+% \end{lrbox}
 
-\newsavebox{\smeilchannelexample}
-\begin{lrbox}{\smeilchannelexample}
-  \begin{minipage}{1.1\textwidth}
-    \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-        proc seconds (in seconds_in)
-            bus seconds_out {first_digit: u3 range 0 to 5;
-                             second_digit: u4 range 0 to 9;};
-    \end{minted}
-  \end{minipage}
-\end{lrbox}
-
-
-\newsavebox{\smeilprocessexample}
-\begin{lrbox}{\smeilprocessexample}
-  \begin{minipage}{1.1\textwidth}
-    \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{smeil_lexer.py:SMEILLexer -x}
-        proc seconds (in seconds_in)
-            |$\vdots$|
-        {
-            seconds = seconds_in.val % 60;
-            seconds_first_temp = seconds / 10;
-            seconds_second_temp = seconds % 10;
-            seconds_out.first_digit = seconds_first_temp;
-            seconds_out.second_digit = seconds_second_temp;
-        }
-    \end{minted}
-  \end{minipage}
-\end{lrbox}
-
-
-
-\newsavebox{\cspmchannelexample}
-\begin{lrbox}{\cspmchannelexample}
+\newsavebox{\cspmlinedetectbuffer}
+\begin{lrbox}{\cspmlinedetectbuffer}
   \begin{minipage}{1.1\textwidth}
         \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-        channel seconds_out_first_digit : {0..7}
-        channel seconds_out_second_digit : {0..15}
+Read = sync -> ((Read_mul(false,0) [] sync -> Read) [] SKIP)
+
+Read_mul(false, n) = sink_r_0 ? x0 -> Read_mul(true, x0)
+                  [] sink_r_1 ? x1 -> Read_mul(true, x1)
+                  [] sink_r_2 ? x2 -> Read_mul(true, x2)
+                  [] sink_r_3 ? x3 -> Read_mul(true, x3)
+                  [] sink_r_4 ? x4 -> Read_mul(true, x4)
+
+Read_mul(true, x) = sink_r_0 ? y0 -> STOP
+                 [] sink_r_1 ? y1 -> STOP
+                 [] sink_r_2 ? y2 -> STOP
+                 [] sink_r_3 ? y3 -> STOP
+                 [] sink_r_4 ? y4 -> STOP
+                 [] Write(x)
+
+Writes(x) = sink_w ! x -> (Writes(x) [] Read)
+Write(x) = sync -> (Writes(x) [] Read) [] SKIP
+
         \end{minted}
   \end{minipage}
 \end{lrbox}
 
 
-\newsavebox{\cspmprocessexample}
-\begin{lrbox}{\cspmprocessexample}
+\newsavebox{\cspmlinedetectprocesses}
+\begin{lrbox}{\cspmlinedetectprocesses}
   \begin{minipage}{1.1\textwidth}
         \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-        Seconds(seconds_in) =
-        let
-            seconds = seconds_in % 60
-            seconds_first_temp = seconds / 10
-            seconds_second_temp = seconds % 10
-        within
-            seconds_out_first_digit ! seconds_first_temp ->
-            seconds_out_second_digit ! seconds_second_temp ->
-            SKIP
+Pixel0 =
+    (sync ->
+     counter ? x ->
+     sync ->
+     if (x == 0)
+         then sink_r_0 ! 0 -> Pixel0
+         else Pixel0
+    ) [] SKIP
+
+Pixel1 =
+    (sync ->
+     counter ? x ->
+     sync ->
+     if (x == 0) -- Should be 1 to succeed
+         then sink_r_1 ! 1 -> Pixel1
+         else Pixel1
+    ) [] SKIP
+
+     |$\vdots$|
         \end{minted}
   \end{minipage}
 \end{lrbox}
 
 
-\newsavebox{\cspmmonitorexample}
-\begin{lrbox}{\cspmmonitorexample}
-  \begin{minipage}{1.1\textwidth}
-        \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-        Seconds_out_first_digit_monitor(c) =
-            c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
-        Seconds_out_second_digit_monitor(c) =
-            c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
-        \end{minted}
-  \end{minipage}
-\end{lrbox}
-
-\newsavebox{\cspmexample}
-\begin{lrbox}{\cspmexample}
-  \begin{minipage}{1.1\textwidth}
-        \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
-        channel seconds_out_first_digit : {0..7}
-        channel seconds_out_second_digit : {0..15}
-
-        Seconds(seconds_in) =
-        let
-            seconds = seconds_in % 60
-            seconds_first_temp = seconds / 10
-            seconds_second_temp = seconds % 10
-        within
-            seconds_out_first_digit ! seconds_first_temp ->
-            seconds_out_second_digit ! seconds_second_temp ->
-            SKIP
-
-        Seconds_out_first_digit_monitor(c) =
-            c ? x -> if 0 <= x and x <= 5 then SKIP else STOP
-        Seconds_out_second_digit_monitor(c) =
-            c ? x -> if 0 <= x and x <= 9 then SKIP else STOP
-
-        N_seconds = clock_out_val ? variable ->
-                    (Seconds(variable)
-                    [| {| seconds_out_first_digit|} |]
-                    Seconds_out_first_digit_monitor(seconds_out_first_digit))
-                    [| {| seconds_out_second_digit|} |]
-                    Seconds_out_second_digit_monitor(seconds_out_second_digit)
-
-        assert SKIP [F= N_seconds \ Events
-
-        \end{minted}
-  \end{minipage}
-\end{lrbox}
 
 \AtBeginSection[]{
   \begin{frame}[plain,noframenumbering]
@@ -515,41 +571,91 @@
   \end{block}
 \end{frame}
 
+\begin{frame}{Further introduction to TAPS and the clocked structure? }
+??
+\end{frame}
 
-\section{?}
+
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Stuff from the project
+%%% Refinement assertions models
+\section{Refinement Assertions}
+\begin{frame}{Refinement assertion}
+    \begin{block}{}
+     The traces model:  \\ $traces(\STOP) = \{\emptyseq\}$ \\
+     $traces(\tick \then \STOP) = \{\emptyseq, \seq{\tick}\}$ \\
+     $\{\emptyseq\} \in \{\emptyseq, \seq{\tick}\}$
+    \end{block}
 
-% TODO!
+    \pause
+    \begin{block}{}
+     The failures model: \\ $failures(\STOP) = ?$ \\
+     $failures(\tick \then \STOP) = ?$ \\
+     (one is not in the other)
+    \end{block}
 
+    \pause
+    \begin{block}{}
+     The failures-divergences model: We expect our processes to diverge
+    \end{block}
+\end{frame}
 
+\section{Dummy Values}
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Dummy values
+\begin{frame}{Dummy value}
+(code)
+\end{frame}
 
-\section{Example}
+\section{Linedetector Example}
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Linedetect example
-% TODO: Change to my own linedetect figure
-\begin{frame}{Linedetector}
+\begin{frame}{Linedetector in SMEIL}
      \begin{figure}[!ht]
           \centering
-          \includegraphics[scale=0.295]{figures/LineDetect.pdf}
+          \includegraphics[scale=0.25]{figures/Linedetector.png}
           \caption{The linedetector structure.}
      \end{figure}
 \end{frame}
 
-\begin{frame}{Linedetector code}
-     % TODO add code
+\begin{frame}{Linedetector in \cspm{}}
+     \begin{figure}[!ht]
+          \centering
+          \includegraphics[scale=0.25]{figures/Linedetector_buffer.png}
+          \caption{The linedetector structure with buffer.}
+     \end{figure}
+\end{frame}
+
+
+\begin{frame}{Linedetector process code}
+      \begin{block}{}
+       \texttt{\cspm{}} code:
+         \vspace{5mm}
+
+          \scalebox{0.8}{\usebox{\cspmlinedetectprocesses}}
+      \end{block}
+\end{frame}
+
+\begin{frame}{Linedetector buffer code}
+      \begin{block}{}
+       \texttt{\cspm{}} code:
+         \vspace{5mm}
+
+          \scalebox{0.8}{\usebox{\cspmlinedetectbuffer}}
+      \end{block}
 \end{frame}
 
 \begin{frame}{Linedetector verification}
-     % TODO add video or similar
+     Video
 \end{frame}
-
 
 \section{Runtime results}
 %%%
@@ -605,14 +711,6 @@
 
 \end{frame}
 
-% \begin{frame}{Seven segment display clock}
-%  \begin{block}{}
-%   \texttt{SMEIL} code:
-%     \vspace{5mm}
-%
-%      \scalebox{0.8}{\usebox{\smeilexamplecode}}
-%  \end{block}
-% \end{frame}
 
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -620,14 +718,30 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Runtime experiments - new results
 
-\begin{frame}{Original seven segments example version of TAPS}
+\begin{frame}{Original Seven Segment Display Example Runtime}
      % TODO graph
 \end{frame}
 
-\begin{frame}{Clocked version of TAPS}
+\begin{frame}{Clocked Seven Segment Display Example Runtime}
           \begin{figure}[!ht]
                \centering
-               \includegraphics[scale=0.2]{figures/clocked_new_states.png}
+               \includegraphics[scale=0.4]{figures/clocked_states.png}
+               \caption{Clocked seven segment display}
+          \end{figure}
+\end{frame}
+
+\begin{frame}{Clocked Seven Segment Display Example Runtime}
+          \begin{figure}[!ht]
+               \centering
+               \includegraphics[scale=0.4]{figures/clocked_verification_time.png}
+               \caption{Clocked seven segment display}
+          \end{figure}
+\end{frame}
+
+\begin{frame}{Clocked Seven Segment Display Example Runtime}
+          \begin{figure}[!ht]
+               \centering
+               \includegraphics[scale=0.4]{figures/clocked_size.png}
                \caption{Clocked seven segment display}
           \end{figure}
 \end{frame}
@@ -636,11 +750,11 @@
      % TODO Sammenlign med to grafer paa en
 \end{frame}
 
-\begin{frame}{Original version of TAPS benchmark}
+\begin{frame}{Original Seven Segment Display Example benchmark}
      % TODO graph
 \end{frame}
 
-\begin{frame}{Clocked version of TAPS benchmark}
+\begin{frame}{Clocked Seven Segment Display Example benchmark}
      % TODO graph
 \end{frame}
 
@@ -656,6 +770,7 @@
 
 \begin{block}{}
 % TODO conclude something - can it be used?
+(Update when I have all data)
 Original vs. clocked - big difference
 \end{block}
 
