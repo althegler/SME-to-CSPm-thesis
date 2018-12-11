@@ -332,17 +332,17 @@
         \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 Read = sync -> ((Read_mul(false,0) [] sync -> Read) [] SKIP)
 
-Read_mul(false, n) = sink_r_0 ? x0 -> Read_mul(true, x0)
-                  [] sink_r_1 ? x1 -> Read_mul(true, x1)
-                  [] sink_r_2 ? x2 -> Read_mul(true, x2)
-                  [] sink_r_3 ? x3 -> Read_mul(true, x3)
-                  [] sink_r_4 ? x4 -> Read_mul(true, x4)
+Read_mul(false, n) = sink_r_0 ? x -> Read_mul(true, x)
+                  [] sink_r_1 ? x -> Read_mul(true, x)
+                  [] sink_r_2 ? x -> Read_mul(true, x)
+                  [] sink_r_3 ? x -> Read_mul(true, x)
+                  [] sink_r_4 ? x -> Read_mul(true, x)
 
-Read_mul(true, x) = sink_r_0 ? y0 -> STOP
-                 [] sink_r_1 ? y1 -> STOP
-                 [] sink_r_2 ? y2 -> STOP
-                 [] sink_r_3 ? y3 -> STOP
-                 [] sink_r_4 ? y4 -> STOP
+Read_mul(true, x) = sink_r_0 ? y -> STOP
+                 [] sink_r_1 ? y -> STOP
+                 [] sink_r_2 ? y -> STOP
+                 [] sink_r_3 ? y -> STOP
+                 [] sink_r_4 ? y -> STOP
                  [] Write(x)
 
 Writes(x) = sink_w ! x -> (Writes(x) [] Read)
@@ -376,6 +376,38 @@ Pixel1 =
     ) [] SKIP
 
      |$\vdots$|
+        \end{minted}
+  \end{minipage}
+\end{lrbox}
+
+
+\newsavebox{\dummyvalue}
+\begin{lrbox}{\dummyvalue}
+  \begin{minipage}{1.1\textwidth}
+        \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
+channel sync
+channel read, : {0..15}.Bool
+
+Id(i, input_channel) =
+    (sync ->
+     input_channel ? x.dummy ->
+     sync ->
+        if (dummy == false) -- initial value
+            then (
+                i <= 15 & -- upper limit
+                    read ! i.true -> Id(i, input_channel))
+            else (
+                x <= 15 & -- upper limit
+                    read ! x.true -> Id(i, input_channel))
+    )
+    [] SKIP
+
+
+read_monitor(c) =
+    (c ? x.dummy ->
+    (0 <= x and x <= 10) & -- observed values + initial value
+        read_monitor(c)
+    ) [] SKIP
         \end{minted}
   \end{minipage}
 \end{lrbox}
@@ -453,7 +485,7 @@ Pixel1 =
 
 \begin{frame}{Unfortunate failures}
   \begin{block}{}
-     Therac-25 (1980's): Unfortunate key combination caused hardware not to set up properly.
+     Therac-25 (1980's): Unfortunate key combination and counter overflow caused hardware not to set up properly.
   \end{block}
 
   \pause
@@ -471,7 +503,7 @@ Pixel1 =
   \pause
 
   \begin{block}{}
-    Still a problem today, but hardware problems might be kept out of the press.
+    This is still a problem today.
   \end{block}
 
 
@@ -537,7 +569,7 @@ Pixel1 =
             \begin{block}{Original TAPS}
                 \begin{itemize}
 
-                    \item Formally verify the widths of \cspm{} channels
+                    \item Formally verify the communication on \cspm{} channels
                     \item One clock cycle verification
                 \end{itemize}
             \end{block}
@@ -570,11 +602,6 @@ Pixel1 =
   \end{block}
 \end{frame}
 
-\begin{frame}{Further introduction to TAPS and the clocked structure? }
-??
-\end{frame}
-
-
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -584,20 +611,20 @@ Pixel1 =
 \begin{frame}{Refinement assertion}
     \begin{block}{}
      The traces model:  \\ $traces(\STOP) = \{\emptyseq\}$ \\
-     $traces(\tick \then \STOP) = \{\emptyseq, \seq{\tick}\}$ \\
-     $\{\emptyseq\} \in \{\emptyseq, \seq{\tick}\}$
+     $traces(SKIP) = traces(\tick \then \STOP) = \{\emptyseq, \seq{\tick}\}$ \\
+     $\{\emptyseq\} \subseteq \{\emptyseq, \seq{\tick}\}$
     \end{block}
 
-    \pause
-    \begin{block}{}
-     The failures model: \\ $failures(\STOP) = ?$ \\
-     $failures(\tick \then \STOP) = ?$ \\
-     (one is not in the other)
-    \end{block}
-
-    \pause
+\pause
     \begin{block}{}
      The failures-divergences model: We expect our processes to diverge
+    \end{block}
+
+    \pause
+    \begin{block}{}
+     The failures model: \\ $failures(\STOP) = (\emptyseq, \emptyset)$\\
+     $failures(\SKIP) = failures(\tick \then \STOP) = (\seq{\tick}, \{\tick\})$ \\
+     $failure(\STOP) \nsubseteq failures(\SKIP)$
     \end{block}
 \end{frame}
 
@@ -608,8 +635,14 @@ Pixel1 =
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Dummy values
 \begin{frame}{Dummy value}
-(code)
+      \begin{block}{}
+       \texttt{\cspm{}} code:
+         \vspace{5mm}
+
+          \scalebox{0.8}{\usebox{\dummyvalue}}
+      \end{block}
 \end{frame}
+
 
 \section{Linedetector Example}
 %%%
