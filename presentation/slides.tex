@@ -484,11 +484,11 @@ read_monitor(c) =
 \end{frame}
 
 \begin{frame}{Unfortunate failures}
-  \begin{block}{}
-     Therac-25 (1980's): Unfortunate key combination and counter overflow caused hardware not to set up properly.
-  \end{block}
-
-  \pause
+  % \begin{block}{}
+  %    Therac-25 (1980's): Unfortunate key combination and counter overflow caused hardware not to set up properly.
+  % \end{block}
+  %
+  % \pause
 
   \begin{block}{}
      The Patriot Missile Failure (1991): Converting a integer to a floating point number within a 24 bit register.
@@ -626,7 +626,7 @@ read_monitor(c) =
     \pause
     \begin{block}{}
      The failures model:
-     Look at refusal sets for each trace. 
+     Look at refusal sets for each trace.
      % \\ $failures(\STOP) = (\emptyseq, \emptyset)$\\
      % $failures(\SKIP) = failures(\tick \then \STOP) = (\seq{\tick}, \{\tick\})$ \\
      % $failure(\STOP) \nsubseteq failures(\SKIP)$
@@ -782,38 +782,38 @@ read_monitor(c) =
          \end{columns}
 \end{frame}
 
-\begin{frame}{Verification time - Clocked and Original}
-         \begin{columns}[t, totalwidth=1.02\textwidth]
-             \begin{column}{0.50\linewidth}
-                 % \begin{block}{}
-\begin{figure}[!ht]
-     \centering
-     \includegraphics[scale=0.28]{figures/unclocked_verification_time.png}
-     \caption{Unclocked verification time}
-\end{figure}
-                 % \end{block}
-             \end{column}
-
-             \begin{column}{0.50\linewidth}
-                 % \begin{block}{Clocked TAPS}
-\begin{figure}[!ht]
-     \centering
-     \includegraphics[scale=0.28]{figures/clocked_verification_time.png}
-     \caption{Clocked verification time}
-\end{figure}
-                 % \end{block}
-             \end{column}
-
-         \end{columns}
-\end{frame}
-
+% \begin{frame}{Verification time - Clocked and Original}
+%          \begin{columns}[t, totalwidth=1.02\textwidth]
+%              \begin{column}{0.50\linewidth}
+%                  % \begin{block}{}
+% \begin{figure}[!ht]
+%      \centering
+%      \includegraphics[scale=0.28]{figures/unclocked_verification_time.png}
+%      \caption{Unclocked verification time}
+% \end{figure}
+%                  % \end{block}
+%              \end{column}
+%
+%              \begin{column}{0.50\linewidth}
+%                  % \begin{block}{Clocked TAPS}
+% \begin{figure}[!ht]
+%      \centering
+%      \includegraphics[scale=0.28]{figures/clocked_verification_time.png}
+%      \caption{Clocked verification time}
+% \end{figure}
+%                  % \end{block}
+%              \end{column}
+%
+%          \end{columns}
+% \end{frame}
+%
 \begin{frame}{Maximum resident set size - Clocked and Original}
          \begin{columns}[t, totalwidth=1.02\textwidth]
              \begin{column}{0.50\linewidth}
                  % \begin{block}{}
 \begin{figure}[!ht]
      \centering
-     \includegraphics[scale=0.28]{figures/unclocked_verification_time.png}
+     \includegraphics[scale=0.28]{figures/unclocked_size.png}
      \caption{Unclocked maximum resident set size}
 \end{figure}
                  % \end{block}
@@ -823,7 +823,7 @@ read_monitor(c) =
                  % \begin{block}{Clocked TAPS}
 \begin{figure}[!ht]
      \centering
-     \includegraphics[scale=0.28]{figures/clocked_verification_time.png}
+     \includegraphics[scale=0.28]{figures/clocked_size.png}
      \caption{Clocked maximum resident set size}
 \end{figure}
                  % \end{block}
@@ -833,24 +833,50 @@ read_monitor(c) =
 \end{frame}
 
 
-
 \begin{frame}{Increase in processes - Combined}
-    \begin{figure}[!ht]
-         \centering
-         \includegraphics[scale=0.3]{figures/combined_verification_time_increase_proccess.png}
-         \caption{Combined verification time}
-    \end{figure}
-
-\end{frame}
-
-
-\begin{frame}{Increase in processes - Combined}
+         \begin{columns}[t, totalwidth=1.02\textwidth]
+             \begin{column}{0.50\linewidth}
+                 % \begin{block}{}
 \begin{figure}[!ht]
      \centering
-     \includegraphics[scale=0.3]{figures/combined_size_time_increase_proccess.png}
+     \includegraphics[scale=0.28]{figures/combined_verification_time_increase_proccess.png}
+     \caption{Combined verification time}
+\end{figure}
+                 % \end{block}
+             \end{column}
+
+             \begin{column}{0.50\linewidth}
+                 % \begin{block}{Clocked TAPS}
+\begin{figure}[!ht]
+     \centering
+     \includegraphics[scale=0.28]{figures/combined_size_time_increase_proccess.png}
      \caption{Combined maximum resident set size}
 \end{figure}
+                 % \end{block}
+             \end{column}
+
+         \end{columns}
+
 \end{frame}
+
+
+% \begin{frame}{Increase in processes - Combined}
+%     \begin{figure}[!ht]
+%          \centering
+%          \includegraphics[scale=0.3]{figures/combined_verification_time_increase_proccess.png}
+%          \caption{Combined verification time}
+%     \end{figure}
+%
+% \end{frame}
+%
+%
+% \begin{frame}{Increase in processes - Combined}
+% \begin{figure}[!ht]
+%      \centering
+%      \includegraphics[scale=0.3]{figures/combined_size_time_increase_proccess.png}
+%      \caption{Combined maximum resident set size}
+% \end{figure}
+% \end{frame}
 
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -880,11 +906,7 @@ More experimentation is needed.
 %%% Future work
 \begin{frame}{Future work}
 
-\begin{block}{}
-Advanced assertions.
-\end{block}
 
-\pause
 
 \begin{block}{}
 Extend for co-simulation.
@@ -895,6 +917,13 @@ Extend for co-simulation.
 \begin{block}{}
 Exchange verified elements with equivalent smaller processes might reduce verification time.
 \end{block}
+
+\pause
+
+\begin{block}{}
+Advanced assertions.
+\end{block}
+
 
 
 \end{frame}
