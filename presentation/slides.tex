@@ -386,7 +386,7 @@ Pixel1 =
   \begin{minipage}{1.1\textwidth}
         \begin{minted}[fontsize=\scriptsize, frame=none, linenos, framesep=2mm, autogobble, escapeinside=||, mathescape=true]{cspm_lexer.py:CSPmLexer -x}
 channel sync
-channel read, : {0..15}.Bool
+channel read : {0..15}.Bool
 
 Id(i, input_channel) =
     (sync ->
@@ -607,26 +607,26 @@ read_monitor(c) =
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Refinement assertions models
-\section{Refinement Assertions}
-\begin{frame}{Refinement assertion}
-    \begin{block}{}
-     The traces model:  \\ $traces(\STOP) = \{\emptyseq\}$ \\
-     $traces(SKIP) = traces(\tick \then \STOP) = \{\emptyseq, \seq{\tick}\}$ \\
-     $\{\emptyseq\} \subseteq \{\emptyseq, \seq{\tick}\}$
-    \end{block}
-
-\pause
-    \begin{block}{}
-     The failures-divergences model: We expect our processes to diverge
-    \end{block}
-
-    \pause
-    \begin{block}{}
-     The failures model: \\ $failures(\STOP) = (\emptyseq, \emptyset)$\\
-     $failures(\SKIP) = failures(\tick \then \STOP) = (\seq{\tick}, \{\tick\})$ \\
-     $failure(\STOP) \nsubseteq failures(\SKIP)$
-    \end{block}
-\end{frame}
+% \section{Refinement Assertions}
+% \begin{frame}{Refinement assertion}
+%     \begin{block}{}
+%      The traces model:  \\ $traces(\STOP) = \{\emptyseq\}$ \\
+%      $traces(SKIP) = traces(\tick \then \STOP) = \{\emptyseq, \seq{\tick}\}$ \\
+%      $\{\emptyseq\} \subseteq \{\emptyseq, \seq{\tick}\}$
+%     \end{block}
+%
+% \pause
+%     \begin{block}{}
+%      The failures-divergences model: We expect our processes to diverge
+%     \end{block}
+%
+%     \pause
+%     \begin{block}{}
+%      The failures model: \\ $failures(\STOP) = (\emptyseq, \emptyset)$\\
+%      $failures(\SKIP) = failures(\tick \then \STOP) = (\seq{\tick}, \{\tick\})$ \\
+%      $failure(\STOP) \nsubseteq failures(\SKIP)$
+%     \end{block}
+% \end{frame}
 
 \section{Dummy Values}
 %%%
@@ -752,63 +752,107 @@ read_monitor(c) =
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Runtime experiments - new results
 
-\begin{frame}{Original Seven Segment Display Example Runtime}
-     % TODO graph
+\begin{frame}{Number of visited states - Clocked and Original}
+         \begin{columns}[t, totalwidth=1.02\textwidth]
+             \begin{column}{0.50\linewidth}
+                 % \begin{block}{}
+\begin{figure}[!ht]
+     \centering
+     \includegraphics[scale=0.28]{figures/unclocked_states.png}
+     \caption{Unclocked number of visited states}
+\end{figure}
+                 % \end{block}
+             \end{column}
+
+             \begin{column}{0.50\linewidth}
+                 % \begin{block}{Clocked TAPS}
+\begin{figure}[!ht]
+     \centering
+     \includegraphics[scale=0.28]{figures/clocked_states.png}
+     \caption{Clocked number of visited states}
+\end{figure}
+                 % \end{block}
+             \end{column}
+
+         \end{columns}
 \end{frame}
 
-\begin{frame}{Clocked Seven Segment Display Example Runtime}
-          \begin{figure}[!ht]
-               \centering
-               \includegraphics[scale=0.4]{figures/clocked_states.png}
-               \caption{Clocked seven segment display}
-          \end{figure}
+\begin{frame}{Verification time - Clocked and Original}
+         \begin{columns}[t, totalwidth=1.02\textwidth]
+             \begin{column}{0.50\linewidth}
+                 % \begin{block}{}
+\begin{figure}[!ht]
+     \centering
+     \includegraphics[scale=0.28]{figures/unclocked_verification_time.png}
+     \caption{Unclocked verification time}
+\end{figure}
+                 % \end{block}
+             \end{column}
+
+             \begin{column}{0.50\linewidth}
+                 % \begin{block}{Clocked TAPS}
+\begin{figure}[!ht]
+     \centering
+     \includegraphics[scale=0.28]{figures/clocked_verification_time.png}
+     \caption{Clocked verification time}
+\end{figure}
+                 % \end{block}
+             \end{column}
+
+         \end{columns}
 \end{frame}
 
-\begin{frame}{Clocked Seven Segment Display Example Runtime}
-          \begin{figure}[!ht]
-               \centering
-               \includegraphics[scale=0.4]{figures/clocked_verification_time.png}
-               \caption{Clocked seven segment display}
-          \end{figure}
+\begin{frame}{Maximum resident set size - Clocked and Original}
+         \begin{columns}[t, totalwidth=1.02\textwidth]
+             \begin{column}{0.50\linewidth}
+                 % \begin{block}{}
+\begin{figure}[!ht]
+     \centering
+     \includegraphics[scale=0.28]{figures/unclocked_verification_time.png}
+     \caption{Unclocked maximum resident set size}
+\end{figure}
+                 % \end{block}
+             \end{column}
+
+             \begin{column}{0.50\linewidth}
+                 % \begin{block}{Clocked TAPS}
+\begin{figure}[!ht]
+     \centering
+     \includegraphics[scale=0.28]{figures/clocked_verification_time.png}
+     \caption{Clocked maximum resident set size}
+\end{figure}
+                 % \end{block}
+             \end{column}
+
+         \end{columns}
 \end{frame}
 
-\begin{frame}{Clocked Seven Segment Display Example Runtime}
-          \begin{figure}[!ht]
-               \centering
-               \includegraphics[scale=0.4]{figures/clocked_size.png}
-               \caption{Clocked seven segment display}
-          \end{figure}
+
+
+\begin{frame}{Increase in processes - Combined}
+    \begin{figure}[!ht]
+         \centering
+         \includegraphics[scale=0.3]{figures/combined_verification_time_increase_proccess.png}
+         \caption{Combined verification time}
+    \end{figure}
+
 \end{frame}
 
-\begin{frame}{Unclocked vs. clocked}
-     % TODO Sammenlign med to grafer paa en
+
+\begin{frame}{Increase in processes - Combined}
+\begin{figure}[!ht]
+     \centering
+     \includegraphics[scale=0.3]{figures/combined_size_time_increase_proccess.png}
+     \caption{Combined maximum resident set size}
+\end{figure}
 \end{frame}
 
-\begin{frame}{Original Seven Segment Display Example benchmark}
-     % TODO graph
-\end{frame}
-
-\begin{frame}{Clocked Seven Segment Display Example benchmark}
-     % TODO graph
-\end{frame}
-
-\begin{frame}{Unclocked vs. clocked}
-     % TODO Sammenlign med to grafer paa en
-\end{frame}
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Runtime experiments - conclusion
 \begin{frame}{How can we use this?}
-
-% \begin{block}{}
-% % TODO conclude something - can it be used?
-% (Update when I have all data)
-% Original vs. clocked - big difference
-% \end{block}
-%
-% \pause
 
 \begin{block}{}
 The original version does not seem to be feasible to use, but the clocked version show great promise.
