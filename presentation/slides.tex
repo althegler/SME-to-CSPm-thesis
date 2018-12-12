@@ -607,26 +607,31 @@ read_monitor(c) =
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Refinement assertions models
-% \section{Refinement Assertions}
-% \begin{frame}{Refinement assertion}
-%     \begin{block}{}
-%      The traces model:  \\ $traces(\STOP) = \{\emptyseq\}$ \\
-%      $traces(SKIP) = traces(\tick \then \STOP) = \{\emptyseq, \seq{\tick}\}$ \\
-%      $\{\emptyseq\} \subseteq \{\emptyseq, \seq{\tick}\}$
-%     \end{block}
-%
-% \pause
-%     \begin{block}{}
-%      The failures-divergences model: We expect our processes to diverge
-%     \end{block}
-%
-%     \pause
-%     \begin{block}{}
-%      The failures model: \\ $failures(\STOP) = (\emptyseq, \emptyset)$\\
-%      $failures(\SKIP) = failures(\tick \then \STOP) = (\seq{\tick}, \{\tick\})$ \\
-%      $failure(\STOP) \nsubseteq failures(\SKIP)$
-%     \end{block}
-% \end{frame}
+\section{Refinement Assertions}
+\begin{frame}{Refinement assertion}
+    \begin{block}{}
+     The traces model:
+     Tell us what the process can do
+     % \\ $traces(\STOP) = \{\emptyseq\}$ \\
+     % $traces(SKIP) = traces(\tick \then \STOP) = \{\emptyseq, \seq{\tick}\}$ \\
+     % $\{\emptyseq\} \subseteq \{\emptyseq, \seq{\tick}\}$
+    \end{block}
+
+\pause
+    \begin{block}{}
+     The failures-divergences model: If a process can reach itself.
+     We expect our clocked processes to recurse.
+    \end{block}
+
+    \pause
+    \begin{block}{}
+     The failures model:
+     Look at refusal sets for each trace. 
+     % \\ $failures(\STOP) = (\emptyseq, \emptyset)$\\
+     % $failures(\SKIP) = failures(\tick \then \STOP) = (\seq{\tick}, \{\tick\})$ \\
+     % $failure(\STOP) \nsubseteq failures(\SKIP)$
+    \end{block}
+\end{frame}
 
 \section{Dummy Values}
 %%%
